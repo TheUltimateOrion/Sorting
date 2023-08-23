@@ -59,7 +59,7 @@ int main(int argc, char const *argv[])
     Sort* sorter = new QuickSort(nums, io);
 
     sorter->shuffle();
-    sorter->setSpeed(1);
+    sorter->setSpeed(100);
 
     SDL_PollEvent(&event);
     while(1)
@@ -69,6 +69,10 @@ int main(int argc, char const *argv[])
             if (event.type == SDL_QUIT)
                 break;
         SortRenderer::render(sorter, 1, 1);
+        if (sorter->wantBreak)
+            break;
+        if (event.type == SDL_QUIT)
+            break;
         SDL_Delay(1);
     }
 

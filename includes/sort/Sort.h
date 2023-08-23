@@ -11,6 +11,7 @@ public:
     std::vector<int> elems;
     int speed;
     float last_time;
+    float start_time;
     
     Sort(std::vector<int>& arr, ImGuiIO& io);
 

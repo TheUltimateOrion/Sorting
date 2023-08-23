@@ -14,12 +14,12 @@ void SortRenderer::render(Sort* sort, int a, int b)
     SDL_Color textColor = { 0, 255, 0, 0 };
     if (!sort->sorted)
     {
-        sort->last_time = (float)clock() / 1000.0f;
+        sort->last_time = (float)clock() / 1000.0f - sort->start_time;
         textColor = { 255, 255, 255, 0 };
     }
 
-    std::string score_text = "TIME: " + std::to_string(sort->last_time) + 's';
-    SDL_Surface* textSurface = TTF_RenderText_Solid(font, score_text.c_str(), textColor);
+    std::string timeText = "TIME: " + std::to_string(sort->last_time) + 's';
+    SDL_Surface* textSurface = TTF_RenderText_Solid(font, timeText.c_str(), textColor);
     SDL_Texture* text = SDL_CreateTextureFromSurface(renderer, textSurface);
     int text_width = textSurface->w;
     int text_height = textSurface->h;
@@ -38,8 +38,7 @@ void SortRenderer::render(Sort* sort, int a, int b)
         SDL_RenderDrawLine(renderer, k + 1, LOGICAL_WIDTH, k + 1, LOGICAL_WIDTH - sort->elems[k]);
         // SDL_RenderDrawPoint(renderer, k + 1, LOGICAL_WIDTH - elems[k]);
     }
-    renderGUI(sort);
-    if (sort->wantBreak)
+    if(renderGUI(sort))
         return;
     SDL_RenderPresent(renderer);
     if(SDL_PollEvent(&event))
@@ -54,7 +53,7 @@ void SortRenderer::render(Sort* sort, int a, int b)
     SDL_Delay(1 / sort->speed);
 }
 
-void SortRenderer::renderGUI(Sort* sort)
+bool SortRenderer::renderGUI(Sort* sort)
 {
     ImGui_ImplSDLRenderer2_NewFrame();
     ImGui_ImplSDL2_NewFrame();
@@ -79,31 +78,38 @@ void SortRenderer::renderGUI(Sort* sort)
             ImGui::EndCombo();
         }
         if(ImGui::Button("Sort") && sort->sorted && !(sort->isSorting)) {
+            bool temp = sort->wantBreak;
             switch(current_item)
             {
                 case 0: {
                     sort = new BubbleSort(sort->elems, sort->io);
+                    sort->wantBreak = temp;
                     sort->setSpeed(100);
                 } break;
                 case 1: {
                     sort = new SelectionSort(sort->elems, sort->io);
-                    sort->setSpeed(0.1);
+                    sort->wantBreak = temp;
+                    sort->setSpeed(0.01);
                 } break;
                 case 2: {
                     sort = new InsertionSort(sort->elems, sort->io);
+                    sort->wantBreak = temp;
                     sort->setSpeed(5);
                 } break;
                 case 3: {
                     sort = new QuickSort(sort->elems, sort->io);
+                    sort->wantBreak = temp;
                     sort->setSpeed(1);
                 } break;
                 case 4: {
                     sort = new GravitySort(sort->elems, sort->io);
+                    sort->wantBreak = temp;
                     sort->setSpeed(500);
                 } break;
                 case 5: {
                     sort = new PigeonHoleSort(sort->elems, sort->io);
-                    sort->setSpeed(0.1);
+                    sort->wantBreak = temp;
+                    sort->setSpeed(0.01);
                 } break;
                 default:
                     std::cout << "Invalid Sort!" << std::endl;
@@ -120,6 +126,7 @@ void SortRenderer::renderGUI(Sort* sort)
         sort->shuffle();
         sort->sort();
         if (sort->wantBreak)
-            return;
+            return 1;
     }
+    return 0;
 }
