@@ -10,13 +10,13 @@ void BubbleSort::sort(float speed)
         {
             if (elems[j] > elems[j + 1])
             {
-                this->render(elems, j, j + 1, speed);
+                Renderer::render(this, j, j + 1, speed);
                 if (wantBreak)
                     return;
                 //std::cout << elems[j] << ": " << elems[j + 1] << std::endl;
                 this->swap(elems, j, j + 1);
             }
         }
-        sorted = true;
     }
+    sorted = true;
 }

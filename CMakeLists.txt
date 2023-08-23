@@ -9,7 +9,8 @@ add_subdirectory(libs/imgui)
 
 file(GLOB SOURCE_FILES 
 src/*.cpp 
-src/sort/*.cpp  
+src/sort/*.cpp
+src/renderer/*.cpp  
 )
 add_executable(${PROJECT} ${SOURCE_FILES})
 

@@ -23,3 +23,6 @@ extern SDL_Renderer *renderer;
 extern SDL_Window *window;
 extern SDL_Event event;
 extern TTF_Font *font;
+
+static const char* current_item = NULL;
+static bool pressed = false;

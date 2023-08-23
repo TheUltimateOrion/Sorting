@@ -1,5 +1,6 @@
 #pragma once
 #include "Sort.h"
+#include "../renderer/Renderer.h"
 
 class PigeonHoleSort : public Sort
 {

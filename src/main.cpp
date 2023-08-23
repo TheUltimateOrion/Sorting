@@ -6,6 +6,7 @@
 #include "sort/QuickSort.h"
 #include "sort/PigeonHoleSort.h"
 #include "sort/GravitySort.h"
+#include "renderer/Renderer.h"
 
 SDL_Renderer *renderer;
 SDL_Window *window;
@@ -30,8 +31,8 @@ int main(int argc, char const *argv[])
         exit(EXIT_FAILURE);
     }
         
-    window = SDL_CreateWindow("Sorting Algorithms", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WIN_WIDTH, WIN_HEIGHT, SDL_WINDOW_SHOWN);
-    renderer = SDL_CreateRenderer(window, -1, 0);
+    window = SDL_CreateWindow("Sorting Algorithms", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WIN_WIDTH, WIN_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI);
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     SDL_RenderSetLogicalSize(renderer, LOGICAL_WIDTH, LOGICAL_WIDTH);
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
     SDL_RenderClear(renderer);
@@ -54,20 +55,22 @@ int main(int argc, char const *argv[])
     std::vector<int> nums(LOGICAL_WIDTH);
     for (int index = 0; index < LOGICAL_WIDTH; index++)
         nums[index] = index + 1;
-    std::shuffle(std::begin(nums), std::end(nums), std::default_random_engine(0));
     
-    QuickSort sorter(nums, io);
+    Sort* sorter = new QuickSort(nums, io);
+    sorter->shuffle();
+
     SDL_PollEvent(&event);
     while(1)
-    {
-        
-        if (!(sorter.sorted))
-            sorter.sort(1);
+    { 
+        if (!(sorter->sorted))
+            sorter->sort(1);
             if (event.type == SDL_QUIT)
                 break;
-        sorter.render(sorter.elems, 1, 1, sorter.speed);
+        Renderer::render(sorter, 1, 1, sorter->speed);
         SDL_Delay(1);
     }
+
+    delete sorter;
     //std::cout << func_time(bubble_sort, nums) << " seconds" << std::endl;
     TTF_CloseFont(font);
     TTF_Quit();
