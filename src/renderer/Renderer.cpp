@@ -1,6 +1,6 @@
 #include "renderer/Renderer.h"
 
-void Renderer::render(Sort* sort, int a, int b, float speed)
+void SortRenderer::render(Sort* sort, int a, int b, float speed)
 {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
     SDL_RenderClear(renderer);
@@ -46,7 +46,7 @@ void Renderer::render(Sort* sort, int a, int b, float speed)
     SDL_Delay(1 / speed);
 }
 
-void Renderer::renderGUI(Sort* sort)
+void SortRenderer::renderGUI(Sort* sort)
 {
     ImGui_ImplSDLRenderer2_NewFrame();
     ImGui_ImplSDL2_NewFrame();

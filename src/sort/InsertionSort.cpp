@@ -11,7 +11,7 @@ void InsertionSort::sort(float speed)
         int temp = elems[i];
         while (j > 0 && elems[j - 1] > temp)
         {
-            Renderer::render(this, j, j - 1, speed);
+            SortRenderer::render(this, j, j - 1, speed);
             if (wantBreak)
                 return;
             elems[j] = elems[j - 1];

@@ -66,7 +66,7 @@ int main(int argc, char const *argv[])
             sorter->sort(1);
             if (event.type == SDL_QUIT)
                 break;
-        Renderer::render(sorter, 1, 1, sorter->speed);
+        SortRenderer::render(sorter, 1, 1, sorter->speed);
         SDL_Delay(1);
     }
 

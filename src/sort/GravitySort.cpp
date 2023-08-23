@@ -7,7 +7,7 @@ void GravitySort::sort(float speed)
     int max = 0;
     for (auto elem : elems) {
         if (elem > max) {
-            Renderer::render(this, std::distance(elems.begin(), std::find(elems.begin(), elems.end(), elem)), std::distance(elems.begin(), std::find(elems.begin(), elems.end(), elem)), speed);
+            SortRenderer::render(this, std::distance(elems.begin(), std::find(elems.begin(), elems.end(), elem)), std::distance(elems.begin(), std::find(elems.begin(), elems.end(), elem)), speed);
             if (wantBreak)
                 return;
             max = elem;
@@ -46,7 +46,7 @@ void GravitySort::sort(float speed)
             count = 0;
             for(int y = 0; y < abacus[0].capacity(); y++)
                     count+=abacus[x][y];
-                Renderer::render(this, x, x, speed);
+                SortRenderer::render(this, x, x, speed);
                 if (wantBreak)
                     return;
                 elems[x] = count;

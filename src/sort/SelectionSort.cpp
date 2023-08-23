@@ -16,7 +16,7 @@ void SelectionSort::sort(float speed)
                 min = j;
             }
         }
-        Renderer::render(this, min, i, speed);
+        SortRenderer::render(this, min, i, speed);
         if (wantBreak)
             return;
         swap(elems, min, i);

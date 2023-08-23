@@ -1,7 +1,7 @@
 #pragma once
 #include "../sort/Sort.h"
 
-class Renderer
+class SortRenderer
 {
 public:
     static void render(Sort* sort, int a, int b, float speed);

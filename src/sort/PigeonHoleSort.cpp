@@ -35,7 +35,7 @@ void PigeonHoleSort::sort(float speed)
        std::vector<int>::iterator it;
        for (it = holes[i].begin(); it != holes[i].end(); ++it)
        {
-            Renderer::render(this, index + 1, index + 1, speed);
+            SortRenderer::render(this, index + 1, index + 1, speed);
             if (wantBreak)
                 return;
             elems[index++]  = *it;
