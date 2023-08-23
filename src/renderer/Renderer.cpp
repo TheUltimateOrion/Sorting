@@ -6,6 +6,8 @@
 #include "sort/InsertionSort.h"
 #include "sort/QuickSort.h"
 
+static float setSpeed = 1.0f;
+
 void SortRenderer::render(Sort* sort, int a, int b)
 {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
@@ -77,39 +79,34 @@ bool SortRenderer::renderGUI(Sort* sort)
             }
             ImGui::EndCombo();
         }
+        ImGui::InputFloat("Set Speed", &setSpeed, 0.05f, 0.01f);
         if(ImGui::Button("Sort") && sort->sorted && !(sort->isSorting)) {
-            bool temp = sort->wantBreak;
             switch(current_item)
             {
                 case 0: {
                     sort = new BubbleSort(sort->elems, sort->io);
-                    sort->wantBreak = temp;
-                    sort->setSpeed(100);
+                    goto _jmp;
                 } break;
                 case 1: {
                     sort = new SelectionSort(sort->elems, sort->io);
-                    sort->wantBreak = temp;
-                    sort->setSpeed(0.01);
+                    goto _jmp;
                 } break;
                 case 2: {
                     sort = new InsertionSort(sort->elems, sort->io);
-                    sort->wantBreak = temp;
-                    sort->setSpeed(5);
+                    goto _jmp;
                 } break;
                 case 3: {
                     sort = new QuickSort(sort->elems, sort->io);
-                    sort->wantBreak = temp;
-                    sort->setSpeed(1);
+                    goto _jmp;
                 } break;
                 case 4: {
                     sort = new GravitySort(sort->elems, sort->io);
-                    sort->wantBreak = temp;
-                    sort->setSpeed(500);
+                    goto _jmp;
                 } break;
                 case 5: {
                     sort = new PigeonHoleSort(sort->elems, sort->io);
-                    sort->wantBreak = temp;
-                    sort->setSpeed(0.01);
+                    _jmp:
+                    sort->setSpeed(setSpeed);
                 } break;
                 default:
                     std::cout << "Invalid Sort!" << std::endl;

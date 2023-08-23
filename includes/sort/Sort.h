@@ -9,10 +9,10 @@ public:
     bool wantBreak;
     ImGuiIO& io;
     std::vector<int> elems;
-    int speed;
+    float speed;
     float last_time;
     float start_time;
-    
+
     Sort(std::vector<int>& arr, ImGuiIO& io);
 
     void swap(std::vector<int>& array, int a, int b);
