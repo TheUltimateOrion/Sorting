@@ -2,12 +2,13 @@
 
 GravitySort::GravitySort(std::vector<int>& arr, ImGuiIO& io) : Sort(arr, io) {}
 
-void GravitySort::sort(float speed)
+void GravitySort::sort()
 {
+    isSorting = true;
     int max = 0;
     for (auto elem : elems) {
         if (elem > max) {
-            SortRenderer::render(this, std::distance(elems.begin(), std::find(elems.begin(), elems.end(), elem)), std::distance(elems.begin(), std::find(elems.begin(), elems.end(), elem)), speed);
+            SortRenderer::render(this, std::distance(elems.begin(), std::find(elems.begin(), elems.end(), elem)), std::distance(elems.begin(), std::find(elems.begin(), elems.end(), elem)));
             if (wantBreak)
                 return;
             max = elem;
@@ -46,11 +47,12 @@ void GravitySort::sort(float speed)
             count = 0;
             for(int y = 0; y < abacus[0].capacity(); y++)
                     count+=abacus[x][y];
-                SortRenderer::render(this, x, x, speed);
+                SortRenderer::render(this, x, x);
                 if (wantBreak)
                     return;
                 elems[x] = count;
         }
     }
+    isSorting = false;
     sorted = true;
 }

@@ -2,10 +2,10 @@
 #include "Sort.h"
 #include "../renderer/Renderer.h"
 
-class GravitySort : public Sort
+class GravitySort : virtual public Sort
 {
 public:
     GravitySort(std::vector<int>& arr, ImGuiIO& io);
 
-    void sort(float speed = 10) override;
+    void sort() override;
 };

@@ -2,8 +2,9 @@
 
 PigeonHoleSort::PigeonHoleSort(std::vector<int>& arr, ImGuiIO& io) : Sort(arr, io) {}
 
-void PigeonHoleSort::sort(float speed)
+void PigeonHoleSort::sort()
 {
+    isSorting = true;
     int n = elems.capacity();
     // Find minimum and maximum values in elems[]
     int min = elems[0], max = elems[0];
@@ -35,11 +36,12 @@ void PigeonHoleSort::sort(float speed)
        std::vector<int>::iterator it;
        for (it = holes[i].begin(); it != holes[i].end(); ++it)
        {
-            SortRenderer::render(this, index + 1, index + 1, speed);
+            SortRenderer::render(this, index + 1, index + 1);
             if (wantBreak)
                 return;
             elems[index++]  = *it;
        }
     }
+    isSorting = false;
     sorted = true;
 }

@@ -57,16 +57,18 @@ int main(int argc, char const *argv[])
         nums[index] = index + 1;
     
     Sort* sorter = new QuickSort(nums, io);
+
     sorter->shuffle();
+    sorter->setSpeed(1);
 
     SDL_PollEvent(&event);
     while(1)
-    { 
+    {
         if (!(sorter->sorted))
-            sorter->sort(1);
+            sorter->sort();
             if (event.type == SDL_QUIT)
                 break;
-        SortRenderer::render(sorter, 1, 1, sorter->speed);
+        SortRenderer::render(sorter, 1, 1);
         SDL_Delay(1);
     }
 

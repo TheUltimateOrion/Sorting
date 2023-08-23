@@ -2,13 +2,13 @@
 #include "Sort.h"
 #include "../renderer/Renderer.h"
 
-class QuickSort : public Sort
+class QuickSort : virtual public Sort
 {
 private:
-    int partition(std::vector<int>& arr, int low, int high, float speed);
-    void quickSort(std::vector<int>& arr, int low, int high, float speed);
+    int partition(std::vector<int>& arr, int low, int high);
+    void quickSort(std::vector<int>& arr, int low, int high);
 public:
     QuickSort(std::vector<int>& arr, ImGuiIO& io);
 
-    void sort(float speed = 1) override;
+    void sort() override;
 };

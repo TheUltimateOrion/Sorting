@@ -2,8 +2,9 @@
 
 InsertionSort::InsertionSort(std::vector<int>& arr, ImGuiIO& io) : Sort(arr, io) {}
 
-void InsertionSort::sort(float speed)
+void InsertionSort::sort()
 {
+    isSorting = true;
     int size = LOGICAL_WIDTH;
     for (int i = 1; i < size; i++)
     {
@@ -11,7 +12,7 @@ void InsertionSort::sort(float speed)
         int temp = elems[i];
         while (j > 0 && elems[j - 1] > temp)
         {
-            SortRenderer::render(this, j, j - 1, speed);
+            SortRenderer::render(this, j, j - 1);
             if (wantBreak)
                 return;
             elems[j] = elems[j - 1];
@@ -19,5 +20,6 @@ void InsertionSort::sort(float speed)
         }
         elems[j] = temp;
     }
+    isSorting = false;
     sorted = true;
 }

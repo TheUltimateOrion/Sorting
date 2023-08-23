@@ -1,6 +1,12 @@
 #include "renderer/Renderer.h"
+#include "sort/BubbleSort.h"
+#include "sort/SelectionSort.h"
+#include "sort/GravitySort.h"
+#include "sort/PigeonHoleSort.h"
+#include "sort/InsertionSort.h"
+#include "sort/QuickSort.h"
 
-void SortRenderer::render(Sort* sort, int a, int b, float speed)
+void SortRenderer::render(Sort* sort, int a, int b)
 {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
     SDL_RenderClear(renderer);
@@ -33,6 +39,8 @@ void SortRenderer::render(Sort* sort, int a, int b, float speed)
         // SDL_RenderDrawPoint(renderer, k + 1, LOGICAL_WIDTH - elems[k]);
     }
     renderGUI(sort);
+    if (sort->wantBreak)
+        return;
     SDL_RenderPresent(renderer);
     if(SDL_PollEvent(&event))
     {
@@ -43,7 +51,7 @@ void SortRenderer::render(Sort* sort, int a, int b, float speed)
             return;
         }
     }
-    SDL_Delay(1 / speed);
+    SDL_Delay(1 / sort->speed);
 }
 
 void SortRenderer::renderGUI(Sort* sort)
@@ -51,29 +59,67 @@ void SortRenderer::renderGUI(Sort* sort)
     ImGui_ImplSDLRenderer2_NewFrame();
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
-
+    
+    bool shouldSort = false;
     {
         ImGui::Begin("Frame Time");
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / sort->io.Framerate, sort->io.Framerate);
         const char* items[] = { "BubbleSort", "SelectionSort", "InsertionSort", "QuickSort", "GravitySort", "PigeonHoleSort"};
 
-        if (ImGui::BeginCombo("##combo", current_item)) // The second parameter is the label previewed before opening the combo.
+        if (ImGui::BeginCombo("##combo", items[current_item])) // The second parameter is the label previewed before opening the combo.
         {
             for (int n = 0; n < IM_ARRAYSIZE(items); n++)
             {
-                bool is_selected = (current_item == items[n]); // You can store your selection however you want, outside or inside your objects
+                bool is_selected = (items[current_item] == items[n]); // You can store your selection however you want, outside or inside your objects
                 if (ImGui::Selectable(items[n], is_selected))
-                    current_item = items[n];
+                    current_item = n;
                 if (is_selected)
                     ImGui::SetItemDefaultFocus();   // You may set the initial focus when opening the combo (scrolling + for keyboard navigation support)
             }
             ImGui::EndCombo();
         }
-        pressed = ImGui::Button("Sort");
-        if(pressed)
-            std::cout << "Hello, World!";
+        if(ImGui::Button("Sort") && sort->sorted && !(sort->isSorting)) {
+            switch(current_item)
+            {
+                case 0: {
+                    sort = new BubbleSort(sort->elems, sort->io);
+                    sort->setSpeed(100);
+                } break;
+                case 1: {
+                    sort = new SelectionSort(sort->elems, sort->io);
+                    sort->setSpeed(0.1);
+                } break;
+                case 2: {
+                    sort = new InsertionSort(sort->elems, sort->io);
+                    sort->setSpeed(5);
+                } break;
+                case 3: {
+                    sort = new QuickSort(sort->elems, sort->io);
+                    sort->setSpeed(1);
+                } break;
+                case 4: {
+                    sort = new GravitySort(sort->elems, sort->io);
+                    sort->setSpeed(500);
+                } break;
+                case 5: {
+                    sort = new PigeonHoleSort(sort->elems, sort->io);
+                    sort->setSpeed(0.1);
+                } break;
+                default:
+                    std::cout << "Invalid Sort!" << std::endl;
+            }
+            shouldSort = true;
+        }
         ImGui::End();
     }
     ImGui::Render();
     ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
+    if(shouldSort)
+    {
+        shouldSort = false;
+        sort->shuffle();
+        sort->sort();
+        if (sort->wantBreak)
+            return;
+    }
 }

@@ -5,6 +5,7 @@ class Sort
 {
 public:
     bool sorted;
+    bool isSorting;
     bool wantBreak;
     ImGuiIO& io;
     std::vector<int> elems;
@@ -16,5 +17,6 @@ public:
     void swap(std::vector<int>& array, int a, int b);
 
     void shuffle();
-    virtual void sort(float speed = 1) = 0;
+    void setSpeed(float speed);
+    virtual void sort() = 0;
 };

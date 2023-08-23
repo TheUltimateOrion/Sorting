@@ -3,8 +3,9 @@
 
 SelectionSort::SelectionSort(std::vector<int>& arr, ImGuiIO& io) : Sort(arr, io) {}
 
-void SelectionSort::sort(float speed)
+void SelectionSort::sort()
 {
+    isSorting = true;
     int size = LOGICAL_WIDTH;
     for (int i = 0; i < size - 1; i ++)
     {
@@ -16,10 +17,11 @@ void SelectionSort::sort(float speed)
                 min = j;
             }
         }
-        SortRenderer::render(this, min, i, speed);
+        SortRenderer::render(this, min, i);
         if (wantBreak)
             return;
         swap(elems, min, i);
     }
+    isSorting = false;
     sorted = true;
 }
