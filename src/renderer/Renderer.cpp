@@ -1,3 +1,4 @@
+#include "main.h"
 #include "renderer/Renderer.h"
 #include "sort/BubbleSort.h"
 #include "sort/SelectionSort.h"
@@ -7,6 +8,8 @@
 #include "sort/QuickSort.h"
 
 static float setSpeed = 1.0f;
+static bool isColored = false;
+static bool isDot = false;
 
 void SortRenderer::render(Sort* sort, int a, int b)
 {
@@ -37,10 +40,14 @@ void SortRenderer::render(Sort* sort, int a, int b)
         if (k == a || k == b)
             SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
         else
-            // SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-            SDL_SetRenderDrawColor(renderer, sort->elems[k] * 255 / (LOGICAL_WIDTH - 1), 0, 255-(sort->elems[k] * 255 / (LOGICAL_WIDTH - 1)), 255);
-        SDL_RenderDrawLine(renderer, k + 1, LOGICAL_WIDTH, k + 1, LOGICAL_WIDTH - sort->elems[k]);
-        // SDL_RenderDrawPoint(renderer, k + 1, LOGICAL_WIDTH - elems[k]);
+            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+            if (isColored)
+                SDL_SetRenderDrawColor(renderer, sort->elems[k] * 255 / (LOGICAL_WIDTH - 1), 0, 255-(sort->elems[k] * 255 / (LOGICAL_WIDTH - 1)), 255);
+        
+        if (isDot)
+            SDL_RenderDrawPoint(renderer, k + 1, LOGICAL_WIDTH - sort->elems[k]);
+        else
+            SDL_RenderDrawLine(renderer, k + 1, LOGICAL_WIDTH, k + 1, LOGICAL_WIDTH - sort->elems[k]);
     }
     if(renderGUI(sort))
         return;
@@ -80,7 +87,10 @@ bool SortRenderer::renderGUI(Sort* sort)
                     ImGui::SetItemDefaultFocus();   // You may set the initial focus when opening the combo (scrolling + for keyboard navigation support)
             }
             ImGui::EndCombo();
-        }
+        } 
+        ImGui::Checkbox("Color", &isColored);
+        ImGui::SameLine();
+        ImGui::Checkbox("Dot or line", &isDot);
         ImGui::InputFloat("Set Speed", &setSpeed, 0.05f, 0.01f);
         if(ImGui::Button("Sort") && sort->sorted && !(sort->isSorting)) {
             switch(current_item)
