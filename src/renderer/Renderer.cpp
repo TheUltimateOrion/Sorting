@@ -10,17 +10,19 @@ static float setSpeed = 1.0f;
 
 void SortRenderer::render(Sort* sort, int a, int b)
 {
+    ::calculateDeltaTime();
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
     SDL_RenderClear(renderer);
 
     SDL_Color textColor = { 0, 255, 0, 0 };
-    if (!sort->sorted)
-    {
-        sort->last_time = (float)clock() / 1000.0f - sort->start_time;
+    if (sort->isSorting) {
+        ::last_time = (float)clock() / 1000.0f - sort->start_time;
+    }
+    if (sort->isSorting || (::last_time == 0.0f)) {
         textColor = { 255, 255, 255, 0 };
     }
 
-    std::string timeText = "TIME: " + std::to_string(sort->last_time) + 's';
+    std::string timeText = "TIME: " + std::to_string(::last_time) + 's';
     SDL_Surface* textSurface = TTF_RenderText_Solid(font, timeText.c_str(), textColor);
     SDL_Texture* text = SDL_CreateTextureFromSurface(renderer, textSurface);
     int text_width = textSurface->w;
@@ -52,7 +54,7 @@ void SortRenderer::render(Sort* sort, int a, int b)
             return;
         }
     }
-    SDL_Delay(1 / sort->speed);
+    SDL_Delay(1 / (sort->speed * deltaTime));
 }
 
 bool SortRenderer::renderGUI(Sort* sort)

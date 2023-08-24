@@ -13,9 +13,7 @@ void SelectionSort::sort()
         for (int j = i + 1; j < size; j++)
         {
             if (elems[j] < elems[min])
-            {
                 min = j;
-            }
         }
         SortRenderer::render(this, min, i);
         if (wantBreak)

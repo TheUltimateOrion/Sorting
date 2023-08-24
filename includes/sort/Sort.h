@@ -1,6 +1,8 @@
 #pragma once
 #include "../main.h"
 
+static float last_time;
+
 class Sort
 {
 public:
@@ -10,7 +12,6 @@ public:
     ImGuiIO& io;
     std::vector<int> elems;
     float speed;
-    float last_time;
     float start_time;
 
     Sort(std::vector<int>& arr, ImGuiIO& io);

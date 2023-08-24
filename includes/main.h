@@ -24,4 +24,10 @@ extern SDL_Window *window;
 extern SDL_Event event;
 extern TTF_Font *font;
 
+extern Uint64 NOW;
+extern Uint64 LAST;
+extern double deltaTime;
+
+extern void calculateDeltaTime();
+
 static int current_item = 0;
