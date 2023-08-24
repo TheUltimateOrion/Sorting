@@ -1,11 +1,6 @@
 #include "main.h"
 
-#include "sort/SelectionSort.h"
 #include "sort/BubbleSort.h"
-#include "sort/InsertionSort.h"
-#include "sort/QuickSort.h"
-#include "sort/PigeonHoleSort.h"
-#include "sort/GravitySort.h"
 #include "renderer/Renderer.h"
 
 SDL_Renderer *renderer;

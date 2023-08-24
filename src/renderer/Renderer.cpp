@@ -6,6 +6,7 @@
 #include "sort/PigeonHoleSort.h"
 #include "sort/InsertionSort.h"
 #include "sort/QuickSort.h"
+#include "sort/RadixLSDSort.h"
 
 static float setSpeed = 1.0f;
 static bool isColored = false;
@@ -74,7 +75,7 @@ bool SortRenderer::renderGUI(Sort* sort)
     {
         ImGui::Begin("Frame Time");
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / sort->io.Framerate, sort->io.Framerate);
-        const char* items[] = { "BubbleSort", "SelectionSort", "InsertionSort", "QuickSort", "GravitySort", "PigeonHoleSort"};
+        const char* items[] = { "BubbleSort", "SelectionSort", "InsertionSort", "QuickSort", "GravitySort", "PigeonHoleSort", "RadixLSDSort"};
 
         if (ImGui::BeginCombo("##combo", items[current_item])) // The second parameter is the label previewed before opening the combo.
         {
@@ -117,6 +118,10 @@ bool SortRenderer::renderGUI(Sort* sort)
                 } break;
                 case 5: {
                     sort = new PigeonHoleSort(sort->elems, sort->io);
+                    goto _jmp;
+                } break;
+                case 6: {
+                    sort = new RadixLSDSort(sort->elems, sort->io, 10);
                     _jmp:
                     sort->setSpeed(setSpeed);
                 } break;

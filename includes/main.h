@@ -10,6 +10,8 @@
 #include <functional>
 #include <vector>
 #include <cmath>
+#include <queue>
+#include <list>
 
 #include <bits/stdc++.h>
 #include <windows.h>
