@@ -88,7 +88,7 @@ int main(int argc, char const *argv[])
     SDL_PollEvent(&event);
     while(1)
     {
-        SortRenderer::render(sorter, 1, 1);
+        SortRenderer::render(sorter, sorter->elems, 1, 1);
         if (sorter->wantBreak || event.type == SDL_QUIT)
             break;
         SDL_Delay(1);

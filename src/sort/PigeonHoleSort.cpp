@@ -36,7 +36,7 @@ void PigeonHoleSort::sort()
        std::vector<int>::iterator it;
        for (it = holes[i].begin(); it != holes[i].end(); ++it)
        {
-            SortRenderer::render(this, index + 1, index + 1);
+            SortRenderer::render(this, this->elems, index + 1, index + 1);
             if (wantBreak)
                 return;
             elems[index++]  = *it;

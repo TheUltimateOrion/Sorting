@@ -31,5 +31,3 @@ extern Uint64 LAST;
 extern double deltaTime;
 
 extern void calculateDeltaTime();
-
-static int current_item = 0;

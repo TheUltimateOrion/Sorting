@@ -12,7 +12,7 @@ void InsertionSort::sort()
         int temp = elems[i];
         while (j > 0 && elems[j - 1] > temp)
         {
-            SortRenderer::render(this, j, j - 1);
+            SortRenderer::render(this, this->elems, j, j - 1);
             if (wantBreak)
                 return;
             elems[j] = elems[j - 1];

@@ -11,8 +11,23 @@
 static float setSpeed = 1.0f;
 static bool isColored = false;
 static bool isDot = false;
+static const char *items[] = { "BubbleSort", "SelectionSort", "InsertionSort", "QuickSort", "GravitySort", "PigeonHoleSort", "RadixLSDSort"};
+static int current_item = 0;
 
-void SortRenderer::render(Sort* sort, int a, int b)
+void SortRenderer::renderText(std::string txt, int x, int y, SDL_Color color)
+{
+    
+    SDL_Surface* textSurface = TTF_RenderText_Solid(font, txt.c_str(), color);
+    SDL_Texture* text = SDL_CreateTextureFromSurface(renderer, textSurface);
+    int text_width = textSurface->w;
+    int text_height = textSurface->h;
+    SDL_FreeSurface(textSurface);
+    SDL_Rect renderQuad = { x, y, text_width, text_height };
+    SDL_RenderCopy(renderer, text, NULL, &renderQuad);
+    SDL_DestroyTexture(text);
+}
+
+void SortRenderer::render(Sort* sort, std::vector<int>& elems, int a, int b)
 {
     ::calculateDeltaTime();
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
@@ -25,16 +40,10 @@ void SortRenderer::render(Sort* sort, int a, int b)
     if (sort->isSorting || (::last_time == 0.0f)) {
         textColor = { 255, 255, 255, 0 };
     }
-
-    std::string timeText = "TIME: " + std::to_string(::last_time) + 's';
-    SDL_Surface* textSurface = TTF_RenderText_Solid(font, timeText.c_str(), textColor);
-    SDL_Texture* text = SDL_CreateTextureFromSurface(renderer, textSurface);
-    int text_width = textSurface->w;
-    int text_height = textSurface->h;
-    SDL_FreeSurface(textSurface);
-    SDL_Rect renderQuad = { 10, 30, text_width, text_height };
-    SDL_RenderCopy(renderer, text, NULL, &renderQuad);
-    SDL_DestroyTexture(text);
+    renderText("TIME: " + std::to_string(::last_time) + 's', 10, 30, textColor);
+    renderText(std::string("Sort: ") + items[current_item], 10, 50, { 255, 255, 255, 0 });
+    if (sort->isSorting)
+        renderText("Sorting...", 10, 70, { 255, 255, 255, 0 });
 
     for (int k = 0; k < LOGICAL_WIDTH; k++)
     {
@@ -43,12 +52,12 @@ void SortRenderer::render(Sort* sort, int a, int b)
         else
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
             if (isColored)
-                SDL_SetRenderDrawColor(renderer, sort->elems[k] * 255 / (LOGICAL_WIDTH - 1), 0, 255-(sort->elems[k] * 255 / (LOGICAL_WIDTH - 1)), 255);
+                SDL_SetRenderDrawColor(renderer, elems[k] * 255 / (LOGICAL_WIDTH - 1), 0, 255-(elems[k] * 255 / (LOGICAL_WIDTH - 1)), 255);
         
         if (isDot)
-            SDL_RenderDrawPoint(renderer, k + 1, LOGICAL_WIDTH - sort->elems[k]);
+            SDL_RenderDrawPoint(renderer, k + 1, LOGICAL_WIDTH - elems[k]);
         else
-            SDL_RenderDrawLine(renderer, k + 1, LOGICAL_WIDTH, k + 1, LOGICAL_WIDTH - sort->elems[k]);
+            SDL_RenderDrawLine(renderer, k + 1, LOGICAL_WIDTH, k + 1, LOGICAL_WIDTH - elems[k]);
     }
     if(renderGUI(sort))
         return;
@@ -75,7 +84,6 @@ bool SortRenderer::renderGUI(Sort* sort)
     {
         ImGui::Begin("Frame Time");
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / sort->io.Framerate, sort->io.Framerate);
-        const char* items[] = { "BubbleSort", "SelectionSort", "InsertionSort", "QuickSort", "GravitySort", "PigeonHoleSort", "RadixLSDSort"};
 
         if (ImGui::BeginCombo("##combo", items[current_item])) // The second parameter is the label previewed before opening the combo.
         {
@@ -121,7 +129,7 @@ bool SortRenderer::renderGUI(Sort* sort)
                     goto _jmp;
                 } break;
                 case 6: {
-                    sort = new RadixLSDSort(sort->elems, sort->io, 10);
+                    sort = new RadixLSDSort(sort->elems, sort->io, 2);
                     _jmp:
                     sort->setSpeed(setSpeed);
                 } break;

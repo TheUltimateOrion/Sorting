@@ -15,7 +15,7 @@ void SelectionSort::sort()
             if (elems[j] < elems[min])
                 min = j;
         }
-        SortRenderer::render(this, min, i);
+        SortRenderer::render(this, this->elems, min, i);
         if (wantBreak)
             return;
         swap(elems, min, i);

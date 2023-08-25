@@ -10,7 +10,7 @@ void Sort::shuffle()
     std::shuffle(std::begin(temp), std::end(temp), std::default_random_engine(0));
     for (int i = 0; i < temp.capacity(); i++)
     {
-        SortRenderer::render(this, i, i);
+        SortRenderer::render(this, this->elems, i, i);
         if (wantBreak)
             return;
         elems[i] = temp[i];

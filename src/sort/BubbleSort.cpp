@@ -11,7 +11,7 @@ void BubbleSort::sort()
         {
             if (elems[j] > elems[j + 1])
             {
-                SortRenderer::render(this, j, j + 1);
+                SortRenderer::render(this, this->elems, j, j + 1);
                 if (wantBreak)
                     return;
                 //std::cout << elems[j] << ": " << elems[j + 1] << std::endl;
