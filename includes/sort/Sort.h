@@ -8,6 +8,7 @@ class Sort
 public:
     bool sorted;
     bool isSorting;
+    bool isShuffling;
     bool wantBreak;
     ImGuiIO& io;
     std::vector<int> elems;

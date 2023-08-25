@@ -1,9 +1,10 @@
 #include "renderer/Renderer.h"
 
-Sort::Sort(std::vector<int>& arr, ImGuiIO& io) : elems(arr), isSorting(false), sorted(true), wantBreak(false), speed(speed), io(io), start_time(0) {}
+Sort::Sort(std::vector<int>& arr, ImGuiIO& io) : elems(arr), isSorting(false), isShuffling(false), sorted(true), wantBreak(false), speed(speed), io(io), start_time(0) {}
 
 void Sort::shuffle()
 {
+    isShuffling = true;
     std::vector<int> temp(elems.capacity());
     for (int i = 0; i < elems.capacity(); i++)
         temp[i] = elems[i];
@@ -16,6 +17,8 @@ void Sort::shuffle()
         elems[i] = temp[i];
     }
     sorted = false;
+    isShuffling = false;
+    SDL_Delay(500);
     this->start_time = (float)clock() / 1000.0f;
     ::last_time = this->start_time;
 }

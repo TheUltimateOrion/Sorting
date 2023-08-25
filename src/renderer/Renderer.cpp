@@ -13,6 +13,8 @@ static bool isColored = false;
 static bool isDot = false;
 static const char *items[] = { "BubbleSort", "SelectionSort", "InsertionSort", "QuickSort", "GravitySort", "PigeonHoleSort", "RadixLSDSort"};
 static int current_item = 0;
+static bool isRadix = false;
+static int setRadix = 2;
 
 void SortRenderer::renderText(std::string txt, int x, int y, SDL_Color color)
 {
@@ -34,16 +36,19 @@ void SortRenderer::render(Sort* sort, std::vector<int>& elems, int a, int b)
     SDL_RenderClear(renderer);
 
     SDL_Color textColor = { 0, 255, 0, 0 };
-    if (sort->isSorting) {
+    if (sort->isSorting)
         ::last_time = (float)clock() / 1000.0f - sort->start_time;
-    }
-    if (sort->isSorting || (::last_time == 0.0f)) {
+    if (sort->isSorting || (::last_time == 0.0f))
         textColor = { 255, 255, 255, 0 };
-    }
+    
     renderText("TIME: " + std::to_string(::last_time) + 's', 10, 30, textColor);
     renderText(std::string("Sort: ") + items[current_item], 10, 50, { 255, 255, 255, 0 });
     if (sort->isSorting)
         renderText("Sorting...", 10, 70, { 255, 255, 255, 0 });
+    if (sort->isShuffling)
+        renderText("Shuffling...", 10, 70, { 255, 255, 255, 0 });
+    if (!(sort->isShuffling) && !(sort->isSorting) && sort->sorted)
+        renderText("Sorted", 10, 70, { 255, 255, 255, 0 });
 
     for (int k = 0; k < LOGICAL_WIDTH; k++)
     {
@@ -82,7 +87,7 @@ bool SortRenderer::renderGUI(Sort* sort)
     
     bool shouldSort = false;
     {
-        ImGui::Begin("Frame Time");
+        ImGui::Begin("Configure");
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / sort->io.Framerate, sort->io.Framerate);
 
         if (ImGui::BeginCombo("##combo", items[current_item])) // The second parameter is the label previewed before opening the combo.
@@ -100,7 +105,9 @@ bool SortRenderer::renderGUI(Sort* sort)
         ImGui::Checkbox("Color", &isColored);
         ImGui::SameLine();
         ImGui::Checkbox("Dot or line", &isDot);
-        ImGui::InputFloat("Set Speed", &setSpeed, 0.05f, 0.01f);
+        ImGui::InputFloat("Set Speed", &setSpeed, 0.05f);
+        if (current_item == 6)
+            ImGui::SliderInt("Set Buckets/Radix", &setRadix, 2, 10, "%d");
         if(ImGui::Button("Sort") && sort->sorted && !(sort->isSorting)) {
             switch(current_item)
             {
@@ -129,7 +136,7 @@ bool SortRenderer::renderGUI(Sort* sort)
                     goto _jmp;
                 } break;
                 case 6: {
-                    sort = new RadixLSDSort(sort->elems, sort->io, 2);
+                    sort = new RadixLSDSort(sort->elems, sort->io, setRadix);
                     _jmp:
                     sort->setSpeed(setSpeed);
                 } break;
