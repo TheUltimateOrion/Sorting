@@ -5,6 +5,7 @@
 #include <imgui_impl_sdlrenderer2.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_mixer.h>
 #include <string>
 #include <iostream>
 #include <functional>
@@ -29,5 +30,7 @@ extern TTF_Font *font;
 extern Uint64 NOW;
 extern Uint64 LAST;
 extern double deltaTime;
+
+extern Mix_Chunk* sfx;
 
 extern void calculateDeltaTime();

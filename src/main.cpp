@@ -12,6 +12,8 @@ Uint64 NOW = SDL_GetPerformanceCounter();
 Uint64 LAST = 0;
 double deltaTime = 0;
 
+Mix_Chunk* sfx = NULL;
+
 void calculateDeltaTime()
 {
    LAST = NOW;
@@ -33,6 +35,18 @@ int loadFonts() {
     return 0;
 }
 
+int loadSound()
+{
+    char buffer[MAX_PATH] = {0};
+    GetModuleFileNameA(NULL, buffer, MAX_PATH);
+    std::string::size_type pos = std::string(buffer).find_last_of("\\/");
+    std::string path = std::string(buffer).substr(0, pos);
+    path += "\\res\\snd.wav";
+
+    sfx = Mix_LoadWAV(path.c_str());
+    return 0;
+}
+
 ImGuiIO& configureIO()
 {
     ImGuiIO& io = ImGui::GetIO();
@@ -44,14 +58,25 @@ ImGuiIO& configureIO()
 
 int main(int argc, char const *argv[])
 {
-    if(SDL_Init(SDL_INIT_VIDEO) == -1) { 
-        printf("Could not initialize SDL: %s.\n", SDL_GetError());
+    if(SDL_Init(SDL_INIT_EVERYTHING) == -1) { 
+        fprintf(stderr, "Could not initialize SDL: %s.\n", SDL_GetError());
         return -1;
     }
 
-    if(loadFonts() == -1)
+    if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 )
+    {
+        fprintf(stderr, "SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError() );
+    }
+
+    if(loadFonts() < 0)
     {
         fprintf(stderr, "error: font not found\n");
+        return -1;
+    }
+
+    if (loadSound() < 0)
+    {
+        fprintf(stderr, "error: sound not found\n");
         return -1;
     }
 
@@ -95,6 +120,7 @@ int main(int argc, char const *argv[])
     }
 
     delete sorter;
+    Mix_FreeChunk(sfx); sfx = NULL;
     //std::cout << func_time(bubble_sort, nums) << " seconds" << std::endl;
     TTF_CloseFont(font);
     TTF_Quit();
@@ -103,6 +129,7 @@ int main(int argc, char const *argv[])
     ImGui::DestroyContext();
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
+    Mix_Quit();
     SDL_Quit();
     return 0;
 }

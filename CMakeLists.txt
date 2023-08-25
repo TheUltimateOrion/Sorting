@@ -20,7 +20,7 @@ libs/imgui/backends
 includes/
 )
 
-target_link_libraries(${PROJECT} SDL2 SDL2main SDL2_ttf imgui)
+target_link_libraries(${PROJECT} SDL2 SDL2main SDL2_ttf SDL2_mixer imgui )
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})

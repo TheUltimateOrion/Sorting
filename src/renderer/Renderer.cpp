@@ -7,11 +7,12 @@
 #include "sort/InsertionSort.h"
 #include "sort/QuickSort.h"
 #include "sort/RadixLSDSort.h"
+#include "sort/CombSort.h"
 
 static float setSpeed = 1.0f;
 static bool isColored = false;
 static bool isDot = false;
-static const char *items[] = { "BubbleSort", "SelectionSort", "InsertionSort", "QuickSort", "GravitySort", "PigeonHoleSort", "RadixLSDSort"};
+static const char *items[] = { "BubbleSort", "SelectionSort", "InsertionSort", "QuickSort", "GravitySort", "PigeonHoleSort", "RadixLSDSort", "CombSort"};
 static int current_item = 0;
 static bool isRadix = false;
 static int setRadix = 2;
@@ -137,6 +138,10 @@ bool SortRenderer::renderGUI(Sort* sort)
                 } break;
                 case 6: {
                     sort = new RadixLSDSort(sort->elems, sort->io, setRadix);
+                    goto _jmp;
+                } break;
+                case 7: {
+                    sort = new CombSort(sort->elems, sort->io);
                     _jmp:
                     sort->setSpeed(setSpeed);
                 } break;
@@ -153,9 +158,9 @@ bool SortRenderer::renderGUI(Sort* sort)
     {
         shouldSort = false;
         sort->shuffle();
+        if (sort->wantBreak) return 1;
         sort->sort();
-        if (sort->wantBreak)
-            return 1;
+        if (sort->wantBreak) return 1;
     }
     return 0;
 }
