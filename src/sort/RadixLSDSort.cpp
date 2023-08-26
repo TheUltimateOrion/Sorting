@@ -6,14 +6,14 @@ void RadixLSDSort::countSortByDigits(int exponent, int minValue)
 {
 	int bucketIndex;
     std::vector<int> buckets(radix);
-    std::vector<int> output(elems.capacity());
+    std::vector<int> output(elems.size());
     // Initialize bucket
     for (int i = 0; i < radix; i++) {
         buckets[i] = 0;
 	}
     
     // Count frequencies
-    for (int i = 0; i < elems.capacity(); i++) {
+    for (int i = 0; i < elems.size(); i++) {
         bucketIndex = (int)(((elems[i] - minValue) / exponent) % radix);
         buckets[bucketIndex]++;
 		SortRenderer::render(this, elems, i, i);
@@ -27,7 +27,7 @@ void RadixLSDSort::countSortByDigits(int exponent, int minValue)
 	}
 
     // Move records
-    for (int i = elems.capacity() - 1; i >= 0; i--) {
+    for (int i = elems.size() - 1; i >= 0; i--) {
         bucketIndex = (int)(((elems[i] - minValue) / exponent) % radix);
         output[--buckets[bucketIndex]] = elems[i];
 		SortRenderer::render(this, output, i, i);
@@ -36,7 +36,7 @@ void RadixLSDSort::countSortByDigits(int exponent, int minValue)
 	}
 
     // Copy back
-    for (int i = 0; i < elems.capacity(); i++) {
+    for (int i = 0; i < elems.size(); i++) {
         elems[i] = output[i];
     }
 }
@@ -46,7 +46,7 @@ void RadixLSDSort::sort()
 	isSorting = true;
 	int minValue = elems[0];
     int maxValue = elems[0];
-    for (int i = 1; i < elems.capacity(); i++) {
+    for (int i = 1; i < elems.size(); i++) {
         if (elems[i] < minValue) {
             minValue = elems[i];
         } else if (elems[i] > maxValue) {
@@ -73,7 +73,7 @@ void RadixLSDSort::sort()
 
 // 	int maxNum = elems[0];
 
-// 	for (int i = 1; i < elems.capacity(); i++)
+// 	for (int i = 1; i < elems.size(); i++)
 // 	{
 // 		maxNum = std::max(maxNum, elems[i]);
 // 	}
@@ -88,12 +88,12 @@ void RadixLSDSort::sort()
 // 	for (int i = 0; i < digitsCount; i++)
 // 	{
 // 		int pwr = std::pow(10, i);
-// 		std::vector<int> new_elems(elems.capacity());
+// 		std::vector<int> new_elems(elems.size());
 
 // 		int count_array[10];
 // 		memset(count_array, 0, sizeof(count_array));
 
-// 		for (int j = 0; j < elems.capacity(); j++)
+// 		for (int j = 0; j < elems.size(); j++)
 // 		{
 // 			int num = (elems[j] / pwr) % 10;
 
@@ -104,14 +104,14 @@ void RadixLSDSort::sort()
 //             count_array[j] += count_array[j-1];
 //         }
 
-//         for(int j = elems.capacity() - 1; j >= 0; j--){
+//         for(int j = elems.size() - 1; j >= 0; j--){
 //             int num = (elems[j] / pwr) % 10;
 //             new_elems[count_array[num] - 1] = elems[j];
 //             count_array[num]--;
 //         }
 
 //         // Now, we are updating the array with the new array
-//         for(int j = 0;j < elems.capacity(); j++) {
+//         for(int j = 0;j < elems.size(); j++) {
 //             SortRenderer::render(this, this->elems, j, j);
 //             if (wantBreak)
 //                 return;

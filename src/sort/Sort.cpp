@@ -5,8 +5,8 @@ Sort::Sort(std::vector<int>& arr, ImGuiIO& io) : elems(arr), isSorting(false), i
 void Sort::shuffle()
 {
     isShuffling = true;
-    std::vector<int> temp(elems.capacity());
-    for (int i = 0; i < elems.capacity(); i++)
+    std::vector<int> temp(elems.size());
+    for (int i = 0; i < elems.size(); i++)
         temp[i] = elems[i];
     std::shuffle(std::begin(temp), std::end(temp), std::default_random_engine(0));
     for (int i = 0; i < temp.capacity(); i++)
@@ -33,4 +33,11 @@ void Sort::swap(std::vector<int>& array, int a, int b)
     int temp = array[a];
     array[a] = array[b];
     array[b] = temp;
+}
+
+void Sort::setLength(unsigned int len)
+{
+    elems.resize(len);
+    for (int index = 0; index < elems.size(); index++)
+        elems[index] = index + 1;
 }

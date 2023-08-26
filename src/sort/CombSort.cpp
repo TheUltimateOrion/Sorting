@@ -12,8 +12,9 @@ int CombSort::getNextGap(int gap)
 
 void CombSort::sort()
 {
+    isSorting = true;
     // Initialize gap
-    int gap = elems.capacity();
+    int gap = elems.size();
  
     // Initialize swapped as true to make sure that
     // loop runs
@@ -31,7 +32,7 @@ void CombSort::sort()
         swapped = false;
  
         // Compare all elements with current gap
-        for (int i = 0; i < elems.capacity() - gap; i++)
+        for (int i = 0; i < elems.size() - gap; i++)
         {
             if (elems[i] > elems[i + gap])
             {
@@ -43,4 +44,6 @@ void CombSort::sort()
             }
         }
     }
+    isSorting = false;
+    sorted = true;
 }

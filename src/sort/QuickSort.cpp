@@ -27,7 +27,7 @@ int QuickSort::partition(std::vector<int>& arr, int low, int high)
 void QuickSort::sort()
 {
     isSorting = true;
-    this->quickSort(elems, 0, elems.capacity());
+    this->quickSort(elems, 0, elems.size());
     if (wantBreak)
         return;
     isSorting = false;

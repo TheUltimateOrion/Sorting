@@ -5,7 +5,7 @@ InsertionSort::InsertionSort(std::vector<int>& arr, ImGuiIO& io) : Sort(arr, io)
 void InsertionSort::sort()
 {
     isSorting = true;
-    int size = LOGICAL_WIDTH;
+    int size = elems.size();
     for (int i = 1; i < size; i++)
     {
         int j = i;

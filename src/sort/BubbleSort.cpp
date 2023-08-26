@@ -5,7 +5,7 @@ BubbleSort::BubbleSort(std::vector<int>& arr, ImGuiIO& io) : Sort(arr, io) {}
 void BubbleSort::sort()
 {
     isSorting = true;
-    for (int i = LOGICAL_WIDTH - 1; i > 0; i--)
+    for (int i = elems.size() - 1; i > 0; i--)
     {
         for (int j = 0; j < i; j++)
         {

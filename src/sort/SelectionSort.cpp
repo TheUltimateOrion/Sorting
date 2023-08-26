@@ -6,7 +6,7 @@ SelectionSort::SelectionSort(std::vector<int>& arr, ImGuiIO& io) : Sort(arr, io)
 void SelectionSort::sort()
 {
     isSorting = true;
-    int size = LOGICAL_WIDTH;
+    int size = elems.size();
     for (int i = 0; i < size - 1; i ++)
     {
         int min = i;

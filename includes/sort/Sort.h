@@ -21,5 +21,7 @@ public:
 
     void shuffle();
     void setSpeed(float speed);
+    void setLength(unsigned int length);
+    
     virtual void sort() = 0;
 };

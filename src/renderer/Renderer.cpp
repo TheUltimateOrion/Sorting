@@ -8,14 +8,17 @@
 #include "sort/QuickSort.h"
 #include "sort/RadixLSDSort.h"
 #include "sort/CombSort.h"
+#include "sort/BogoSort.h"
 
 static float setSpeed = 1.0f;
 static bool isColored = false;
 static bool isDot = false;
-static const char *items[] = { "BubbleSort", "SelectionSort", "InsertionSort", "QuickSort", "GravitySort", "PigeonHoleSort", "RadixLSDSort", "CombSort"};
+static const char *items[] = { "BubbleSort", "SelectionSort", "InsertionSort", "QuickSort", "GravitySort", "PigeonHoleSort", "RadixLSDSort", "CombSort", "BogoSort"};
 static int current_item = 0;
 static bool isRadix = false;
 static int setRadix = 2;
+int setLength = 512;
+static SDL_Rect rect;
 
 void SortRenderer::renderText(std::string txt, int x, int y, SDL_Color color)
 {
@@ -51,19 +54,24 @@ void SortRenderer::render(Sort* sort, std::vector<int>& elems, int a, int b)
     if (!(sort->isShuffling) && !(sort->isSorting) && sort->sorted)
         renderText("Sorted", 10, 70, { 255, 255, 255, 0 });
 
-    for (int k = 0; k < LOGICAL_WIDTH; k++)
+    for (int k = 0; k < elems.size(); k++)
     {
         if (k == a || k == b)
             SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
         else
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
             if (isColored)
-                SDL_SetRenderDrawColor(renderer, elems[k] * 255 / (LOGICAL_WIDTH - 1), 0, 255-(elems[k] * 255 / (LOGICAL_WIDTH - 1)), 255);
+                SDL_SetRenderDrawColor(renderer, elems[k] * 255 / (elems.size()), 0, 255-(elems[k] * 255 / (elems.size())), 255);
         
-        if (isDot)
-            SDL_RenderDrawPoint(renderer, k + 1, LOGICAL_WIDTH - elems[k]);
-        else
-            SDL_RenderDrawLine(renderer, k + 1, LOGICAL_WIDTH, k + 1, LOGICAL_WIDTH - elems[k]);
+        int spacing = LOGICAL_WIDTH / (int)elems.size();
+        if (isDot) {
+            // SDL_RenderDrawPoint(renderer, k + 1, elems.size()  - elems[k]);
+            SDL_RenderDrawPoint(renderer, (k + 1) * spacing, (elems.size() - elems[k]) * spacing);
+        } else {
+            //SDL_RenderDrawLine(renderer, k + 1, elems.size() , k + 1, elems.size()  - elems[k]);
+            rect = (SDL_Rect){k * spacing, LOGICAL_WIDTH, spacing, -elems[k] * spacing};
+            SDL_RenderFillRect(renderer, &rect);
+        }
     }
     if(renderGUI(sort))
         return;
@@ -77,7 +85,7 @@ void SortRenderer::render(Sort* sort, std::vector<int>& elems, int a, int b)
             return;
         }
     }
-    SDL_Delay(1 / (sort->speed * deltaTime));
+    SDL_Delay(1 / (sort->speed));
 }
 
 bool SortRenderer::renderGUI(Sort* sort)
@@ -106,10 +114,17 @@ bool SortRenderer::renderGUI(Sort* sort)
         ImGui::Checkbox("Color", &isColored);
         ImGui::SameLine();
         ImGui::Checkbox("Dot or line", &isDot);
-        ImGui::InputFloat("Set Speed", &setSpeed, 0.05f);
+
+        setSpeed = std::clamp((double)setSpeed, 0.001, 1000.0);
+        ImGui::InputFloat("Set Speed", &setSpeed, 0.001f);
+
+        setLength = std::clamp(setLength, 2, 512);
+        ImGui::InputInt("Set Length", &setLength, 2);
+
         if (current_item == 6)
             ImGui::SliderInt("Set Buckets/Radix", &setRadix, 2, 10, "%d");
         if(ImGui::Button("Sort") && sort->sorted && !(sort->isSorting)) {
+            sort->setLength(setLength);
             switch(current_item)
             {
                 case 0: {
@@ -142,6 +157,10 @@ bool SortRenderer::renderGUI(Sort* sort)
                 } break;
                 case 7: {
                     sort = new CombSort(sort->elems, sort->io);
+                    goto _jmp;
+                } break;
+                case 8: {
+                    sort = new BogoSort(sort->elems, sort->io);
                     _jmp:
                     sort->setSpeed(setSpeed);
                 } break;

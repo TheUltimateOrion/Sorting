@@ -15,8 +15,8 @@ void GravitySort::sort()
         }
     }
 
-    std::vector<std::vector<int>> abacus(elems.capacity(), std::vector<int>(max, 0));
-    for (int i = 0; i < elems.capacity(); i++)
+    std::vector<std::vector<int>> abacus(elems.size(), std::vector<int>(max, 0));
+    for (int i = 0; i < elems.size(); i++)
     {
         for (int j = 0; j < elems[i]; j++)
         {

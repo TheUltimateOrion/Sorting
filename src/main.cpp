@@ -104,7 +104,7 @@ int main(int argc, char const *argv[])
     srand(time(NULL));
 
     std::vector<int> nums(LOGICAL_WIDTH);
-    for (int index = 0; index < LOGICAL_WIDTH; index++)
+    for (int index = 0; index < nums.capacity(); index++)
         nums[index] = index + 1;
     
     Sort* sorter = new BubbleSort(nums, io);
@@ -113,6 +113,7 @@ int main(int argc, char const *argv[])
     SDL_PollEvent(&event);
     while(1)
     {
+        sorter->setLength(setLength);
         SortRenderer::render(sorter, sorter->elems, 1, 1);
         if (sorter->wantBreak || event.type == SDL_QUIT)
             break;

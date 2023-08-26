@@ -32,5 +32,6 @@ extern Uint64 LAST;
 extern double deltaTime;
 
 extern Mix_Chunk* sfx;
+extern int setLength;
 
 extern void calculateDeltaTime();
