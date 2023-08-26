@@ -20,6 +20,42 @@ static int setRadix = 2;
 int setLength = 512;
 static SDL_Rect rect;
 
+SDL_Color SortRenderer::HSVToRGB(unsigned char hue, unsigned char sat, unsigned char value)
+{
+    SDL_Color rgb;
+    unsigned char region, remainder, p, q, t;
+    region = hue / 43;
+    remainder = (hue - (region * 43)) * 6; 
+    
+    p = (value * (255 - sat)) >> 8;
+    q = (value * (255 - ((sat * remainder) >> 8))) >> 8;
+    t = (value * (255 - ((sat * (255 - remainder)) >> 8))) >> 8;
+    
+    switch (region)
+    {
+        case 0:
+            rgb.r = value; rgb.g = t; rgb.b = p;
+            break;
+        case 1:
+            rgb.r = q; rgb.g = value; rgb.b = p;
+            break;
+        case 2:
+            rgb.r = p; rgb.g = value; rgb.b = t;
+            break;
+        case 3:
+            rgb.r = p; rgb.g = q; rgb.b = value;
+            break;
+        case 4:
+            rgb.r = t; rgb.g = p; rgb.b = value;
+            break;
+        default:
+            rgb.r = value; rgb.g = p; rgb.b = q;
+            break;
+    }
+    
+    return rgb;
+}
+
 void SortRenderer::renderText(std::string txt, int x, int y, SDL_Color color)
 {
     
@@ -54,15 +90,19 @@ void SortRenderer::render(Sort* sort, std::vector<int>& elems, int a, int b)
     if (!(sort->isShuffling) && !(sort->isSorting) && sort->sorted)
         renderText("Sorted", 10, 70, { 255, 255, 255, 0 });
 
+    SDL_Color sortColor; 
     for (int k = 0; k < elems.size(); k++)
     {
         if (k == a || k == b)
             SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-        else
+        else {
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-            if (isColored)
-                SDL_SetRenderDrawColor(renderer, elems[k] * 255 / (elems.size()), 0, 255-(elems[k] * 255 / (elems.size())), 255);
-        
+            if (isColored) {
+                sortColor = HSVToRGB(elems[k] * 255 / elems.size(), 255, 255);
+                //SDL_SetRenderDrawColor(renderer, elems[k] * 255 / (elems.size()), 0, 255-(elems[k] * 255 / (elems.size())), 255);
+                SDL_SetRenderDrawColor(renderer, sortColor.r, sortColor.g, sortColor.b, 255);
+            }
+        }
         int spacing = LOGICAL_WIDTH / (int)elems.size();
         if (isDot) {
             // SDL_RenderDrawPoint(renderer, k + 1, elems.size()  - elems[k]);
@@ -124,7 +164,6 @@ bool SortRenderer::renderGUI(Sort* sort)
         if (current_item == 6)
             ImGui::SliderInt("Set Buckets/Radix", &setRadix, 2, 10, "%d");
         if(ImGui::Button("Sort") && sort->sorted && !(sort->isSorting)) {
-            sort->setLength(setLength);
             switch(current_item)
             {
                 case 0: {
@@ -163,6 +202,7 @@ bool SortRenderer::renderGUI(Sort* sort)
                     sort = new BogoSort(sort->elems, sort->io);
                     _jmp:
                     sort->setSpeed(setSpeed);
+                    sort->setLength(setLength);
                 } break;
                 default:
                     std::cout << "Invalid Sort!" << std::endl;

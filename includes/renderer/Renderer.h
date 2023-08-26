@@ -8,5 +8,7 @@ public:
 
     static void renderText(std::string txt, int x, int y, SDL_Color color);
 
+    static SDL_Color HSVToRGB(unsigned char hue, unsigned char sat, unsigned char value);
+
     static bool renderGUI(Sort* sort);
 };
