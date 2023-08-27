@@ -9,11 +9,12 @@
 #include "sort/RadixLSDSort.h"
 #include "sort/CombSort.h"
 #include "sort/BogoSort.h"
+#include "sort/MergeSort.h"
 
 static float setSpeed = 1.0f;
 static bool isColored = false;
 static int displayType = 0;
-static const char *items[] = { "BubbleSort", "SelectionSort", "InsertionSort", "QuickSort", "GravitySort", "PigeonHoleSort", "RadixLSDSort", "CombSort", "BogoSort"};
+static const char *items[] = { "BubbleSort", "SelectionSort", "InsertionSort", "QuickSort", "MergeSort", "GravitySort", "PigeonHoleSort", "RadixLSDSort", "CombSort", "BogoSort"};
 static int current_item = 0;
 static bool isRadix = false;
 static int setRadix = 2;
@@ -269,7 +270,7 @@ bool SortRenderer::renderGUI(Sort* sort)
         ImGui::RadioButton("Rainbow Rectangle", &displayType, 2);   ImGui::SameLine();
         ImGui::RadioButton("Circle", &displayType, 3);              
         ImGui::RadioButton("Circle Dot", &displayType, 4);          ImGui::SameLine();
-        ImGui::RadioButton("Circle Line", &displayType, 5);         ImGui::SameLine();
+        ImGui::RadioButton("Disparity Circle", &displayType, 5);    ImGui::SameLine();
         ImGui::RadioButton("Spiral", &displayType, 6);              ImGui::SameLine();
         ImGui::RadioButton("Spiral Dot", &displayType, 7);
 
@@ -309,22 +310,26 @@ bool SortRenderer::renderGUI(Sort* sort)
                         goto _jmp;
                     } break;
                     case 4: {
-                        sort = new GravitySort(sort->elems, sort->io);
+                        sort = new MergeSort(sort->elems, sort->io);
                         goto _jmp;
                     } break;
                     case 5: {
-                        sort = new PigeonHoleSort(sort->elems, sort->io);
+                        sort = new GravitySort(sort->elems, sort->io);
                         goto _jmp;
                     } break;
                     case 6: {
-                        sort = new RadixLSDSort(sort->elems, sort->io, setRadix);
+                        sort = new PigeonHoleSort(sort->elems, sort->io);
                         goto _jmp;
                     } break;
                     case 7: {
-                        sort = new CombSort(sort->elems, sort->io);
+                        sort = new RadixLSDSort(sort->elems, sort->io, setRadix);
                         goto _jmp;
                     } break;
                     case 8: {
+                        sort = new CombSort(sort->elems, sort->io);
+                        goto _jmp;
+                    } break;
+                    case 9: {
                         sort = new BogoSort(sort->elems, sort->io);
                         _jmp:
                         sort->setSpeed(setSpeed);
