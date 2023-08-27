@@ -170,7 +170,7 @@ int main(int argc, char const *argv[])
         sorter->swaps = swaps;
         sorter->comparisions = comparisions;
         SortRenderer::render(sorter, sorter->elems, 1, 1);
-        if (sorter->wantBreak || event.type == SDL_QUIT)
+        if (event.type == SDL_QUIT)
             break;
         SDL_Delay(1);
     }

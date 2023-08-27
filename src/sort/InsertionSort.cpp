@@ -14,7 +14,7 @@ void InsertionSort::sort()
         {
             elems[j] = elems[j - 1];
             SortRenderer::render(this, this->elems, j, j - 1);
-            if (wantBreak)
+            if (wantClose || wantStop)
                 return;
             --j;
         }

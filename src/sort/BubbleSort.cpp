@@ -14,7 +14,7 @@ void BubbleSort::sort()
                 //std::cout << elems[j] << ": " << elems[j + 1] << std::endl;
                 this->swap(elems, j, j + 1);
                 SortRenderer::render(this, this->elems, j, j + 1);
-                if (wantBreak)
+                if (wantClose || wantStop)
                     return;
             }
             comparisions++;

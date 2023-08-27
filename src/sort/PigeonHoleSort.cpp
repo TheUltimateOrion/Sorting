@@ -39,7 +39,7 @@ void PigeonHoleSort::sort()
        {
             elems[index++]  = *it;
             SortRenderer::render(this, this->elems, index + 1, index + 1);
-            if (wantBreak)
+            if (wantClose || wantStop)
                 return;
        }
     }

@@ -1,10 +1,34 @@
 #include "renderer/Renderer.h"
 
-Sort::Sort(std::vector<int>& arr, ImGuiIO& io) : elems(arr), isSorting(false), isShuffling(false), sorted(true), wantBreak(false), speed(speed), io(io), start_time(0) {}
+Sort::Sort(std::vector<int>& arr, ImGuiIO& io) : elems(arr), isSorting(false), isShuffling(false), sorted(true), wantClose(false), wantStop(false), speed(speed), io(io), start_time(0) {}
+
+void Sort::reverse()
+{
+    isShuffling = true;
+    this->wantStop = false;
+    this->swaps = 0;
+    std::vector<int> temp(elems.size());
+    for (int i = 0; i < elems.size(); i++)
+        temp[i] = elems[i];
+    std::reverse(temp.begin(), temp.end());
+    for (int i = 0; i < temp.capacity(); i++)
+    {
+        SortRenderer::render(this, this->elems, i, i);
+        if (wantClose || wantStop)
+            return;
+        elems[i] = temp[i];
+    }
+    sorted = false;
+    isShuffling = false;
+    SDL_Delay(500);
+    this->start_time = (float)clock() / 1000.0f;
+    ::last_time = this->start_time;
+}
 
 void Sort::shuffle()
 {
     isShuffling = true;
+    this->wantStop = false;
     this->swaps = 0;
     std::vector<int> temp(elems.size());
     for (int i = 0; i < elems.size(); i++)
@@ -13,7 +37,7 @@ void Sort::shuffle()
     for (int i = 0; i < temp.capacity(); i++)
     {
         SortRenderer::render(this, this->elems, i, i);
-        if (wantBreak)
+        if (wantClose || wantStop)
             return;
         elems[i] = temp[i];
     }

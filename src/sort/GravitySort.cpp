@@ -9,7 +9,7 @@ void GravitySort::sort()
     for (auto elem : elems) {
         if (elem > max) {
             SortRenderer::render(this, this->elems, std::distance(elems.begin(), std::find(elems.begin(), elems.end(), elem)), std::distance(elems.begin(), std::find(elems.begin(), elems.end(), elem)));
-            if (wantBreak)
+            if (wantClose || wantStop)
                 return;
             max = elem;
         }
@@ -49,7 +49,7 @@ void GravitySort::sort()
                     count+=abacus[x][y];
             elems[x] = count;
             SortRenderer::render(this, this->elems, x, x);
-            if (wantBreak)
+            if (wantClose || wantStop)
                 return;
         }
     }

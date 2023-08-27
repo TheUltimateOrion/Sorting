@@ -9,7 +9,8 @@ public:
     bool sorted;
     bool isSorting;
     bool isShuffling;
-    bool wantBreak;
+    bool wantClose;
+    bool wantStop;
     ImGuiIO& io;
     std::vector<int> elems;
     float speed;
@@ -22,6 +23,7 @@ public:
     void swap(std::vector<int>& array, int a, int b);
 
     void shuffle();
+    void reverse();
     void setSpeed(float speed);
     void setLength(unsigned int length);
     

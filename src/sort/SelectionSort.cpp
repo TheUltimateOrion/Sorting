@@ -18,7 +18,7 @@ void SelectionSort::sort()
         }
         swap(elems, min, i);
         SortRenderer::render(this, this->elems, min, i);
-        if (wantBreak)
+        if (wantClose || wantStop)
             return;
     }
     isSorting = false;

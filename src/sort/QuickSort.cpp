@@ -13,13 +13,13 @@ int QuickSort::partition(std::vector<int>& arr, int low, int high)
             i++;
             swap(arr, i, j);
             SortRenderer::render(this, this->elems, i, j);
-            if (wantBreak)
+            if (wantClose || wantStop)
                 return 0;
         }
         comparisions++;
     }
     SortRenderer::render(this, this->elems, i + 1, high);
-    if (wantBreak)
+    if (wantClose || wantStop)
         return 0;
     swap(arr, i + 1, high);
     return (i + 1);
@@ -29,7 +29,7 @@ void QuickSort::sort()
 {
     isSorting = true;
     this->quickSort(elems, 0, elems.size());
-    if (wantBreak)
+    if (wantClose || wantStop)
         return;
     isSorting = false;
     sorted = true;
@@ -41,10 +41,10 @@ void QuickSort::quickSort(std::vector<int>& arr, int low, int high)
         int pi = partition(arr, low, high);
 
         quickSort(arr, low, pi - 1);
-        if (wantBreak)
+        if (wantClose || wantStop)
             return;
         quickSort(arr, pi + 1, high);
-        if (wantBreak)
+        if (wantClose || wantStop)
             return;
     }
 }

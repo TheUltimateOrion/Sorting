@@ -38,7 +38,7 @@ void CombSort::sort()
             {
                 swap(elems, i, i + gap);
                 SortRenderer::render(this, this->elems, i, i + gap);
-                if (wantBreak)
+                if (wantClose || wantStop)
                     return;
                 swapped = true;
             }

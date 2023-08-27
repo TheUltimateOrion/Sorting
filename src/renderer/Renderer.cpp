@@ -21,6 +21,7 @@ int setLength = 512;
 static SDL_Rect rect;
 unsigned int swaps = 0;
 unsigned int comparisions = 0;
+static bool reverse = false;
 
 SDL_Color SortRenderer::HSVToRGB(unsigned char hue, unsigned char sat, unsigned char value)
 {
@@ -80,7 +81,7 @@ void SortRenderer::renderInfo(Sort*& sort)
         textColor = { 255, 255, 255, 0 };
     
     renderText("TIME: " + std::to_string(::last_time) + 's', 10, 10, textColor);
-    renderText(std::string("Sort: ") + items[current_item], 10, 30, { 255, 255, 255, 0 });
+     renderText(std::string("Sort: ") + items[current_item], 10, 30, { 255, 255, 255, 0 });
 
     swaps = sort->swaps;
     comparisions = sort->comparisions;
@@ -158,12 +159,15 @@ void SortRenderer::render(Sort* sort, std::vector<int>& elems, int a, int b)
                 SDL_RenderGeometry(renderer, NULL, vertices, 3, NULL, 0);
             } break;
             case 4: {
-                isColored = true;
                 //std::cout << elems[k] / (k + 1) << std::endl;
                 size = 200.0f * ((float)elems[k] / (float)(k + 1));
                 SDL_RenderDrawPoint(renderer, LOGICAL_WIDTH / 2 + size * cos(radiansQuotient * k * degreesQuotient), LOGICAL_WIDTH / 2 + size * sin(radiansQuotient * k * degreesQuotient));
             } break;
             case 5: {
+                size = 200.0f;
+                SDL_RenderDrawLine(renderer, LOGICAL_WIDTH / 2 + size * cos(radiansQuotient * elems[k] * degreesQuotient), LOGICAL_WIDTH / 2 + size * sin(radiansQuotient * elems[k] * degreesQuotient), LOGICAL_WIDTH / 2 + size * cos(radiansQuotient * (k + 1) * degreesQuotient), LOGICAL_WIDTH / 2 + size * sin(radiansQuotient * (k + 1) * degreesQuotient));
+            } break;
+            case 6: {
                 Uint8 r = 0, g = 0, b = 0, a = 0;
                 SDL_GetRenderDrawColor(renderer, &r, &g, &b, &a);
                 size = (0.5f * (float)LOGICAL_WIDTH / (float)elems.size());
@@ -203,7 +207,7 @@ void SortRenderer::render(Sort* sort, std::vector<int>& elems, int a, int b)
                 // SDL_RenderDrawPoint(renderer, LOGICAL_WIDTH / 2 + 50 * (k / elems[k]) * cos(radiansQuotient * (k + 1) * degreesQuotient), LOGICAL_WIDTH / 2 + 50 * (k / elems[k]) * sin(radiansQuotient * (k + 1) * degreesQuotient));
                 SDL_RenderGeometry(renderer, NULL, vertices, 3, NULL, 0);
             } break;
-            case 6: {
+            case 7: {
                 size = (0.5f * (float)LOGICAL_WIDTH / (float)elems.size());
                 SDL_RenderDrawPoint(renderer, LOGICAL_WIDTH / 2 + size * elems[k] * cos(radiansQuotient * k * degreesQuotient), LOGICAL_WIDTH / 2 + size * elems[k] * sin(radiansQuotient * k * degreesQuotient));
             } break;
@@ -212,15 +216,17 @@ void SortRenderer::render(Sort* sort, std::vector<int>& elems, int a, int b)
 
     renderInfo(sort);
 
-    if(renderGUI(sort))
+    int ret = renderGUI(sort);
+    if (ret == 1)
         return;
+        
     SDL_RenderPresent(renderer);
     if(SDL_PollEvent(&event))
     {
         ImGui_ImplSDL2_ProcessEvent(&event);
         if (event.type == SDL_QUIT)
         {
-            sort->wantBreak = true;
+            sort->wantClose = true;
             return;
         }
     }
@@ -260,11 +266,12 @@ bool SortRenderer::renderGUI(Sort* sort)
 
         ImGui::RadioButton("Bar", &displayType, 0);                 ImGui::SameLine();
         ImGui::RadioButton("Dot", &displayType, 1);                 ImGui::SameLine();
-        ImGui::RadioButton("Rainbow Rectangle", &displayType, 2);
-        ImGui::RadioButton("Circle", &displayType, 3);              ImGui::SameLine();
+        ImGui::RadioButton("Rainbow Rectangle", &displayType, 2);   ImGui::SameLine();
+        ImGui::RadioButton("Circle", &displayType, 3);              
         ImGui::RadioButton("Circle Dot", &displayType, 4);          ImGui::SameLine();
-        ImGui::RadioButton("Spiral", &displayType, 5);              ImGui::SameLine();
-        ImGui::RadioButton("Spiral Dot", &displayType, 6);
+        ImGui::RadioButton("Circle Line", &displayType, 5);         ImGui::SameLine();
+        ImGui::RadioButton("Spiral", &displayType, 6);              ImGui::SameLine();
+        ImGui::RadioButton("Spiral Dot", &displayType, 7);
 
         ImGui::Spacing();
         ImGui::SeparatorText("Variables");
@@ -280,52 +287,60 @@ bool SortRenderer::renderGUI(Sort* sort)
             ImGui::SliderInt("Set Buckets/Radix", &setRadix, 2, 10, "%d");
 
         ImGui::Spacing();
-        if(ImGui::Button("Sort") && sort->sorted && !(sort->isSorting)) {
-            switch(current_item)
-            {
-                case 0: {
-                    sort = new BubbleSort(sort->elems, sort->io);
-                    goto _jmp;
-                } break;
-                case 1: {
-                    sort = new SelectionSort(sort->elems, sort->io);
-                    goto _jmp;
-                } break;
-                case 2: {
-                    sort = new InsertionSort(sort->elems, sort->io);
-                    goto _jmp;
-                } break;
-                case 3: {
-                    sort = new QuickSort(sort->elems, sort->io);
-                    goto _jmp;
-                } break;
-                case 4: {
-                    sort = new GravitySort(sort->elems, sort->io);
-                    goto _jmp;
-                } break;
-                case 5: {
-                    sort = new PigeonHoleSort(sort->elems, sort->io);
-                    goto _jmp;
-                } break;
-                case 6: {
-                    sort = new RadixLSDSort(sort->elems, sort->io, setRadix);
-                    goto _jmp;
-                } break;
-                case 7: {
-                    sort = new CombSort(sort->elems, sort->io);
-                    goto _jmp;
-                } break;
-                case 8: {
-                    sort = new BogoSort(sort->elems, sort->io);
-                    _jmp:
-                    sort->setSpeed(setSpeed);
-                    sort->setLength(setLength);
-                } break;
-                default:
-                    std::cout << "Invalid Sort!" << std::endl;
+        if (!(sort->isSorting) && !(sort->isShuffling))
+        {
+            if(ImGui::Button("Sort")) {
+                switch(current_item)
+                {
+                    case 0: {
+                        sort = new BubbleSort(sort->elems, sort->io);
+                        goto _jmp;
+                    } break;
+                    case 1: {
+                        sort = new SelectionSort(sort->elems, sort->io);
+                        goto _jmp;
+                    } break;
+                    case 2: {
+                        sort = new InsertionSort(sort->elems, sort->io);
+                        goto _jmp;
+                    } break;
+                    case 3: {
+                        sort = new QuickSort(sort->elems, sort->io);
+                        goto _jmp;
+                    } break;
+                    case 4: {
+                        sort = new GravitySort(sort->elems, sort->io);
+                        goto _jmp;
+                    } break;
+                    case 5: {
+                        sort = new PigeonHoleSort(sort->elems, sort->io);
+                        goto _jmp;
+                    } break;
+                    case 6: {
+                        sort = new RadixLSDSort(sort->elems, sort->io, setRadix);
+                        goto _jmp;
+                    } break;
+                    case 7: {
+                        sort = new CombSort(sort->elems, sort->io);
+                        goto _jmp;
+                    } break;
+                    case 8: {
+                        sort = new BogoSort(sort->elems, sort->io);
+                        _jmp:
+                        sort->setSpeed(setSpeed);
+                        sort->setLength(setLength);
+                    } break;
+                    default:
+                        std::cout << "Invalid Sort!" << std::endl;
+                }
+                shouldSort = true;
             }
-            shouldSort = true;
+        } else {
+            if(ImGui::Button("Stop"))
+                sort->wantStop = true;
         }
+        ImGui::SameLine();
+        ImGui::Checkbox("Reverse instead of Shuffling", &reverse);
         ImGui::End();
     }
     ImGui::Render();
@@ -333,10 +348,17 @@ bool SortRenderer::renderGUI(Sort* sort)
     if(shouldSort)
     {
         shouldSort = false;
-        sort->shuffle();
-        if (sort->wantBreak) return 1;
-        sort->sort();
-        if (sort->wantBreak) return 1;
+        if(!reverse)
+            sort->shuffle();
+        else
+            sort->reverse();
+        if (sort->wantClose) return 2;
+        if(!(sort->wantStop))
+            sort->sort();
+        if (sort->wantStop) {
+            return 1;
+        }
+        if (sort->wantClose) return 2;
     }
     return 0;
 }
