@@ -42,6 +42,7 @@ void CombSort::sort()
                     return;
                 swapped = true;
             }
+            comparisions++;
         }
     }
     isSorting = false;

@@ -47,10 +47,10 @@ void GravitySort::sort()
             count = 0;
             for(int y = 0; y < abacus[0].capacity(); y++)
                     count+=abacus[x][y];
-                SortRenderer::render(this, this->elems, x, x);
-                if (wantBreak)
-                    return;
-                elems[x] = count;
+            elems[x] = count;
+            SortRenderer::render(this, this->elems, x, x);
+            if (wantBreak)
+                return;
         }
     }
     isSorting = false;

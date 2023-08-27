@@ -14,6 +14,7 @@ void PigeonHoleSort::sort()
             min = elems[i];
         if (elems[i] > max)
             max = elems[i];
+        comparisions++;
     }
     int range = max - min + 1; // Find range
  
@@ -36,10 +37,10 @@ void PigeonHoleSort::sort()
        std::vector<int>::iterator it;
        for (it = holes[i].begin(); it != holes[i].end(); ++it)
        {
+            elems[index++]  = *it;
             SortRenderer::render(this, this->elems, index + 1, index + 1);
             if (wantBreak)
                 return;
-            elems[index++]  = *it;
        }
     }
     isSorting = false;

@@ -16,9 +16,6 @@ void RadixLSDSort::countSortByDigits(int exponent, int minValue)
     for (int i = 0; i < elems.size(); i++) {
         bucketIndex = (int)(((elems[i] - minValue) / exponent) % radix);
         buckets[bucketIndex]++;
-		SortRenderer::render(this, elems, i, i);
-		if (wantBreak)
-			return;
 	}
     
     // Compute cumulates
@@ -38,6 +35,9 @@ void RadixLSDSort::countSortByDigits(int exponent, int minValue)
     // Copy back
     for (int i = 0; i < elems.size(); i++) {
         elems[i] = output[i];
+		SortRenderer::render(this, output, i, i);
+		if (wantBreak)
+			return;
     }
 }
 

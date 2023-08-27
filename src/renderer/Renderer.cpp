@@ -12,13 +12,15 @@
 
 static float setSpeed = 1.0f;
 static bool isColored = false;
-static bool isDot = false;
+static int displayType = 0;
 static const char *items[] = { "BubbleSort", "SelectionSort", "InsertionSort", "QuickSort", "GravitySort", "PigeonHoleSort", "RadixLSDSort", "CombSort", "BogoSort"};
 static int current_item = 0;
 static bool isRadix = false;
 static int setRadix = 2;
 int setLength = 512;
 static SDL_Rect rect;
+unsigned int swaps = 0;
+unsigned int comparisions = 0;
 
 SDL_Color SortRenderer::HSVToRGB(unsigned char hue, unsigned char sat, unsigned char value)
 {
@@ -69,50 +71,147 @@ void SortRenderer::renderText(std::string txt, int x, int y, SDL_Color color)
     SDL_DestroyTexture(text);
 }
 
-void SortRenderer::render(Sort* sort, std::vector<int>& elems, int a, int b)
+void SortRenderer::renderInfo(Sort*& sort)
 {
-    ::calculateDeltaTime();
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
-    SDL_RenderClear(renderer);
-
     SDL_Color textColor = { 0, 255, 0, 0 };
     if (sort->isSorting)
         ::last_time = (float)clock() / 1000.0f - sort->start_time;
     if (sort->isSorting || (::last_time == 0.0f))
         textColor = { 255, 255, 255, 0 };
     
-    renderText("TIME: " + std::to_string(::last_time) + 's', 10, 30, textColor);
-    renderText(std::string("Sort: ") + items[current_item], 10, 50, { 255, 255, 255, 0 });
+    renderText("TIME: " + std::to_string(::last_time) + 's', 10, 10, textColor);
+    renderText(std::string("Sort: ") + items[current_item], 10, 30, { 255, 255, 255, 0 });
+
+    swaps = sort->swaps;
+    comparisions = sort->comparisions;
+    renderText("Swaps: " + std::to_string(swaps), 10, 50, { 255, 255, 255, 0 });
+    renderText("Comparisions: " + std::to_string(comparisions), 10, 70, { 255, 255, 255, 0 });
+
     if (sort->isSorting)
-        renderText("Sorting...", 10, 70, { 255, 255, 255, 0 });
+        renderText("Sorting...", 10, 90, { 255, 255, 255, 0 });
     if (sort->isShuffling)
-        renderText("Shuffling...", 10, 70, { 255, 255, 255, 0 });
+        renderText("Shuffling...", 10, 90, { 255, 255, 255, 0 });
     if (!(sort->isShuffling) && !(sort->isSorting) && sort->sorted)
-        renderText("Sorted", 10, 70, { 255, 255, 255, 0 });
+        renderText("Sorted", 10, 90, { 255, 255, 255, 0 });
+}
+
+void SortRenderer::render(Sort* sort, std::vector<int>& elems, int a, int b)
+{
+    ::calculateDeltaTime();
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+    SDL_RenderClear(renderer);
 
     SDL_Color sortColor; 
     for (int k = 0; k < elems.size(); k++)
     {
+        sortColor = HSVToRGB(elems[k] * 255 / elems.size(), 255, 255);
         if (k == a || k == b)
             SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
         else {
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
             if (isColored) {
-                sortColor = HSVToRGB(elems[k] * 255 / elems.size(), 255, 255);
                 //SDL_SetRenderDrawColor(renderer, elems[k] * 255 / (elems.size()), 0, 255-(elems[k] * 255 / (elems.size())), 255);
                 SDL_SetRenderDrawColor(renderer, sortColor.r, sortColor.g, sortColor.b, 255);
             }
         }
         int spacing = LOGICAL_WIDTH / (int)elems.size();
-        if (isDot) {
-            // SDL_RenderDrawPoint(renderer, k + 1, elems.size()  - elems[k]);
-            SDL_RenderDrawPoint(renderer, (k + 1) * spacing, (elems.size() - elems[k]) * spacing);
-        } else {
-            //SDL_RenderDrawLine(renderer, k + 1, elems.size() , k + 1, elems.size()  - elems[k]);
-            rect = (SDL_Rect){k * spacing, LOGICAL_WIDTH, spacing, -elems[k] * spacing};
-            SDL_RenderFillRect(renderer, &rect);
+        float degreesQuotient = 360.0f / (float)elems.size();
+        float radiansQuotient = (M_PI / 180);
+        float size;
+        SDL_Vertex vertices[3];
+        
+        switch (displayType) {
+            case 0: {
+                // SDL_RenderDrawLine(renderer, k + 1, elems.size() , k + 1, elems.size()  - elems[k]);
+                rect = (SDL_Rect){k * spacing, LOGICAL_WIDTH, spacing, -elems[k] * spacing};
+                SDL_RenderFillRect(renderer, &rect);
+            } break;
+            case 1: {
+                // SDL_RenderDrawPoint(renderer, k + 1, elems.size()  - elems[k]);
+                SDL_RenderDrawPoint(renderer, (k + 1) * spacing, (elems.size() - elems[k]) * spacing);
+            } break;
+            case 2: {
+                isColored = true;
+                rect = (SDL_Rect){k * spacing, LOGICAL_WIDTH, spacing, -(LOGICAL_WIDTH / 2)};
+                SDL_RenderFillRect(renderer, &rect);
+            } break;
+            case 3: {
+                isColored = true;
+                Uint8 r = 0, g = 0, b = 0, a = 0;
+                SDL_GetRenderDrawColor(renderer, &r, &g, &b, &a);
+                size = 200.0f;
+                vertices[0] = {
+                    {LOGICAL_WIDTH / 2, LOGICAL_WIDTH / 2}, /* first point location */ 
+                    { r, g, b, 0xFF }, /* first color */ 
+                    { 0.f, 0.f }
+                };
+                vertices[1] = {
+                    {LOGICAL_WIDTH / 2 + size * cos(radiansQuotient * k * degreesQuotient), LOGICAL_WIDTH / 2 + size * sin(radiansQuotient * k * degreesQuotient)}, /* second point location */ 
+                    { r, g, b, 0xFF }, /* second color */
+                    { 0.f, 0.f }
+                };
+                vertices[2] = {
+                    {LOGICAL_WIDTH / 2 + size * cos(radiansQuotient * (k + 1) * degreesQuotient), LOGICAL_WIDTH / 2 + size * sin(radiansQuotient * (k + 1) * degreesQuotient)}, /* third point location */ 
+                    { r, g, b, 0xFF }, /* third color */
+                    { 0.f, 0.f }
+                };
+                SDL_RenderGeometry(renderer, NULL, vertices, 3, NULL, 0);
+            } break;
+            case 4: {
+                isColored = true;
+                //std::cout << elems[k] / (k + 1) << std::endl;
+                size = 200.0f * ((float)elems[k] / (float)(k + 1));
+                SDL_RenderDrawPoint(renderer, LOGICAL_WIDTH / 2 + size * cos(radiansQuotient * k * degreesQuotient), LOGICAL_WIDTH / 2 + size * sin(radiansQuotient * k * degreesQuotient));
+            } break;
+            case 5: {
+                Uint8 r = 0, g = 0, b = 0, a = 0;
+                SDL_GetRenderDrawColor(renderer, &r, &g, &b, &a);
+                size = (0.5f * (float)LOGICAL_WIDTH / (float)elems.size());
+                if (isColored) {
+                    vertices[0] = {
+                        {LOGICAL_WIDTH / 2, LOGICAL_WIDTH / 2}, /* first point location */ 
+                        { r, g, b, 0xFF }, /* first color */ 
+                        { 0.f, 0.f }
+                    };
+                    vertices[1] = {
+                        {LOGICAL_WIDTH / 2 + size * elems[k] * cos(radiansQuotient * k * degreesQuotient), LOGICAL_WIDTH / 2 + size * elems[k] * sin(radiansQuotient * k * degreesQuotient)}, /* second point location */ 
+                        { r, g, b, 0xFF }, /* second color */
+                        { 0.f, 0.f }
+                    };
+                    vertices[2] = {
+                        {LOGICAL_WIDTH / 2 + size * elems[k] * cos(radiansQuotient * (k + 1) * degreesQuotient), LOGICAL_WIDTH / 2 + size * elems[k] * sin(radiansQuotient * (k + 1) * degreesQuotient)}, /* third point location */ 
+                        { r, g, b, 0xFF }, /* third color */
+                        { 0.f, 0.f }
+                    };
+                } else {
+                    vertices[0] = {
+                        {LOGICAL_WIDTH / 2, LOGICAL_WIDTH / 2}, /* first point location */ 
+                        { r, g, b, 0xFF }, /* first color */ 
+                        { 0.f, 0.f }
+                    };
+                    vertices[1] = {
+                        {LOGICAL_WIDTH / 2 + size * elems[k] * cos(radiansQuotient * k * degreesQuotient), LOGICAL_WIDTH / 2 + size * elems[k] * sin(radiansQuotient * k * degreesQuotient)}, /* second point location */ 
+                        { r, g, b, 0xFF }, /* second color */
+                        { 0.f, 0.f }
+                    };
+                    vertices[2] = {
+                        {LOGICAL_WIDTH / 2 + size  * elems[k] * cos(radiansQuotient * (k + 1) * degreesQuotient), LOGICAL_WIDTH / 2 + size * elems[k] * sin(radiansQuotient * (k + 1) * degreesQuotient)}, /* third point location */ 
+                        { r, g, b, 0xFF }, /* third color */
+                        { 0.f, 0.f }
+                    };
+                }
+                // SDL_RenderDrawPoint(renderer, LOGICAL_WIDTH / 2 + 50 * (k / elems[k]) * cos(radiansQuotient * (k + 1) * degreesQuotient), LOGICAL_WIDTH / 2 + 50 * (k / elems[k]) * sin(radiansQuotient * (k + 1) * degreesQuotient));
+                SDL_RenderGeometry(renderer, NULL, vertices, 3, NULL, 0);
+            } break;
+            case 6: {
+                size = (0.5f * (float)LOGICAL_WIDTH / (float)elems.size());
+                SDL_RenderDrawPoint(renderer, LOGICAL_WIDTH / 2 + size * elems[k] * cos(radiansQuotient * k * degreesQuotient), LOGICAL_WIDTH / 2 + size * elems[k] * sin(radiansQuotient * k * degreesQuotient));
+            } break;
         }
     }
+
+    renderInfo(sort);
+
     if(renderGUI(sort))
         return;
     SDL_RenderPresent(renderer);
@@ -151,9 +250,25 @@ bool SortRenderer::renderGUI(Sort* sort)
             }
             ImGui::EndCombo();
         } 
-        ImGui::Checkbox("Color", &isColored);
+
         ImGui::SameLine();
-        ImGui::Checkbox("Dot or line", &isDot);
+        ImGui::Checkbox("Color", &isColored);
+
+        ImGui::Spacing();
+        ImGui::SeparatorText("Display Types");
+        ImGui::Spacing();
+
+        ImGui::RadioButton("Bar", &displayType, 0);                 ImGui::SameLine();
+        ImGui::RadioButton("Dot", &displayType, 1);                 ImGui::SameLine();
+        ImGui::RadioButton("Rainbow Rectangle", &displayType, 2);
+        ImGui::RadioButton("Circle", &displayType, 3);              ImGui::SameLine();
+        ImGui::RadioButton("Circle Dot", &displayType, 4);          ImGui::SameLine();
+        ImGui::RadioButton("Spiral", &displayType, 5);              ImGui::SameLine();
+        ImGui::RadioButton("Spiral Dot", &displayType, 6);
+
+        ImGui::Spacing();
+        ImGui::SeparatorText("Variables");
+        ImGui::Spacing();
 
         setSpeed = std::clamp((double)setSpeed, 0.001, 1000.0);
         ImGui::InputFloat("Set Speed", &setSpeed, 0.001f);
@@ -163,6 +278,8 @@ bool SortRenderer::renderGUI(Sort* sort)
 
         if (current_item == 6)
             ImGui::SliderInt("Set Buckets/Radix", &setRadix, 2, 10, "%d");
+
+        ImGui::Spacing();
         if(ImGui::Button("Sort") && sort->sorted && !(sort->isSorting)) {
             switch(current_item)
             {

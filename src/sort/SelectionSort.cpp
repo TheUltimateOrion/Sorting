@@ -14,11 +14,12 @@ void SelectionSort::sort()
         {
             if (elems[j] < elems[min])
                 min = j;
+            comparisions++;
         }
+        swap(elems, min, i);
         SortRenderer::render(this, this->elems, min, i);
         if (wantBreak)
             return;
-        swap(elems, min, i);
     }
     isSorting = false;
     sorted = true;

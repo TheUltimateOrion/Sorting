@@ -33,5 +33,7 @@ extern double deltaTime;
 
 extern Mix_Chunk* sfx;
 extern int setLength;
+extern unsigned int swaps;
+extern unsigned int comparisions;
 
 extern void calculateDeltaTime();

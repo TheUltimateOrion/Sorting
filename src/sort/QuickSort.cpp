@@ -11,11 +11,12 @@ int QuickSort::partition(std::vector<int>& arr, int low, int high)
     for (int j = low; j <= high - 1; j++) {
         if (arr[j] < pivot) {
             i++;
+            swap(arr, i, j);
             SortRenderer::render(this, this->elems, i, j);
             if (wantBreak)
                 return 0;
-            swap(arr, i, j);
         }
+        comparisions++;
     }
     SortRenderer::render(this, this->elems, i + 1, high);
     if (wantBreak)

@@ -14,6 +14,8 @@ public:
     std::vector<int> elems;
     float speed;
     float start_time;
+    unsigned int swaps = 0; 
+    unsigned int comparisions = 0; 
 
     Sort(std::vector<int>& arr, ImGuiIO& io);
 
