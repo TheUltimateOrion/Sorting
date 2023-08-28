@@ -14,11 +14,12 @@ public:
     Uint64 NOW = SDL_GetPerformanceCounter();
     Uint64 LAST = 0;
     double deltaTime = 0;
-    Mix_Chunk* sfx = NULL;
     int setLength = 512;
     unsigned int swaps = 0;
     unsigned int comparisions = 0;
     ImGuiIO* io;
+
+    int current_element = 0;
 
     float setSpeed = 1.0f;
     bool isColored = false;
@@ -43,10 +44,14 @@ public:
     int init();
     void run();
 
+    void startAudioThread();
+
     void calculateDeltaTime();
     ImGuiIO& configureIO();
     int loadFonts();
-    int loadSound();
+    int initSound();
+    ALenum playSound(float ms, float freq);
+    int closeSound();
     void setStyle(ImGuiStyle* style);
 };
 extern App* app;

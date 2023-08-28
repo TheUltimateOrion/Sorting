@@ -26,14 +26,14 @@ void MergeSort::merge(int const left, int const mid, int const right)
         if (leftArray[indexOfSubArrayOne]
             <= rightArray[indexOfSubArrayTwo]) {
             elems[indexOfMergedArray] = leftArray[indexOfSubArrayOne];
-            SortRenderer::render(this, this->elems, indexOfSubArrayOne, indexOfSubArrayOne);
+            SortRenderer::render(this->elems, indexOfSubArrayOne, indexOfSubArrayOne);
             if (wantClose || wantStop)
                 return;
             indexOfSubArrayOne++;
         }
         else {
             elems[indexOfMergedArray] = rightArray[indexOfSubArrayTwo];
-            SortRenderer::render(this, this->elems, indexOfSubArrayTwo, indexOfSubArrayTwo);
+            SortRenderer::render(this->elems, indexOfSubArrayTwo, indexOfSubArrayTwo);
             if (wantClose || wantStop)
                 return;
             indexOfSubArrayTwo++;
@@ -46,7 +46,7 @@ void MergeSort::merge(int const left, int const mid, int const right)
     // left[], if there are any
     while (indexOfSubArrayOne < subArrayOne) {
         elems[indexOfMergedArray] = leftArray[indexOfSubArrayOne];
-        SortRenderer::render(this, this->elems, indexOfMergedArray, indexOfSubArrayOne);
+        SortRenderer::render(this->elems, indexOfMergedArray, indexOfSubArrayOne);
         if (wantClose || wantStop)
             return;
         indexOfSubArrayOne++;
@@ -57,7 +57,7 @@ void MergeSort::merge(int const left, int const mid, int const right)
     // right[], if there are any
     while (indexOfSubArrayTwo < subArrayTwo) {
         elems[indexOfMergedArray] = rightArray[indexOfSubArrayTwo];
-        SortRenderer::render(this, this->elems, indexOfMergedArray, indexOfSubArrayTwo);
+        SortRenderer::render(this->elems, indexOfMergedArray, indexOfSubArrayTwo);
         if (wantClose || wantStop)
             return;
         indexOfSubArrayTwo++;

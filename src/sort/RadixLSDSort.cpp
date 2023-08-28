@@ -27,7 +27,7 @@ void RadixLSDSort::countSortByDigits(int exponent, int minValue)
     for (int i = elems.size() - 1; i >= 0; i--) {
         bucketIndex = (int)(((elems[i] - minValue) / exponent) % radix);
         output[--buckets[bucketIndex]] = elems[i];
-		SortRenderer::render(this, output, i, i);
+		SortRenderer::render(output, i, i);
 		if (wantClose || wantStop)
 			return;
 	}
@@ -35,7 +35,7 @@ void RadixLSDSort::countSortByDigits(int exponent, int minValue)
     // Copy back
     for (int i = 0; i < elems.size(); i++) {
         elems[i] = output[i];
-		SortRenderer::render(this, output, i, i);
+		SortRenderer::render(output, i, i);
 		if (wantClose || wantStop)
 			return;
     }
@@ -112,7 +112,7 @@ void RadixLSDSort::sort()
 
 //         // Now, we are updating the array with the new array
 //         for(int j = 0;j < elems.size(); j++) {
-//             SortRenderer::render(this, this->elems, j, j);
+//             SortRenderer::render(this->elems, j, j);
 //             if (wantClose || wantStop)
 //                 return;
 //             elems[j] = new_elems[j];

@@ -15,10 +15,10 @@ void BogoSort::bogoShuffle(std::vector<int>& elems, int n)
 {
     for (int i = 0; i < n; i++) {
         int randInt = rand() % n;
-        SortRenderer::render(this, this->elems, i, randInt);
+        swap(elems, i, randInt);
+        SortRenderer::render(this->elems, randInt, randInt);
         if (wantClose || wantStop)
             return;
-        swap(elems, i, randInt);
     }
 }
 

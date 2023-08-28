@@ -60,7 +60,7 @@ void SortRenderer::renderText(std::string txt, int x, int y, SDL_Color color)
     SDL_DestroyTexture(text);
 }
 
-void SortRenderer::renderInfo(Sort*& sort)
+void SortRenderer::renderInfo()
 {
     Uint8 _r, _g, _b, _a; SDL_GetRenderDrawColor(app->renderer, &_r, &_g, &_b, &_a);
     SDL_Rect rect = {0, 0, 230, 125};
@@ -68,33 +68,37 @@ void SortRenderer::renderInfo(Sort*& sort)
     SDL_RenderFillRect(app->renderer, &rect);
 
     SDL_Color textColor = { 0, 0xFF, 0, 0 };
-    if (sort->isSorting)
-        ::last_time = (float)clock() / 1000.0f - sort->start_time;
-    if (sort->isSorting || (::last_time == 0.0f))
+    if (app->sorter->isSorting)
+        ::last_time = (float)clock() / 1000.0f - app->sorter->start_time;
+    if (app->sorter->isSorting || (::last_time == 0.0f))
         textColor = { 0xFF, 0xFF, 0xFF, 0 };
     
     renderText("TIME: " + std::to_string(::last_time) + 's', 10, 10, textColor);
     renderText(std::string("Sort: ") + app->items[app->current_category][app->current_item], 10, 30, { 0xFF, 0xFF, 0xFF, 0 });
 
-    app->swaps = sort->swaps;
-    app->comparisions = sort->comparisions;
+    app->swaps = app->sorter->swaps;
+    app->comparisions = app->sorter->comparisions;
     renderText("Swaps: " + std::to_string(app->swaps), 10, 50, { 0xFF, 0xFF, 0xFF, 0 });
     renderText("Comparisions: " + std::to_string(app->comparisions), 10, 70, { 0xFF, 0xFF, 0xFF, 0 });
 
-    if (sort->isSorting)
+    if (app->sorter->isSorting)
         renderText("Sorting...", 10, 90, { 0xFF, 0xFF, 0xFF, 0 });
-    if (sort->isShuffling)
+    if (app->sorter->isShuffling)
         renderText("Shuffling...", 10, 90, { 0xFF, 0xFF, 0xFF, 0 });
-    if (!(sort->isShuffling) && !(sort->isSorting) && sort->sorted)
+    if (!(app->sorter->isShuffling) && !(app->sorter->isSorting) && app->sorter->sorted)
         renderText("Sorted", 10, 90, { 0xFF, 0xFF, 0xFF, 0 });
     SDL_SetRenderDrawColor(app->renderer, _r, _g, _b, _a);
 }
 
-void SortRenderer::render(Sort* sort, std::vector<int>& elems, int a, int b)
+void SortRenderer::render(std::vector<int>& elems, int a, int b)
 {
     app->calculateDeltaTime();
     SDL_SetRenderDrawColor(app->renderer, 0x0, 0x0, 0x0, 0x0);
     SDL_RenderClear(app->renderer);
+
+    app->current_element = a;
+    //this->startAudioThread();
+    //app->playSound(1 / (app->sorter->speed), (float)elems[app->current_element]);
 
     SDL_Color sortColor; 
     for (int k = 0; k < elems.size(); k++)
@@ -208,11 +212,15 @@ void SortRenderer::render(Sort* sort, std::vector<int>& elems, int a, int b)
         }
     }
 
-    renderInfo(sort);
+    renderInfo();
 
-    int ret = renderGUI(sort);
-    if (ret == 1)
+    int ret = renderGUI();
+    if (ret == 1) {
+        app->sorter->isShuffling = false;
+        app->sorter->isSorting = false;
+        app->sorter->sorted = true;
         return;
+    }
         
     SDL_RenderPresent(app->renderer);
     if(SDL_PollEvent(&app->event))
@@ -220,14 +228,14 @@ void SortRenderer::render(Sort* sort, std::vector<int>& elems, int a, int b)
         ImGui_ImplSDL2_ProcessEvent(&app->event);
         if (app->event.type == SDL_QUIT)
         {
-            sort->wantClose = true;
+            app->sorter->wantClose = true;
             return;
         }
     }
-    SDL_Delay(1 / (sort->speed));
+    SDL_Delay(1 / (app->sorter->speed));
 }
 
-bool SortRenderer::renderGUI(Sort* sort)
+bool SortRenderer::renderGUI()
 {
     ImGui_ImplSDLRenderer2_NewFrame();
     ImGui_ImplSDL2_NewFrame();
@@ -236,7 +244,7 @@ bool SortRenderer::renderGUI(Sort* sort)
     bool shouldSort = false;
     {
         ImGui::Begin("Configure");
-        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / sort->io->Framerate, sort->io->Framerate);
+        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / app->sorter->io->Framerate, app->sorter->io->Framerate);
 
         if (ImGui::BeginCombo("##combo1", app->categories[app->current_category])) // The second parameter is the label previewed before opening the combo.
         {
@@ -296,7 +304,7 @@ bool SortRenderer::renderGUI(Sort* sort)
             ImGui::SliderInt("Set Buckets/Radix", &app->setRadix, 2, 10, "%d");
 
         ImGui::Spacing();
-        if (!(sort->isSorting) && !(sort->isShuffling))
+        if (!(app->sorter->isSorting) && !(app->sorter->isShuffling))
         {
             if(ImGui::Button("Sort")) {
                 switch(app->current_category)
@@ -305,15 +313,15 @@ bool SortRenderer::renderGUI(Sort* sort)
                         switch(app->current_item)
                         {
                             case 0: {
-                                sort = new BubbleSort(sort->elems, sort->io);
+                                app->sorter = new BubbleSort(app->sorter->elems, app->sorter->io);
                                 goto _jmp;
                             } break;
                             case 1: {
-                                sort = new QuickSort(sort->elems, sort->io);
+                                app->sorter = new QuickSort(app->sorter->elems, app->sorter->io);
                                 goto _jmp;
                             } break;
                             case 2: {
-                                sort = new CombSort(sort->elems, sort->io);
+                                app->sorter = new CombSort(app->sorter->elems, app->sorter->io);
                                 goto _jmp;
                             } break;
 
@@ -323,19 +331,19 @@ bool SortRenderer::renderGUI(Sort* sort)
                         switch(app->current_item)
                         {
                             case 0: {
-                                sort = new RadixLSDSort(sort->elems, sort->io, app->setRadix);
+                                app->sorter = new RadixLSDSort(app->sorter->elems, app->sorter->io, app->setRadix);
                                 goto _jmp;
                             } break;
                             case 1: {
-                                sort = new PigeonHoleSort(sort->elems, sort->io);
+                                app->sorter = new PigeonHoleSort(app->sorter->elems, app->sorter->io);
                                 goto _jmp;
                             } break;
                             case 2: {
-                                sort = new GravitySort(sort->elems, sort->io);
+                                app->sorter = new GravitySort(app->sorter->elems, app->sorter->io);
                                 goto _jmp;
                             } break;
                             case 3: {
-                                sort = new BogoSort(sort->elems, sort->io);
+                                app->sorter = new BogoSort(app->sorter->elems, app->sorter->io);
                                 goto _jmp;
                             } break;
                         }
@@ -344,7 +352,7 @@ bool SortRenderer::renderGUI(Sort* sort)
                     case 2: {
                         switch(app->current_item) {
                             case 0: {
-                                sort = new InsertionSort(sort->elems, sort->io);
+                                app->sorter = new InsertionSort(app->sorter->elems, app->sorter->io);
                                 goto _jmp;
                             } break;
                         }
@@ -352,7 +360,7 @@ bool SortRenderer::renderGUI(Sort* sort)
                     case 3: {
                         switch(app->current_item) {
                             case 0: {
-                                sort = new MergeSort(sort->elems, sort->io);
+                                app->sorter = new MergeSort(app->sorter->elems, app->sorter->io);
                                 goto _jmp;
                             } break;
                         }
@@ -360,13 +368,13 @@ bool SortRenderer::renderGUI(Sort* sort)
                     case 4: {
                         switch(app->current_item) {
                             case 0: {
-                                sort = new SelectionSort(sort->elems, sort->io);
+                                app->sorter = new SelectionSort(app->sorter->elems, app->sorter->io);
                             } break;
                         }
                         
                         _jmp:
-                        sort->setSpeed(app->setSpeed);
-                        sort->setLength(app->setLength);
+                        app->sorter->setSpeed(app->setSpeed);
+                        app->sorter->setLength(app->setLength);
                     } break;   
                     default:
                         std::cout << "Invalid Sort!" << std::endl;
@@ -375,7 +383,7 @@ bool SortRenderer::renderGUI(Sort* sort)
             }
         } else {
             if(ImGui::Button("Stop"))
-                sort->wantStop = true;
+                app->sorter->wantStop = true;
         }
         ImGui::SameLine();
         ImGui::Checkbox("Reverse instead of Shuffling", &app->reverse);
@@ -387,16 +395,16 @@ bool SortRenderer::renderGUI(Sort* sort)
     {
         shouldSort = false;
         if(!app->reverse)
-            sort->shuffle();
+            app->sorter->shuffle();
         else
-            sort->reverse();
-        if (sort->wantClose) return 2;
-        if(!(sort->wantStop))
-            sort->sort();
-        if (sort->wantStop) {
+            app->sorter->reverse();
+        if (app->sorter->wantClose) return 2;
+        if(!(app->sorter->wantStop))
+            app->sorter->sort();
+        if (app->sorter->wantStop) {
             return 1;
         }
-        if (sort->wantClose) return 2;
+        if (app->sorter->wantClose) return 2;
     }
     return 0;
 }

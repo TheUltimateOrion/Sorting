@@ -5,7 +5,6 @@
 #include <imgui_impl_sdlrenderer2.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
-#include <SDL2/SDL_mixer.h>
 #include <string>
 #include <iostream>
 #include <functional>
@@ -13,6 +12,8 @@
 #include <cmath>
 #include <queue>
 #include <list>
+#include <AL/al.h>
+#include <AL/alc.h>
 
 #include <bits/stdc++.h>
 #include <windows.h>

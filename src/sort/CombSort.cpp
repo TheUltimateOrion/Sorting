@@ -37,7 +37,7 @@ void CombSort::sort()
             if (elems[i] > elems[i + gap])
             {
                 swap(elems, i, i + gap);
-                SortRenderer::render(this, this->elems, i, i + gap);
+                SortRenderer::render(this->elems, i, i + gap);
                 if (wantClose || wantStop)
                     return;
                 swapped = true;

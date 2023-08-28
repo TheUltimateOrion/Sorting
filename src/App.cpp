@@ -1,5 +1,18 @@
 #include "App.h"
 
+const char* alErrorString(int err) {
+    switch (err) {
+        case AL_NO_ERROR: return "AL_NO_ERROR";
+        case ALC_INVALID_DEVICE: return "ALC_INVALID_DEVICE";
+        case ALC_INVALID_CONTEXT: return "ALC_INVALID_CONTEXT";
+        case AL_INVALID_VALUE: return "AL_INVALID_VALUE";
+        case AL_OUT_OF_MEMORY: return "AL_OUT_OF_MEMORY";
+        /* ... */
+        default:
+            return "Unknown error code";
+    }
+}
+
 App::App()
 {
 	this->categories = {"Exchange", "Distribution", "Insertion", "Merge", "Select"};
@@ -15,7 +28,6 @@ App::App()
 
 App::~App()
 {
-    Mix_FreeChunk(this->sfx); this->sfx = NULL;
     //std::cout << func_time(bubble_sort, nums) << " seconds" << std::endl;
     TTF_CloseFont(this->font);
     TTF_Quit();
@@ -24,7 +36,7 @@ App::~App()
     ImGui::DestroyContext();
     SDL_DestroyRenderer(this->renderer);
     SDL_DestroyWindow(this->window);
-    Mix_Quit();
+    this->closeSound();
     SDL_Quit();
 }
 
@@ -55,9 +67,9 @@ int App::init()
         return -1;
     }
 
-    if (this->loadSound() < 0)
+    if (this->initSound() < 0)
     {
-        fprintf(stderr, "error: sound not found\n");
+        fprintf(stderr, "error: Sound could not be initialized\n");
         return -1;
     }
 
@@ -70,6 +82,7 @@ int App::init()
 		SDL_SetRenderDrawBlendMode(this->renderer, SDL_BLENDMODE_BLEND);
         SDL_RenderClear(this->renderer);
     }
+	this->initSound();
 	this->_setupGUI();
 	return 0;
 }
@@ -83,18 +96,39 @@ void App::run()
 	this->sorter = new BubbleSort(nums, io);
     this->sorter->setSpeed(1);
 
+    std::thread audioThread([this]()
+    {
+        while(!this->sorter->wantClose) {
+            float sec = 0.05 / (this->sorter->speed);
+            int freq = this->sorter->elems[this->current_element] * (LOGICAL_WIDTH / (float)this->sorter->elems.size());
+            if (this->sorter->isSorting || this->sorter->isShuffling){
+                ALenum err = this->playSound(sec, freq);
+                if(err != 0) std::cerr << "OpenAL Error: " << alErrorString(err) << ' ' << err << std::endl;
+                Sleep(1000 * sec);
+            }
+        }
+    });
+    audioThread.detach();
+
     SDL_PollEvent(&this->event);
     while(1)
     {
         this->sorter->setLength(this->setLength);
         this->sorter->swaps = this->swaps;
         this->sorter->comparisions = this->comparisions;
-        SortRenderer::render(this->sorter, this->sorter->elems, 1, 1);
+        SortRenderer::render(this->sorter->elems, 1, 1);
         if (this->event.type == SDL_QUIT)
             break;
         SDL_Delay(1);
     }
 }
+
+// void App::startAudioThread()
+// {
+//     App* _app = this;
+    
+//     audioThread.detach();
+// }
 
 void App::calculateDeltaTime()
 {
@@ -167,16 +201,82 @@ void App::setStyle(ImGuiStyle* style)
 	style->Colors[ImGuiCol_TextSelectedBg] = ImVec4(0.25f, 1.00f, 0.00f, 0.43f);
 }
 
+ALenum error;
+ALuint buf;
+ALuint src = 0;
 
-int App::loadSound()
+int App::initSound()
 {
-    char buffer[MAX_PATH] = {0};
-    GetModuleFileNameA(NULL, buffer, MAX_PATH);
-    std::string::size_type pos = std::string(buffer).find_last_of("\\/");
-    std::string path = std::string(buffer).substr(0, pos);
-    path += "\\res\\snd.wav";
+    ALCdevice *dev = NULL;
+    ALCcontext *ctx = NULL;
 
-    sfx = Mix_LoadWAV(path.c_str());
+    const char *defname = alcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
+    //std::cout << "Default device: " << defname << std::endl;
+
+    dev = alcOpenDevice(defname);
+    ctx = alcCreateContext(dev, NULL);
+    alcMakeContextCurrent(ctx);
+    alGenSources(1, &src);
+    error = alGetError();
+    if (alGetError() != AL_NO_ERROR)
+        return -1;
+    return 0;
+}
+
+int App::closeSound()
+{
+    ALCdevice *dev = NULL;
+    ALCcontext *ctx = NULL;
+    ctx = alcGetCurrentContext();
+    dev = alcGetContextsDevice(ctx);
+
+    alcMakeContextCurrent(NULL);
+    alcDestroyContext(ctx);
+    alcCloseDevice(dev);
+    return 0;
+}
+
+ALenum App::playSound(float ms, float freq)
+{
+    alGenBuffers(1, &buf);
+    error = alGetError();
+    if (error != AL_NO_ERROR)
+        return error;
+
+    /* Fill buffer with Sine-Wave */
+    unsigned sample_rate = 22050;
+    size_t buf_size = ms * sample_rate;
+
+    short *samples;
+    samples = new short[buf_size];
+    for(int i=0; i<buf_size; ++i) {
+        samples[i] = 32760 * sin( (2.f*float(M_PI)*freq)/sample_rate * i );
+    }
+
+    /* Download buffer to OpenAL */
+    alBufferData(buf, AL_FORMAT_MONO16, samples, buf_size, sample_rate);
+    error = alGetError();
+    if (error != AL_NO_ERROR)
+        return error;
+
+    /* Set-up sound source and play buffer */
+
+    alSourcei(src, AL_BUFFER, buf);
+    error = alGetError();
+    if (error != AL_NO_ERROR)
+        return error;
+
+    alSourcef(src, AL_GAIN, 0.1f);
+    error = alGetError();
+    if (error != AL_NO_ERROR)
+        return error;
+
+    alSourcePlay(src);
+    error = alGetError();
+    if (error != AL_NO_ERROR)
+        return error;
+
+    delete samples;
     return 0;
 }
 
