@@ -18,9 +18,9 @@ SDL_Color SortRenderer::HSVToRGB(unsigned char hue, unsigned char sat, unsigned 
     region = hue / 43;
     remainder = (hue - (region * 43)) * 6; 
     
-    p = (value * (255 - sat)) >> 8;
-    q = (value * (255 - ((sat * remainder) >> 8))) >> 8;
-    t = (value * (255 - ((sat * (255 - remainder)) >> 8))) >> 8;
+    p = (value * (0xFF - sat)) >> 8;
+    q = (value * (0xFF - ((sat * remainder) >> 8))) >> 8;
+    t = (value * (0xFF - ((sat * (0xFF - remainder)) >> 8))) >> 8;
     
     switch (region)
     {
@@ -62,45 +62,51 @@ void SortRenderer::renderText(std::string txt, int x, int y, SDL_Color color)
 
 void SortRenderer::renderInfo(Sort*& sort)
 {
-    SDL_Color textColor = { 0, 255, 0, 0 };
+    Uint8 _r, _g, _b, _a; SDL_GetRenderDrawColor(app->renderer, &_r, &_g, &_b, &_a);
+    SDL_Rect rect = {0, 0, 230, 125};
+    SDL_SetRenderDrawColor(app->renderer, 0x40, 0x40, 0x40, 0x80);
+    SDL_RenderFillRect(app->renderer, &rect);
+
+    SDL_Color textColor = { 0, 0xFF, 0, 0 };
     if (sort->isSorting)
         ::last_time = (float)clock() / 1000.0f - sort->start_time;
     if (sort->isSorting || (::last_time == 0.0f))
-        textColor = { 255, 255, 255, 0 };
+        textColor = { 0xFF, 0xFF, 0xFF, 0 };
     
     renderText("TIME: " + std::to_string(::last_time) + 's', 10, 10, textColor);
-    renderText(std::string("Sort: ") + app->items[app->current_category][app->current_item], 10, 30, { 255, 255, 255, 0 });
+    renderText(std::string("Sort: ") + app->items[app->current_category][app->current_item], 10, 30, { 0xFF, 0xFF, 0xFF, 0 });
 
     app->swaps = sort->swaps;
     app->comparisions = sort->comparisions;
-    renderText("Swaps: " + std::to_string(app->swaps), 10, 50, { 255, 255, 255, 0 });
-    renderText("Comparisions: " + std::to_string(app->comparisions), 10, 70, { 255, 255, 255, 0 });
+    renderText("Swaps: " + std::to_string(app->swaps), 10, 50, { 0xFF, 0xFF, 0xFF, 0 });
+    renderText("Comparisions: " + std::to_string(app->comparisions), 10, 70, { 0xFF, 0xFF, 0xFF, 0 });
 
     if (sort->isSorting)
-        renderText("Sorting...", 10, 90, { 255, 255, 255, 0 });
+        renderText("Sorting...", 10, 90, { 0xFF, 0xFF, 0xFF, 0 });
     if (sort->isShuffling)
-        renderText("Shuffling...", 10, 90, { 255, 255, 255, 0 });
+        renderText("Shuffling...", 10, 90, { 0xFF, 0xFF, 0xFF, 0 });
     if (!(sort->isShuffling) && !(sort->isSorting) && sort->sorted)
-        renderText("Sorted", 10, 90, { 255, 255, 255, 0 });
+        renderText("Sorted", 10, 90, { 0xFF, 0xFF, 0xFF, 0 });
+    SDL_SetRenderDrawColor(app->renderer, _r, _g, _b, _a);
 }
 
 void SortRenderer::render(Sort* sort, std::vector<int>& elems, int a, int b)
 {
     app->calculateDeltaTime();
-    SDL_SetRenderDrawColor(app->renderer, 0, 0, 0, 0);
+    SDL_SetRenderDrawColor(app->renderer, 0x0, 0x0, 0x0, 0x0);
     SDL_RenderClear(app->renderer);
 
     SDL_Color sortColor; 
     for (int k = 0; k < elems.size(); k++)
     {
-        sortColor = HSVToRGB(elems[k] * 255 / elems.size(), 255, 255);
+        sortColor = HSVToRGB(elems[k] * 0xFF / elems.size(), 0xFF, 0xFF);
         if (k == a || k == b)
-            SDL_SetRenderDrawColor(app->renderer, 255, 0, 0, 255);
+            SDL_SetRenderDrawColor(app->renderer, 0xFF, 0x0, 0x0, 0xFF);
         else {
-            SDL_SetRenderDrawColor(app->renderer, 255, 255, 255, 255);
+            SDL_SetRenderDrawColor(app->renderer, 0xFF, 0xFF, 0xFF, 0xFF);
             if (app->isColored) {
                 //SDL_SetRenderDrawColor(renderer, elems[k] * 255 / (elems.size()), 0, 255-(elems[k] * 255 / (elems.size())), 255);
-                SDL_SetRenderDrawColor(app->renderer, sortColor.r, sortColor.g, sortColor.b, 255);
+                SDL_SetRenderDrawColor(app->renderer, sortColor.r, sortColor.g, sortColor.b, 0xFF);
             }
         }
         int spacing = LOGICAL_WIDTH / (int)elems.size();

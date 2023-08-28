@@ -66,7 +66,8 @@ int App::init()
         this->window = SDL_CreateWindow("Sorting Algorithms", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WIN_WIDTH, WIN_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI);
         this->renderer = SDL_CreateRenderer(this->window, -1, SDL_RENDERER_ACCELERATED);
         SDL_RenderSetLogicalSize(this->renderer, LOGICAL_WIDTH, LOGICAL_WIDTH);
-        SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 0);
+        SDL_SetRenderDrawColor(this->renderer, 0x0, 0x0, 0x0, 0x0);
+		SDL_SetRenderDrawBlendMode(this->renderer, SDL_BLENDMODE_BLEND);
         SDL_RenderClear(this->renderer);
     }
 	this->_setupGUI();
