@@ -2,7 +2,15 @@
 
 App::App()
 {
-    this->items = { "BubbleSort", "SelectionSort", "InsertionSort", "QuickSort", "MergeSort", "GravitySort", "PigeonHoleSort", "RadixLSDSort", "CombSort", "BogoSort"};
+	this->categories = {"Exchange", "Distribution", "Insertion", "Merge", "Select"};
+    this->items = {
+		{"BubbleSort", "QuickSort", "CombSort", },
+		{"RadixLSDSort", "PigeonHoleSort", "GravitySort", "BogoSort"},
+		{"InsertionSort"},
+		{"MergeSort"},
+		{"SelectionSort"}
+	};
+
 }
 
 App::~App()

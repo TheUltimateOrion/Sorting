@@ -23,8 +23,13 @@ public:
     float setSpeed = 1.0f;
     bool isColored = false;
     int displayType = 0;
-    std::vector<const char *> items;
+
+    std::vector<std::vector<const char *>> items;
     int current_item = 0;
+    
+    std::vector<const char *> categories;
+    int current_category = 0;
+
     bool isRadix = false;
     int setRadix = 2;
     SDL_Rect rect;

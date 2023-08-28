@@ -69,7 +69,7 @@ void SortRenderer::renderInfo(Sort*& sort)
         textColor = { 255, 255, 255, 0 };
     
     renderText("TIME: " + std::to_string(::last_time) + 's', 10, 10, textColor);
-     renderText(std::string("Sort: ") + app->items[app->current_item], 10, 30, { 255, 255, 255, 0 });
+    renderText(std::string("Sort: ") + app->items[app->current_category][app->current_item], 10, 30, { 255, 255, 255, 0 });
 
     app->swaps = sort->swaps;
     app->comparisions = sort->comparisions;
@@ -232,18 +232,33 @@ bool SortRenderer::renderGUI(Sort* sort)
         ImGui::Begin("Configure");
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / sort->io->Framerate, sort->io->Framerate);
 
-        if (ImGui::BeginCombo("##combo", app->items[app->current_item])) // The second parameter is the label previewed before opening the combo.
+        if (ImGui::BeginCombo("##combo1", app->categories[app->current_category])) // The second parameter is the label previewed before opening the combo.
         {
-            for (int n = 0; n < app->items.capacity(); n++)
+            for (int n = 0; n < app->categories.capacity(); n++)
             {
-                bool is_selected = (app->items[app->current_item] == app->items[n]); // You can store your selection however you want, outside or inside your objects
-                if (ImGui::Selectable(app->items[n], is_selected))
+                bool is_selected = (app->categories[app->current_category] == app->categories[n]); // You can store your selection however you want, outside or inside your objects
+                if (ImGui::Selectable(app->categories[n], is_selected))
+                    app->current_category = n;
+                if (is_selected)
+                    ImGui::SetItemDefaultFocus();   // You may set the initial focus when opening the combo (scrolling + for keyboard navigation support)
+            }
+            ImGui::EndCombo();
+        }
+
+        if(app->current_item >= app->items[app->current_category].capacity()) app->current_item = 0;
+
+        if (ImGui::BeginCombo("##combo2", app->items[app->current_category][app->current_item])) // The second parameter is the label previewed before opening the combo.
+        {
+            for (int n = 0; n < app->items[app->current_category].capacity(); n++)
+            {
+                bool is_selected = (app->items[app->current_category][app->current_item] == app->items[app->current_category][n]); // You can store your selection however you want, outside or inside your objects
+                if (ImGui::Selectable(app->items[app->current_category][n], is_selected))
                     app->current_item = n;
                 if (is_selected)
                     ImGui::SetItemDefaultFocus();   // You may set the initial focus when opening the combo (scrolling + for keyboard navigation support)
             }
             ImGui::EndCombo();
-        } 
+        }
 
         ImGui::SameLine();
         ImGui::Checkbox("Color", &app->isColored);
@@ -278,50 +293,75 @@ bool SortRenderer::renderGUI(Sort* sort)
         if (!(sort->isSorting) && !(sort->isShuffling))
         {
             if(ImGui::Button("Sort")) {
-                switch(app->current_item)
+                switch(app->current_category)
                 {
                     case 0: {
-                        sort = new BubbleSort(sort->elems, sort->io);
-                        goto _jmp;
+                        switch(app->current_item)
+                        {
+                            case 0: {
+                                sort = new BubbleSort(sort->elems, sort->io);
+                                goto _jmp;
+                            } break;
+                            case 1: {
+                                sort = new QuickSort(sort->elems, sort->io);
+                                goto _jmp;
+                            } break;
+                            case 2: {
+                                sort = new CombSort(sort->elems, sort->io);
+                                goto _jmp;
+                            } break;
+
+                        }
                     } break;
                     case 1: {
-                        sort = new SelectionSort(sort->elems, sort->io);
-                        goto _jmp;
+                        switch(app->current_item)
+                        {
+                            case 0: {
+                                sort = new RadixLSDSort(sort->elems, sort->io, app->setRadix);
+                                goto _jmp;
+                            } break;
+                            case 1: {
+                                sort = new PigeonHoleSort(sort->elems, sort->io);
+                                goto _jmp;
+                            } break;
+                            case 2: {
+                                sort = new GravitySort(sort->elems, sort->io);
+                                goto _jmp;
+                            } break;
+                            case 3: {
+                                sort = new BogoSort(sort->elems, sort->io);
+                                goto _jmp;
+                            } break;
+                        }
                     } break;
+                    
                     case 2: {
-                        sort = new InsertionSort(sort->elems, sort->io);
-                        goto _jmp;
+                        switch(app->current_item) {
+                            case 0: {
+                                sort = new InsertionSort(sort->elems, sort->io);
+                                goto _jmp;
+                            } break;
+                        }
                     } break;
                     case 3: {
-                        sort = new QuickSort(sort->elems, sort->io);
-                        goto _jmp;
+                        switch(app->current_item) {
+                            case 0: {
+                                sort = new MergeSort(sort->elems, sort->io);
+                                goto _jmp;
+                            } break;
+                        }
                     } break;
                     case 4: {
-                        sort = new MergeSort(sort->elems, sort->io);
-                        goto _jmp;
-                    } break;
-                    case 5: {
-                        sort = new GravitySort(sort->elems, sort->io);
-                        goto _jmp;
-                    } break;
-                    case 6: {
-                        sort = new PigeonHoleSort(sort->elems, sort->io);
-                        goto _jmp;
-                    } break;
-                    case 7: {
-                        sort = new RadixLSDSort(sort->elems, sort->io, app->setRadix);
-                        goto _jmp;
-                    } break;
-                    case 8: {
-                        sort = new CombSort(sort->elems, sort->io);
-                        goto _jmp;
-                    } break;
-                    case 9: {
-                        sort = new BogoSort(sort->elems, sort->io);
+                        switch(app->current_item) {
+                            case 0: {
+                                sort = new SelectionSort(sort->elems, sort->io);
+                            } break;
+                        }
+                        
                         _jmp:
                         sort->setSpeed(app->setSpeed);
                         sort->setLength(app->setLength);
-                    } break;
+                    } break;   
                     default:
                         std::cout << "Invalid Sort!" << std::endl;
                 }
