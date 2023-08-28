@@ -21,19 +21,3 @@
 #define LOGICAL_WIDTH 512
 #define WIN_WIDTH LOGICAL_WIDTH
 #define WIN_HEIGHT LOGICAL_WIDTH
-
-extern SDL_Renderer *renderer;
-extern SDL_Window *window;
-extern SDL_Event event;
-extern TTF_Font *font;
-
-extern Uint64 NOW;
-extern Uint64 LAST;
-extern double deltaTime;
-
-extern Mix_Chunk* sfx;
-extern int setLength;
-extern unsigned int swaps;
-extern unsigned int comparisions;
-
-extern void calculateDeltaTime();
