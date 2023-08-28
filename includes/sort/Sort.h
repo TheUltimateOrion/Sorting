@@ -11,14 +11,14 @@ public:
     bool isShuffling;
     bool wantClose;
     bool wantStop;
-    ImGuiIO& io;
+    ImGuiIO* io;
     std::vector<int> elems;
     float speed;
     float start_time;
     unsigned int swaps = 0; 
     unsigned int comparisions = 0; 
 
-    Sort(std::vector<int>& arr, ImGuiIO& io);
+    Sort(std::vector<int>& arr, ImGuiIO* io);
 
     void swap(std::vector<int>& array, int a, int b);
 

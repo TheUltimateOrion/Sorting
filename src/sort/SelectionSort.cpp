@@ -1,7 +1,7 @@
 #include "sort/SelectionSort.h"
 
 
-SelectionSort::SelectionSort(std::vector<int>& arr, ImGuiIO& io) : Sort(arr, io) {}
+SelectionSort::SelectionSort(std::vector<int>& arr, ImGuiIO* io) : Sort(arr, io) {}
 
 void SelectionSort::sort()
 {

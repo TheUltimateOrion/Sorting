@@ -5,7 +5,7 @@
 class BubbleSort : virtual public Sort
 {
 public:
-    BubbleSort(std::vector<int>& arr, ImGuiIO& io);
+    BubbleSort(std::vector<int>& arr, ImGuiIO* io);
 
     void sort() override;
 };

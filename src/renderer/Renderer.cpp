@@ -230,7 +230,7 @@ bool SortRenderer::renderGUI(Sort* sort)
     bool shouldSort = false;
     {
         ImGui::Begin("Configure");
-        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / sort->io.Framerate, sort->io.Framerate);
+        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / sort->io->Framerate, sort->io->Framerate);
 
         if (ImGui::BeginCombo("##combo", app->items[app->current_item])) // The second parameter is the label previewed before opening the combo.
         {

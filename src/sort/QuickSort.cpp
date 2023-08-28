@@ -1,6 +1,6 @@
 #include "sort/QuickSort.h"
 
-QuickSort::QuickSort(std::vector<int>& arr, ImGuiIO& io) : Sort(arr, io) {}
+QuickSort::QuickSort(std::vector<int>& arr, ImGuiIO* io) : Sort(arr, io) {}
 
 int QuickSort::partition(std::vector<int>& arr, int low, int high)
 {

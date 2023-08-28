@@ -1,8 +1,11 @@
 #pragma once
-#include "sort/Sort.h"
+#include "renderer/Renderer.h"
+#include "sort/BubbleSort.h"
 
 class App
 {
+private:
+    void _setupGUI();
 public:
     SDL_Renderer *renderer;
     SDL_Window *window;
@@ -15,6 +18,7 @@ public:
     int setLength = 512;
     unsigned int swaps = 0;
     unsigned int comparisions = 0;
+    ImGuiIO* io;
 
     float setSpeed = 1.0f;
     bool isColored = false;
@@ -31,10 +35,13 @@ public:
     App();
     ~App();
     
+    int init();
+    void run();
+
     void calculateDeltaTime();
+    ImGuiIO& configureIO();
     int loadFonts();
     int loadSound();
     void setStyle(ImGuiStyle* style);
-    ImGuiIO& configureIO();
 };
 extern App* app;

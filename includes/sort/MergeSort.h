@@ -8,7 +8,7 @@ private:
     void merge(int const left, int const mid, int const right);
     void _mergeSort(int const begin, int const end);
 public:
-    MergeSort(std::vector<int>& arr, ImGuiIO& io);
+    MergeSort(std::vector<int>& arr, ImGuiIO* io);
 
     void sort() override;
 };

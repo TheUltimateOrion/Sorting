@@ -5,7 +5,7 @@
 class SelectionSort : virtual public Sort
 {
 public:
-    SelectionSort(std::vector<int>& arr, ImGuiIO& io);
+    SelectionSort(std::vector<int>& arr, ImGuiIO* io);
 
     void sort() override;
 };

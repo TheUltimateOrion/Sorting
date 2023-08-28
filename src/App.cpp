@@ -20,6 +20,73 @@ App::~App()
     SDL_Quit();
 }
 
+void App::_setupGUI()
+{
+	// ImGui Context Setup
+    IMGUI_CHECKVERSION();
+    ImGuiContext* ctx= ImGui::CreateContext();
+    ImGui::SetCurrentContext(ctx);
+	
+	this->io = &app->configureIO();
+
+    ImGuiStyle * style = &ImGui::GetStyle();
+ 
+	this->setStyle(style);
+        
+    ImGui_ImplSDL2_InitForSDLRenderer(this->window, this->renderer);
+    ImGui_ImplSDLRenderer2_Init(this->renderer);
+
+    srand(time(NULL));
+}
+
+int App::init()
+{
+    if(this->loadFonts() < 0)
+    {
+        fprintf(stderr, "error: font not found\n");
+        return -1;
+    }
+
+    if (this->loadSound() < 0)
+    {
+        fprintf(stderr, "error: sound not found\n");
+        return -1;
+    }
+
+	// Window and Renderer Setups
+    {    
+        this->window = SDL_CreateWindow("Sorting Algorithms", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WIN_WIDTH, WIN_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI);
+        this->renderer = SDL_CreateRenderer(this->window, -1, SDL_RENDERER_ACCELERATED);
+        SDL_RenderSetLogicalSize(this->renderer, LOGICAL_WIDTH, LOGICAL_WIDTH);
+        SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 0);
+        SDL_RenderClear(this->renderer);
+    }
+	this->_setupGUI();
+	return 0;
+}
+
+void App::run()
+{
+    std::vector<int> nums(LOGICAL_WIDTH);
+    for (int index = 0; index < nums.capacity(); index++)
+        nums[index] = index + 1;
+
+	this->sorter = new BubbleSort(nums, io);
+    this->sorter->setSpeed(1);
+
+    SDL_PollEvent(&this->event);
+    while(1)
+    {
+        this->sorter->setLength(this->setLength);
+        this->sorter->swaps = this->swaps;
+        this->sorter->comparisions = this->comparisions;
+        SortRenderer::render(this->sorter, this->sorter->elems, 1, 1);
+        if (this->event.type == SDL_QUIT)
+            break;
+        SDL_Delay(1);
+    }
+}
+
 void App::calculateDeltaTime()
 {
    LAST = NOW;

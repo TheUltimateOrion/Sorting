@@ -1,6 +1,6 @@
 #include "sort/MergeSort.h"
 
-MergeSort::MergeSort(std::vector<int>& arr, ImGuiIO& io) : Sort(arr, io) {}
+MergeSort::MergeSort(std::vector<int>& arr, ImGuiIO* io) : Sort(arr, io) {}
 
 void MergeSort::merge(int const left, int const mid, int const right)
 {
@@ -38,6 +38,7 @@ void MergeSort::merge(int const left, int const mid, int const right)
                 return;
             indexOfSubArrayTwo++;
         }
+        comparisions++;
         indexOfMergedArray++;
     }
  

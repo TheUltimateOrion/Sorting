@@ -1,6 +1,6 @@
 #include "sort/BubbleSort.h"
 
-BubbleSort::BubbleSort(std::vector<int>& arr, ImGuiIO& io) : Sort(arr, io) {}
+BubbleSort::BubbleSort(std::vector<int>& arr, ImGuiIO* io) : Sort(arr, io) {}
 
 void BubbleSort::sort()
 {

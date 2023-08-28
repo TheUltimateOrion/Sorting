@@ -1,6 +1,6 @@
 #include "sort/PigeonHoleSort.h"
 
-PigeonHoleSort::PigeonHoleSort(std::vector<int>& arr, ImGuiIO& io) : Sort(arr, io) {}
+PigeonHoleSort::PigeonHoleSort(std::vector<int>& arr, ImGuiIO* io) : Sort(arr, io) {}
 
 void PigeonHoleSort::sort()
 {
