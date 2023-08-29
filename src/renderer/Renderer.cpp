@@ -90,7 +90,7 @@ void SortRenderer::renderInfo()
     SDL_SetRenderDrawColor(app->renderer, _r, _g, _b, _a);
 }
 
-void SortRenderer::render(std::vector<int>& elems, int a, int b)
+void SortRenderer::update(std::vector<int>& elems, int a, int b)
 {
     app->calculateDeltaTime();
     SDL_SetRenderDrawColor(app->renderer, 0x0, 0x0, 0x0, 0x0);
@@ -220,7 +220,7 @@ void SortRenderer::render(std::vector<int>& elems, int a, int b)
         app->sorter->isSorting = false;
         app->sorter->sorted = true;
         return;
-    }
+    } else if (ret == 2) return;
         
     SDL_RenderPresent(app->renderer);
     if(SDL_PollEvent(&app->event))
@@ -235,17 +235,25 @@ void SortRenderer::render(std::vector<int>& elems, int a, int b)
     SDL_Delay(1 / (app->sorter->speed));
 }
 
-bool SortRenderer::renderGUI()
+static bool p_open = true;
+int SortRenderer::renderGUI()
 {
     ImGui_ImplSDLRenderer2_NewFrame();
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
-    
+
+    if(!p_open) {
+        app->sorter->wantClose = true;
+        
+        ImGui::Render();
+        ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
+        return 2;
+    }
     bool shouldSort = false;
     {
-        ImGui::Begin("Configure");
+        ImGui::Begin("Configure", &p_open);
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / app->sorter->io->Framerate, app->sorter->io->Framerate);
-
+        
         if (ImGui::BeginCombo("##combo1", app->categories[app->current_category])) // The second parameter is the label previewed before opening the combo.
         {
             for (int n = 0; n < app->categories.capacity(); n++)
@@ -290,7 +298,7 @@ bool SortRenderer::renderGUI()
             }
             ImGui::EndCombo();
         }
-        
+
         ImGui::SameLine();
         ImGui::Checkbox("Color", &app->isColored);
 

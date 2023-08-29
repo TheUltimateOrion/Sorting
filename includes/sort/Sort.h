@@ -1,6 +1,10 @@
 #pragma once
 #include "../main.h"
 
+class SortRenderer;
+
+class App;
+
 static float last_time;
 
 class Sort
@@ -17,6 +21,8 @@ public:
     float start_time;
     unsigned int swaps = 0; 
     unsigned int comparisions = 0; 
+
+    SortRenderer* sortRenderer;
 
     Sort(std::vector<int>& arr, ImGuiIO* io);
 

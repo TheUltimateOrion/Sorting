@@ -17,7 +17,7 @@ void SelectionSort::sort()
             comparisions++;
         }
         swap(elems, min, i);
-        SortRenderer::render(this->elems, min, i);
+        this->sortRenderer->update(this->elems, min, i);
         if (wantClose || wantStop)
             return;
     }

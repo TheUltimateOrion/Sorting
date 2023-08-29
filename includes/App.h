@@ -1,20 +1,22 @@
 #pragma once
 #include "renderer/Renderer.h"
+#include "renderer/Sound.h"
 #include "sort/BubbleSort.h"
+
+extern App* app;
 
 class App
 {
 private:
     void _setupGUI();
-    ALenum error;
-    ALuint buf;
-    ALuint src = 0;
-    short *samples;
 public:
     SDL_Renderer *renderer;
     SDL_Window *window;
     SDL_Event event;
     TTF_Font *font;
+
+    SoundEngine* snd;
+
     Uint64 NOW = SDL_GetPerformanceCounter();
     Uint64 LAST = 0;
     double deltaTime = 0;
@@ -54,11 +56,6 @@ public:
 
     void calculateDeltaTime();
     ImGuiIO& configureIO();
-    int loadFonts();
-    int initSound();
-    void loadSound(float ms, float freq);
-    void playSound();
-    int closeSound();
+    int loadFont();
     void setStyle(ImGuiStyle* style);
 };
-extern App* app;

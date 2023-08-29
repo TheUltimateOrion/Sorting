@@ -1,7 +1,5 @@
 #include "App.h"
 
-App* app;
-
 int main(int argc, char const *argv[])
 {
     if(SDL_Init(SDL_INIT_EVERYTHING) < 0) { 

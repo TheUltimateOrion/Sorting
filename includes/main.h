@@ -12,5 +12,5 @@
 #include <windows.h>
 
 #define LOGICAL_WIDTH 512
-#define WIN_WIDTH LOGICAL_WIDTH
+#define WIN_WIDTH  LOGICAL_WIDTH
 #define WIN_HEIGHT LOGICAL_WIDTH

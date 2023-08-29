@@ -1,5 +1,6 @@
 #include "App.h"
 
+App* app;
 const char* alErrorString(int err) {
     switch (err) {
         case AL_NO_ERROR: return "AL_NO_ERROR";
@@ -25,6 +26,8 @@ App::App()
 	};
 
     this->displayTypes = {"Bar", "Dot", "Rainbow Rectangle", "Circle", "Circle Dot", "Disparity Circle", "Spiral", "Spiral Dot"};
+
+    snd = SoundEngine::get();
 }
 
 App::~App()
@@ -37,7 +40,7 @@ App::~App()
     ImGui::DestroyContext();
     SDL_DestroyRenderer(this->renderer);
     SDL_DestroyWindow(this->window);
-    this->closeSound();
+    delete snd;
     SDL_Quit();
 }
 
@@ -62,13 +65,13 @@ void App::_setupGUI()
 
 int App::init()
 {
-    if(this->loadFonts() < 0)
+    if(this->loadFont() < 0)
     {
         fprintf(stderr, "error: font not found\n");
         return -1;
     }
 
-    if (this->initSound() < 0)
+    if (snd->init() < 0)
     {
         fprintf(stderr, "error: Sound could not be initialized\n");
         return -1;
@@ -87,8 +90,6 @@ int App::init()
 	return 0;
 }
 
-#define AL_CHECK_ERROR() if(this->error != 0) std::cerr << "OpenAL Error: " << alErrorString(this->error) << ' ' << this->error << std::endl;
-
 void App::run()
 {
     std::vector<int> nums(LOGICAL_WIDTH);
@@ -104,10 +105,8 @@ void App::run()
             float sec = 0.05 / (this->sorter->speed);
             int freq = this->sorter->elems[this->current_element] * (LOGICAL_WIDTH / (float)this->sorter->elems.size());
             if (this->sorter->isSorting || this->sorter->isShuffling){
-                this->loadSound(sec, freq);
-                AL_CHECK_ERROR();
-                this->playSound();
-                AL_CHECK_ERROR();
+                snd->load(sec, freq);
+                snd->play();
                 std::this_thread::sleep_for(std::chrono::milliseconds((int)(sec * 1000)));
             }
         }
@@ -120,13 +119,12 @@ void App::run()
         this->sorter->setLength(this->setLength);
         this->sorter->swaps = this->swaps;
         this->sorter->comparisions = this->comparisions;
-        SortRenderer::render(this->sorter->elems, 1, 1);
-        if (this->event.type == SDL_QUIT)
+        this->sorter->sortRenderer->update(this->sorter->elems, 1, 1);
+        if (this->event.type == SDL_QUIT || this->sorter->wantClose)
             break;
         SDL_Delay(1);
     }
 }
-#undef AL_CHECK_ERROR
 
 void App::calculateDeltaTime()
 {
@@ -135,7 +133,7 @@ void App::calculateDeltaTime()
    deltaTime = (double)((NOW - LAST)*1000 / (double)SDL_GetPerformanceFrequency() );
 }
 
-int App::loadFonts() {
+int App::loadFont() {
     TTF_Init();
     char buffer[MAX_PATH] = {0};
     GetModuleFileNameA(NULL, buffer, MAX_PATH);
@@ -176,6 +174,7 @@ void App::setStyle(ImGuiStyle* style)
 	style->Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(1.00f, 0.98f, 0.95f, 0.75f);
 	style->Colors[ImGuiCol_TitleBgActive] = ImVec4(0.07f, 0.07f, 0.09f, 1.00f);
 	style->Colors[ImGuiCol_MenuBarBg] = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
+	//style->Colors[ImGuiCol_MenuBarBg] = ImVec4(0.15f, 0.135f, 0.18f, 1.00f);
 	style->Colors[ImGuiCol_ScrollbarBg] = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
 	style->Colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.80f, 0.80f, 0.83f, 0.31f);
 	style->Colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
@@ -197,81 +196,6 @@ void App::setStyle(ImGuiStyle* style)
 	style->Colors[ImGuiCol_PlotHistogram] = ImVec4(0.40f, 0.39f, 0.38f, 0.63f);
 	style->Colors[ImGuiCol_PlotHistogramHovered] = ImVec4(0.25f, 1.00f, 0.00f, 1.00f);
 	style->Colors[ImGuiCol_TextSelectedBg] = ImVec4(0.25f, 1.00f, 0.00f, 0.43f);
-}
-
-int App::initSound()
-{
-    ALCdevice *dev = NULL;
-    ALCcontext *ctx = NULL;
-
-    const char *defname = alcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
-    //std::cout << "Default device: " << defname << std::endl;
-
-    dev = alcOpenDevice(defname);
-    ctx = alcCreateContext(dev, NULL);
-    alcMakeContextCurrent(ctx);
-    alGenSources(1, &this->src);
-    this->error = alGetError();
-    if (alGetError() != AL_NO_ERROR)
-        return -1;
-    return 0;
-}
-
-int App::closeSound()
-{
-    ALCdevice *dev = NULL;
-    ALCcontext *ctx = NULL;
-    ctx = alcGetCurrentContext();
-    dev = alcGetContextsDevice(ctx);
-
-    alcMakeContextCurrent(NULL);
-    alcDestroyContext(ctx);
-    alcCloseDevice(dev);
-    delete samples;
-
-    return 0;
-}
-
-void App::loadSound(float ms, float freq)
-{
-    alGenBuffers(1, &this->buf);
-    this->error = alGetError();
-    if (this->error != AL_NO_ERROR)
-        return;
-
-    /* Fill buffer with Sine-Wave */
-    unsigned sample_rate = 22050;
-    size_t buf_size = ms * sample_rate;
-
-    this->samples = new short[buf_size];
-    for(int i=0; i<buf_size; ++i) {
-        this->samples[i] = 32760 * sin( (2.f*float(M_PI)*freq)/sample_rate * i );
-    }
-
-    /* Download buffer to OpenAL */
-    alBufferData(this->buf, AL_FORMAT_MONO16, this->samples, buf_size, sample_rate);
-    this->error = alGetError();
-    if (this->error != AL_NO_ERROR)
-        return;
-
-    /* Set-up sound source and play buffer */
-}
-
-void App::playSound()
-{
-    alSourcei(this->src, AL_BUFFER, this->buf);
-    this->error = alGetError();
-    if (this->error != AL_NO_ERROR)
-        return;
-
-    alSourcef(this->src, AL_GAIN, 0.1f);
-    this->error = alGetError();
-    if (this->error != AL_NO_ERROR)
-        return;
-
-    alSourcePlay(this->src);
-    this->error = alGetError();
-    return;
 }
 
 ImGuiIO& App::configureIO()
