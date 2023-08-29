@@ -102,7 +102,7 @@ void App::run()
     std::thread audioThread([this]()
     {
         while(!this->sorter->wantClose) {
-            float sec = 0.05 / (this->sorter->speed);
+            float sec = 0.05;
             int freq = this->sorter->elems[this->current_element] * (LOGICAL_WIDTH / (float)this->sorter->elems.size());
             if (this->sorter->isSorting || this->sorter->isShuffling){
                 snd->load(sec, freq);
