@@ -24,6 +24,7 @@ App::App()
 		{"SelectionSort"}
 	};
 
+    this->displayTypes = {"Bar", "Dot", "Rainbow Rectangle", "Circle", "Circle Dot", "Disparity Circle", "Spiral", "Spiral Dot"};
 }
 
 App::~App()
@@ -82,10 +83,11 @@ int App::init()
 		SDL_SetRenderDrawBlendMode(this->renderer, SDL_BLENDMODE_BLEND);
         SDL_RenderClear(this->renderer);
     }
-	this->initSound();
 	this->_setupGUI();
 	return 0;
 }
+
+#define AL_CHECK_ERROR() if(this->error != 0) std::cerr << "OpenAL Error: " << alErrorString(this->error) << ' ' << this->error << std::endl;
 
 void App::run()
 {
@@ -102,9 +104,11 @@ void App::run()
             float sec = 0.05 / (this->sorter->speed);
             int freq = this->sorter->elems[this->current_element] * (LOGICAL_WIDTH / (float)this->sorter->elems.size());
             if (this->sorter->isSorting || this->sorter->isShuffling){
-                ALenum err = this->playSound(sec, freq);
-                if(err != 0) std::cerr << "OpenAL Error: " << alErrorString(err) << ' ' << err << std::endl;
-                Sleep(1000 * sec);
+                this->loadSound(sec, freq);
+                AL_CHECK_ERROR();
+                this->playSound();
+                AL_CHECK_ERROR();
+                std::this_thread::sleep_for(std::chrono::milliseconds((int)(sec * 1000)));
             }
         }
     });
@@ -112,7 +116,7 @@ void App::run()
 
     SDL_PollEvent(&this->event);
     while(1)
-    {
+    {        
         this->sorter->setLength(this->setLength);
         this->sorter->swaps = this->swaps;
         this->sorter->comparisions = this->comparisions;
@@ -122,13 +126,7 @@ void App::run()
         SDL_Delay(1);
     }
 }
-
-// void App::startAudioThread()
-// {
-//     App* _app = this;
-    
-//     audioThread.detach();
-// }
+#undef AL_CHECK_ERROR
 
 void App::calculateDeltaTime()
 {
@@ -201,10 +199,6 @@ void App::setStyle(ImGuiStyle* style)
 	style->Colors[ImGuiCol_TextSelectedBg] = ImVec4(0.25f, 1.00f, 0.00f, 0.43f);
 }
 
-ALenum error;
-ALuint buf;
-ALuint src = 0;
-
 int App::initSound()
 {
     ALCdevice *dev = NULL;
@@ -216,8 +210,8 @@ int App::initSound()
     dev = alcOpenDevice(defname);
     ctx = alcCreateContext(dev, NULL);
     alcMakeContextCurrent(ctx);
-    alGenSources(1, &src);
-    error = alGetError();
+    alGenSources(1, &this->src);
+    this->error = alGetError();
     if (alGetError() != AL_NO_ERROR)
         return -1;
     return 0;
@@ -233,51 +227,51 @@ int App::closeSound()
     alcMakeContextCurrent(NULL);
     alcDestroyContext(ctx);
     alcCloseDevice(dev);
+    delete samples;
+
     return 0;
 }
 
-ALenum App::playSound(float ms, float freq)
+void App::loadSound(float ms, float freq)
 {
-    alGenBuffers(1, &buf);
-    error = alGetError();
-    if (error != AL_NO_ERROR)
-        return error;
+    alGenBuffers(1, &this->buf);
+    this->error = alGetError();
+    if (this->error != AL_NO_ERROR)
+        return;
 
     /* Fill buffer with Sine-Wave */
     unsigned sample_rate = 22050;
     size_t buf_size = ms * sample_rate;
 
-    short *samples;
-    samples = new short[buf_size];
+    this->samples = new short[buf_size];
     for(int i=0; i<buf_size; ++i) {
-        samples[i] = 32760 * sin( (2.f*float(M_PI)*freq)/sample_rate * i );
+        this->samples[i] = 32760 * sin( (2.f*float(M_PI)*freq)/sample_rate * i );
     }
 
     /* Download buffer to OpenAL */
-    alBufferData(buf, AL_FORMAT_MONO16, samples, buf_size, sample_rate);
-    error = alGetError();
-    if (error != AL_NO_ERROR)
-        return error;
+    alBufferData(this->buf, AL_FORMAT_MONO16, this->samples, buf_size, sample_rate);
+    this->error = alGetError();
+    if (this->error != AL_NO_ERROR)
+        return;
 
     /* Set-up sound source and play buffer */
+}
 
-    alSourcei(src, AL_BUFFER, buf);
-    error = alGetError();
-    if (error != AL_NO_ERROR)
-        return error;
+void App::playSound()
+{
+    alSourcei(this->src, AL_BUFFER, this->buf);
+    this->error = alGetError();
+    if (this->error != AL_NO_ERROR)
+        return;
 
-    alSourcef(src, AL_GAIN, 0.1f);
-    error = alGetError();
-    if (error != AL_NO_ERROR)
-        return error;
+    alSourcef(this->src, AL_GAIN, 0.1f);
+    this->error = alGetError();
+    if (this->error != AL_NO_ERROR)
+        return;
 
-    alSourcePlay(src);
-    error = alGetError();
-    if (error != AL_NO_ERROR)
-        return error;
-
-    delete samples;
-    return 0;
+    alSourcePlay(this->src);
+    this->error = alGetError();
+    return;
 }
 
 ImGuiIO& App::configureIO()

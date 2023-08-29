@@ -11,11 +11,10 @@ int main(int argc, char const *argv[])
 
     app = new App();
 
-    if (app->init() < 0)
-        return -1;
+    if (app->init() < 0) return -1;
 
     app->run();
 
     delete app;
-    return 0;
+    return EXIT_SUCCESS;
 }

@@ -274,21 +274,25 @@ bool SortRenderer::renderGUI()
             ImGui::EndCombo();
         }
 
+        ImGui::Spacing();
+        ImGui::SeparatorText("Display Config");
+        ImGui::Spacing();
+
+        if (ImGui::BeginCombo("##combo3", app->displayTypes[app->displayType])) // The second parameter is the label previewed before opening the combo.
+        {
+            for (int n = 0; n < app->displayTypes.capacity(); n++)
+            {
+                bool is_selected = (app->displayTypes[app->displayType] == app->displayTypes[n]); // You can store your selection however you want, outside or inside your objects
+                if (ImGui::Selectable(app->displayTypes[n], is_selected))
+                    app->displayType = n;
+                if (is_selected)
+                    ImGui::SetItemDefaultFocus();   // You may set the initial focus when opening the combo (scrolling + for keyboard navigation support)
+            }
+            ImGui::EndCombo();
+        }
+        
         ImGui::SameLine();
         ImGui::Checkbox("Color", &app->isColored);
-
-        ImGui::Spacing();
-        ImGui::SeparatorText("Display Types");
-        ImGui::Spacing();
-
-        ImGui::RadioButton("Bar", &app->displayType, 0);                 ImGui::SameLine();
-        ImGui::RadioButton("Dot", &app->displayType, 1);                 ImGui::SameLine();
-        ImGui::RadioButton("Rainbow Rectangle", &app->displayType, 2);   ImGui::SameLine();
-        ImGui::RadioButton("Circle", &app->displayType, 3);              
-        ImGui::RadioButton("Circle Dot", &app->displayType, 4);          ImGui::SameLine();
-        ImGui::RadioButton("Disparity Circle", &app->displayType, 5);    ImGui::SameLine();
-        ImGui::RadioButton("Spiral", &app->displayType, 6);              ImGui::SameLine();
-        ImGui::RadioButton("Spiral Dot", &app->displayType, 7);
 
         ImGui::Spacing();
         ImGui::SeparatorText("Variables");
