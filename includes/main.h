@@ -14,3 +14,6 @@
 #define LOGICAL_WIDTH 512
 #define WIN_WIDTH  LOGICAL_WIDTH
 #define WIN_HEIGHT LOGICAL_WIDTH
+
+#define LOGINFO(str) std::cout << "[INFO]"  << '[' << (double) clock() / 1000.0 << "s]: " << str << std::endl;
+#define LOGERR(str)  std::cerr << "[ERROR]" << '[' << (double) clock() / 1000.0 << "s]: " << str << std::endl;

@@ -3,6 +3,18 @@
 #include "renderer/Sound.h"
 #include "sort/BubbleSort.h"
 
+#ifndef HANDLE_ERROR
+#define HANDLE_ERROR(str, ret)\
+    if (snd->alGetLastError() != AL_NO_ERROR) {\
+        std::cerr << str << " with code: " << snd->alErrorString(snd->alGetLastError()) << "(" << snd->alGetLastError() << ")" << std::endl;\
+        return ret;\
+    }
+#endif
+
+#ifndef STYLESET
+#define STYLESET(param) style->Colors[ImGuiCol_##param]
+#endif
+
 extern App* app;
 
 class App

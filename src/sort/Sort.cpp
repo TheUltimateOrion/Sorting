@@ -4,6 +4,7 @@ Sort::Sort(std::vector<int>& arr, ImGuiIO* io) : elems(arr), isSorting(false), i
 
 void Sort::reverse()
 {
+    LOGINFO("Reversing");
     isShuffling = true;
     this->wantStop = false;
     this->swaps = 0;
@@ -27,6 +28,7 @@ void Sort::reverse()
 
 void Sort::shuffle()
 {
+    LOGINFO("Shuffling");
     isShuffling = true;
     this->wantStop = false;
     this->swaps = 0;
@@ -63,6 +65,7 @@ void Sort::swap(std::vector<int>& array, int a, int b)
 
 void Sort::setLength(unsigned int len)
 {
+    LOGINFO("Resizing to " << len);
     elems.resize(len);
     for (int index = 0; index < elems.size(); index++)
         elems[index] = index + 1;

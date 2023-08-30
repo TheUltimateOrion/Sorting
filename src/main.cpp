@@ -2,8 +2,8 @@
 
 int main(int argc, char const *argv[])
 {
-    if(SDL_Init(SDL_INIT_EVERYTHING) < 0) { 
-        fprintf(stderr, "Could not initialize SDL: %s.\n", SDL_GetError());
+    if(SDL_Init(SDL_INIT_EVERYTHING) < 0) {
+        LOGERR("Could not initialize SDL: " << SDL_GetError());
         return -1;
     }
 

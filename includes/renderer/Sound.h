@@ -1,7 +1,13 @@
 #pragma once
 #include "../main.h"
 
-#define AL_CHECK_ERROR() if(this->error != 0) std::cerr << "OpenAL Error: " << alErrorString(this->error) << ' ' << this->error << std::endl;
+#ifndef AL_CHECK_ERR
+#define AL_CHECK_ERR(ret) \
+    if (alGetError() != AL_NO_ERROR) {\
+        this->err = alGetError();\
+        return ret; \
+    }
+#endif
 
 class SoundEngine
 {
@@ -9,11 +15,15 @@ private:
     ALuint buf;
     ALuint src = 0;
     short *samples;
+    ALenum err = AL_NO_ERROR;
 public:
     static SoundEngine* get();
 
     SoundEngine();
     ~SoundEngine();
+
+    ALenum alGetLastError();
+    const char* alErrorString(ALenum err);
 
     int init();
     void load(float ms, float freq);

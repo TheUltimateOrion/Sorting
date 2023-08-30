@@ -97,8 +97,6 @@ void SortRenderer::update(std::vector<int>& elems, int a, int b)
     SDL_RenderClear(app->renderer);
 
     app->current_element = a;
-    //this->startAudioThread();
-    //app->playSound(1 / (app->sorter->speed), (float)elems[app->current_element]);
 
     SDL_Color sortColor; 
     for (int k = 0; k < elems.size(); k++)
@@ -319,69 +317,40 @@ int SortRenderer::renderGUI()
         if (!(app->sorter->isSorting) && !(app->sorter->isShuffling))
         {
             if(ImGui::Button("Sort")) {
+                LOGINFO("Starting sort");
                 switch(app->current_category)
                 {
                     case 0: {
                         switch(app->current_item)
                         {
-                            case 0: {
-                                app->sorter = new BubbleSort(app->sorter->elems, app->sorter->io);
-                                goto _jmp;
-                            } break;
-                            case 1: {
-                                app->sorter = new QuickSort(app->sorter->elems, app->sorter->io);
-                                goto _jmp;
-                            } break;
-                            case 2: {
-                                app->sorter = new CombSort(app->sorter->elems, app->sorter->io);
-                                goto _jmp;
-                            } break;
-
+                            SORTCASE(0, BubbleSort);
+                            SORTCASE(1, QuickSort);
+                            SORTCASE(2, CombSort);
                         }
                     } break;
                     case 1: {
                         switch(app->current_item)
                         {
-                            case 0: {
-                                app->sorter = new RadixLSDSort(app->sorter->elems, app->sorter->io, app->setRadix);
-                                goto _jmp;
-                            } break;
-                            case 1: {
-                                app->sorter = new PigeonHoleSort(app->sorter->elems, app->sorter->io);
-                                goto _jmp;
-                            } break;
-                            case 2: {
-                                app->sorter = new GravitySort(app->sorter->elems, app->sorter->io);
-                                goto _jmp;
-                            } break;
-                            case 3: {
-                                app->sorter = new BogoSort(app->sorter->elems, app->sorter->io);
-                                goto _jmp;
-                            } break;
+                            SORTCASERADIX(0, RadixLSDSort);
+                            SORTCASE(1, PigeonHoleSort);
+                            SORTCASE(2, GravitySort);
+                            SORTCASE(3, BogoSort);
                         }
                     } break;
                     
                     case 2: {
                         switch(app->current_item) {
-                            case 0: {
-                                app->sorter = new InsertionSort(app->sorter->elems, app->sorter->io);
-                                goto _jmp;
-                            } break;
+                            SORTCASE(0, InsertionSort);
                         }
                     } break;
                     case 3: {
                         switch(app->current_item) {
-                            case 0: {
-                                app->sorter = new MergeSort(app->sorter->elems, app->sorter->io);
-                                goto _jmp;
-                            } break;
+                            SORTCASE(0, MergeSort);
                         }
                     } break;
                     case 4: {
                         switch(app->current_item) {
-                            case 0: {
-                                app->sorter = new SelectionSort(app->sorter->elems, app->sorter->io);
-                            } break;
+                            SORTCASE(0, SelectionSort);
                         }
                         
                         _jmp:
@@ -394,8 +363,10 @@ int SortRenderer::renderGUI()
                 shouldSort = true;
             }
         } else {
-            if(ImGui::Button("Stop"))
+            if(ImGui::Button("Stop")) {
+                LOGINFO("Stopping sort");    
                 app->sorter->wantStop = true;
+            }
         }
         ImGui::SameLine();
         ImGui::Checkbox("Reverse instead of Shuffling", &app->reverse);
@@ -411,8 +382,10 @@ int SortRenderer::renderGUI()
         else
             app->sorter->reverse();
         if (app->sorter->wantClose) return 2;
-        if(!(app->sorter->wantStop))
+        if(!(app->sorter->wantStop)) {
+            LOGINFO("Sorting");
             app->sorter->sort();
+        }
         if (app->sorter->wantStop) {
             return 1;
         }
