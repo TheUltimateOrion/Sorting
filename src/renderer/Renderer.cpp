@@ -310,7 +310,7 @@ int SortRenderer::renderGUI()
         app->setLength = std::clamp(app->setLength, 2, 512);
         ImGui::InputInt("Set Length", &app->setLength, 2);
 
-        if (app->current_item == 6)
+        if (app->current_category == 1 && app->current_item == 0)
             ImGui::SliderInt("Set Buckets/Radix", &app->setRadix, 2, 10, "%d");
 
         ImGui::Spacing();
