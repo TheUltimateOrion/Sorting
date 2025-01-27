@@ -50,20 +50,20 @@ SDL_Color SortRenderer::HSVToRGB(unsigned char hue, unsigned char sat, unsigned 
 void SortRenderer::renderText(std::string txt, int x, int y, SDL_Color color)
 {
     
-    SDL_Surface* textSurface = TTF_RenderText_Solid(app->font, txt.c_str(), color);
+    SDL_Surface* textSurface = TTF_RenderText_Solid(app->font, txt.c_str(), 0, color); // SDL_Surface* textSurface = TTF_RenderText_Solid(app->font, txt.c_str(), color);
     SDL_Texture* text = SDL_CreateTextureFromSurface(app->renderer, textSurface);
     int text_width = textSurface->w;
     int text_height = textSurface->h;
-    SDL_FreeSurface(textSurface);
-    SDL_Rect renderQuad = { x, y, text_width, text_height };
-    SDL_RenderCopy(app->renderer, text, NULL, &renderQuad);
+    SDL_DestroySurface(textSurface); // SDL_FreeSurface(textSurface);
+    SDL_FRect renderQuad = { x, y, text_width, text_height };
+    SDL_RenderTexture(app->renderer, text, NULL, &renderQuad); // SDL_RenderCopy(app->renderer, text, NULL, &renderQuad);
     SDL_DestroyTexture(text);
 }
 
 void SortRenderer::renderInfo()
 {
     Uint8 _r, _g, _b, _a; SDL_GetRenderDrawColor(app->renderer, &_r, &_g, &_b, &_a);
-    SDL_Rect rect = {0, 0, 230, 125};
+    SDL_FRect rect = {0.0f, 0.0f, 230.0f, 125.0f};
     SDL_SetRenderDrawColor(app->renderer, 0x40, 0x40, 0x40, 0x80);
     SDL_RenderFillRect(app->renderer, &rect);
 
@@ -120,22 +120,22 @@ void SortRenderer::update(std::vector<int>& elems, int a, int b)
         switch (app->displayType) {
             case 0: {
                 // SDL_RenderDrawLine(renderer, k + 1, elems.size() , k + 1, elems.size()  - elems[k]);
-                app->rect = (SDL_Rect){k * spacing, LOGICAL_WIDTH, spacing, -elems[k] * spacing};
+                app->rect = (SDL_FRect) {k * spacing, LOGICAL_WIDTH, spacing, -elems[k] * spacing};
                 SDL_RenderFillRect(app->renderer, &app->rect);
             } break;
             case 1: {
                 // SDL_RenderDrawPoint(renderer, k + 1, elems.size()  - elems[k]);
-                SDL_RenderDrawPoint(app->renderer, (k + 1) * spacing, (elems.size() - elems[k]) * spacing);
+                SDL_RenderPoint(app->renderer, (k + 1) * spacing, (elems.size() - elems[k]) * spacing); // SDL_RenderDrawPoint(app->renderer, (k + 1) * spacing, (elems.size() - elems[k]) * spacing);
             } break;
             case 2: {
                 app->isColored = true;
-                app->rect = (SDL_Rect){k * spacing, LOGICAL_WIDTH, spacing, -(LOGICAL_WIDTH / 2)};
+                app->rect = (SDL_FRect){k * spacing, LOGICAL_WIDTH, spacing, -(LOGICAL_WIDTH / 2)};
                 SDL_RenderFillRect(app->renderer, &app->rect);
             } break;
             case 3: {
                 app->isColored = true;
-                Uint8 r = 0, g = 0, b = 0, a = 0;
-                SDL_GetRenderDrawColor(app->renderer, &r, &g, &b, &a);
+                float r = 0.0f, g = 0.0f, b = 0.0f, a = 0.0f;
+                SDL_GetRenderDrawColor(app->renderer, reinterpret_cast<Uint8*>(&r), reinterpret_cast<Uint8*>(&g), reinterpret_cast<Uint8*>(&b), reinterpret_cast<Uint8*>(&a));
                 size = 200.0f;
                 vertices[0] = {
                     {LOGICAL_WIDTH / 2, LOGICAL_WIDTH / 2}, /* first point location */ 
@@ -164,7 +164,7 @@ void SortRenderer::update(std::vector<int>& elems, int a, int b)
                 SDL_RenderDrawLine(app->renderer, LOGICAL_WIDTH / 2 + size * cos(radiansQuotient * elems[k] * degreesQuotient), LOGICAL_WIDTH / 2 + size * sin(radiansQuotient * elems[k] * degreesQuotient), LOGICAL_WIDTH / 2 + size * cos(radiansQuotient * (k + 1) * degreesQuotient), LOGICAL_WIDTH / 2 + size * sin(radiansQuotient * (k + 1) * degreesQuotient));
             } break;
             case 6: {
-                Uint8 r = 0, g = 0, b = 0, a = 0;
+                float r = 0, g = 0, b = 0, a = 0;
                 SDL_GetRenderDrawColor(app->renderer, &r, &g, &b, &a);
                 size = (0.5f * (float)LOGICAL_WIDTH / (float)elems.size());
                 if (app->isColored) {
@@ -205,7 +205,7 @@ void SortRenderer::update(std::vector<int>& elems, int a, int b)
             } break;
             case 7: {
                 size = (0.5f * (float)LOGICAL_WIDTH / (float)elems.size());
-                SDL_RenderDrawPoint(app->renderer, LOGICAL_WIDTH / 2 + size * elems[k] * cos(radiansQuotient * k * degreesQuotient), LOGICAL_WIDTH / 2 + size * elems[k] * sin(radiansQuotient * k * degreesQuotient));
+                SDL_RenderPoint(app->renderer, LOGICAL_WIDTH / 2 + size * elems[k] * cos(radiansQuotient * k * degreesQuotient), LOGICAL_WIDTH / 2 + size * elems[k] * sin(radiansQuotient * k * degreesQuotient)); // SDL_RenderDrawPoint(app->renderer, LOGICAL_WIDTH / 2 + size * elems[k] * cos(radiansQuotient * k * degreesQuotient), LOGICAL_WIDTH / 2 + size * elems[k] * sin(radiansQuotient * k * degreesQuotient));
             } break;
         }
     }
@@ -224,7 +224,7 @@ void SortRenderer::update(std::vector<int>& elems, int a, int b)
     if(SDL_PollEvent(&app->event))
     {
         ImGui_ImplSDL2_ProcessEvent(&app->event);
-        if (app->event.type == SDL_QUIT)
+        if (app->event.type == SDL_EVENT_QUIT)
         {
             app->sorter->wantClose = true;
             return;

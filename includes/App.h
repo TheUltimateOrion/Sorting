@@ -53,7 +53,7 @@ public:
 
     bool isRadix = false;
     int setRadix = 2;
-    SDL_Rect rect;
+    SDL_FRect rect;
     bool reverse = false;
     
     Sort* sorter;

@@ -79,11 +79,11 @@ int App::init()
 	// Window and Renderer Setups
     {    
         LOGINFO("Creating SDL Window");
-        this->window = SDL_CreateWindow("Sorting Algorithms", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WIN_WIDTH, WIN_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI);
+        this->window = SDL_CreateWindow("Sorting Algorithms", WIN_WIDTH, WIN_HEIGHT, SDL_WINDOW_HIGH_PIXEL_DENSITY);
         LOGINFO("Creating SDL renderer");
-        this->renderer = SDL_CreateRenderer(this->window, -1, SDL_RENDERER_ACCELERATED);
+        this->renderer = SDL_CreateRenderer(this->window, NULL);
         LOGINFO("Setting render parameters");
-        SDL_RenderSetLogicalSize(this->renderer, LOGICAL_WIDTH, LOGICAL_WIDTH);
+        SDL_SetRenderLogicalPresentation(this->renderer, LOGICAL_WIDTH, LOGICAL_WIDTH, SDL_LOGICAL_PRESENTATION_STRETCH);
         SDL_SetRenderDrawColor(this->renderer, 0x0, 0x0, 0x0, 0x0);
 		SDL_SetRenderDrawBlendMode(this->renderer, SDL_BLENDMODE_BLEND);
         LOGINFO("Clearing window");
@@ -130,7 +130,7 @@ void App::run()
     while(1)
     {
         this->sorter->sortRenderer->update(this->sorter->elems, 1, 1);
-        if (this->event.type == SDL_QUIT || this->sorter->wantClose) {
+        if (this->event.type == SDL_EVENT_QUIT || this->sorter->wantClose) {
             LOGINFO("Exit signal recieved");
             break;
         }

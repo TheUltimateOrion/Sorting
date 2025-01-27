@@ -2,7 +2,7 @@
 
 int main(int argc, char const *argv[])
 {
-    if(SDL_Init(SDL_INIT_EVERYTHING) < 0) {
+    if(SDL_Init(SDL_INIT_VIDEO) < 0) {
         LOGERR("Could not initialize SDL: " << SDL_GetError());
         return -1;
     }

@@ -1,10 +1,15 @@
-cmake_minimum_required(VERSION 3.2.0)
+cmake_minimum_required(VERSION 3.30.1)
+set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}" CACHE INTERNAL "")
 set(PROJECT Sorting)
 project(${PROJECT} VERSION 0.1.0)
-find_package(SDL2 REQUIRED)
+# find_package(SDL2 REQUIRED)
 include(CTest)
 enable_testing()
 
+set(SDLTTF_VENDORED ON) # tell SDL_ttf to build its own dependencies
+add_subdirectory(libs/SDL EXCLUDE_FROM_ALL)
+
+add_subdirectory(libs/SDL_ttf EXCLUDE_FROM_ALL)
 add_subdirectory(libs/imgui)
 
 file(GLOB SOURCE_FILES 
@@ -20,7 +25,8 @@ libs/imgui/backends
 includes/
 )
 
-target_link_libraries(${PROJECT} SDL2 SDL2main SDL2_ttf SDL2_mixer imgui openal)
+
+target_link_libraries(${PROJECT} SDL3::SDL3 SDL2main SDL3_ttf::SDL3_ttf SDL2_mixer imgui openal)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
