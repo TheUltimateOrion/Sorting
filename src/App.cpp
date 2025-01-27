@@ -25,8 +25,8 @@ App::~App()
     TTF_CloseFont(this->font);
     TTF_Quit();
     LOGINFO("Shutting down ImGui renderer");
-    ImGui_ImplSDLRenderer2_Shutdown();
-    ImGui_ImplSDL2_Shutdown();
+    ImGui_ImplSDLRenderer3_Shutdown();
+    ImGui_ImplSDL3_Shutdown();
     LOGINFO("Destroying ImGui context");
     ImGui::DestroyContext();
     LOGINFO("Destroying SDL renderer");
@@ -53,8 +53,8 @@ void App::_setupGUI()
 	this->setStyle(style);
         
     LOGINFO("Setting up ImGui renderer");
-    ImGui_ImplSDL2_InitForSDLRenderer(this->window, this->renderer);
-    ImGui_ImplSDLRenderer2_Init(this->renderer);
+    ImGui_ImplSDL3_InitForSDLRenderer(this->window, this->renderer);
+    ImGui_ImplSDLRenderer3_Init(this->renderer);
 }
 
 int App::init()

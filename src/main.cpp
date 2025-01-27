@@ -1,7 +1,8 @@
 #include "App.h"
 
-int main(int argc, char const *argv[])
+int main(int argc, char **argv) // (int argc, char const *argv[])
 {
+    std::cout << "Hello, World" << std::endl;
     if(SDL_Init(SDL_INIT_VIDEO) < 0) {
         LOGERR("Could not initialize SDL: " << SDL_GetError());
         return -1;

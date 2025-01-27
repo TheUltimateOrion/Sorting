@@ -143,12 +143,12 @@ void SortRenderer::update(std::vector<int>& elems, int a, int b)
                     { 0.f, 0.f }
                 };
                 vertices[1] = {
-                    {LOGICAL_WIDTH / 2 + size * cos(radiansQuotient * k * degreesQuotient), LOGICAL_WIDTH / 2 + size * sin(radiansQuotient * k * degreesQuotient)}, /* second point location */ 
+                    {LOGICAL_WIDTH / 2 + size * cosf(radiansQuotient * k * degreesQuotient), LOGICAL_WIDTH / 2 + size * sinf(radiansQuotient * k * degreesQuotient)}, /* second point location */ 
                     { r, g, b, 0xFF }, /* second color */
                     { 0.f, 0.f }
                 };
                 vertices[2] = {
-                    {LOGICAL_WIDTH / 2 + size * cos(radiansQuotient * (k + 1) * degreesQuotient), LOGICAL_WIDTH / 2 + size * sin(radiansQuotient * (k + 1) * degreesQuotient)}, /* third point location */ 
+                    {LOGICAL_WIDTH / 2 + size * cosf(radiansQuotient * (k + 1) * degreesQuotient), LOGICAL_WIDTH / 2 + size * sinf(radiansQuotient * (k + 1) * degreesQuotient)}, /* third point location */ 
                     { r, g, b, 0xFF }, /* third color */
                     { 0.f, 0.f }
                 };
@@ -157,15 +157,15 @@ void SortRenderer::update(std::vector<int>& elems, int a, int b)
             case 4: {
                 //std::cout << elems[k] / (k + 1) << std::endl;
                 size = 200.0f * ((float)elems[k] / (float)(k + 1));
-                SDL_RenderDrawPoint(app->renderer, LOGICAL_WIDTH / 2 + size * cos(radiansQuotient * k * degreesQuotient), LOGICAL_WIDTH / 2 + size * sin(radiansQuotient * k * degreesQuotient));
+                SDL_RenderPoint(app->renderer, LOGICAL_WIDTH / 2 + size * cos(radiansQuotient * k * degreesQuotient), LOGICAL_WIDTH / 2 + size * sin(radiansQuotient * k * degreesQuotient));
             } break;
             case 5: {
                 size = 200.0f;
-                SDL_RenderDrawLine(app->renderer, LOGICAL_WIDTH / 2 + size * cos(radiansQuotient * elems[k] * degreesQuotient), LOGICAL_WIDTH / 2 + size * sin(radiansQuotient * elems[k] * degreesQuotient), LOGICAL_WIDTH / 2 + size * cos(radiansQuotient * (k + 1) * degreesQuotient), LOGICAL_WIDTH / 2 + size * sin(radiansQuotient * (k + 1) * degreesQuotient));
+                SDL_RenderLine(app->renderer, LOGICAL_WIDTH / 2 + size * cos(radiansQuotient * elems[k] * degreesQuotient), LOGICAL_WIDTH / 2 + size * sin(radiansQuotient * elems[k] * degreesQuotient), LOGICAL_WIDTH / 2 + size * cos(radiansQuotient * (k + 1) * degreesQuotient), LOGICAL_WIDTH / 2 + size * sin(radiansQuotient * (k + 1) * degreesQuotient));
             } break;
             case 6: {
                 float r = 0, g = 0, b = 0, a = 0;
-                SDL_GetRenderDrawColor(app->renderer, &r, &g, &b, &a);
+                SDL_GetRenderDrawColor(app->renderer, reinterpret_cast<Uint8*>(&r), reinterpret_cast<Uint8*>(&g), reinterpret_cast<Uint8*>(&b), reinterpret_cast<Uint8*>(&a));
                 size = (0.5f * (float)LOGICAL_WIDTH / (float)elems.size());
                 if (app->isColored) {
                     vertices[0] = {
@@ -174,12 +174,12 @@ void SortRenderer::update(std::vector<int>& elems, int a, int b)
                         { 0.f, 0.f }
                     };
                     vertices[1] = {
-                        {LOGICAL_WIDTH / 2 + size * elems[k] * cos(radiansQuotient * k * degreesQuotient), LOGICAL_WIDTH / 2 + size * elems[k] * sin(radiansQuotient * k * degreesQuotient)}, /* second point location */ 
+                        {LOGICAL_WIDTH / 2 + size * elems[k] * cosf(radiansQuotient * k * degreesQuotient), LOGICAL_WIDTH / 2 + size * elems[k] * sinf(radiansQuotient * k * degreesQuotient)}, /* second point location */ 
                         { r, g, b, 0xFF }, /* second color */
                         { 0.f, 0.f }
                     };
                     vertices[2] = {
-                        {LOGICAL_WIDTH / 2 + size * elems[k] * cos(radiansQuotient * (k + 1) * degreesQuotient), LOGICAL_WIDTH / 2 + size * elems[k] * sin(radiansQuotient * (k + 1) * degreesQuotient)}, /* third point location */ 
+                        {LOGICAL_WIDTH / 2 + size * elems[k] * cosf(radiansQuotient * (k + 1) * degreesQuotient), LOGICAL_WIDTH / 2 + size * elems[k] * sinf(radiansQuotient * (k + 1) * degreesQuotient)}, /* third point location */ 
                         { r, g, b, 0xFF }, /* third color */
                         { 0.f, 0.f }
                     };
@@ -190,12 +190,12 @@ void SortRenderer::update(std::vector<int>& elems, int a, int b)
                         { 0.f, 0.f }
                     };
                     vertices[1] = {
-                        {LOGICAL_WIDTH / 2 + size * elems[k] * cos(radiansQuotient * k * degreesQuotient), LOGICAL_WIDTH / 2 + size * elems[k] * sin(radiansQuotient * k * degreesQuotient)}, /* second point location */ 
+                        {LOGICAL_WIDTH / 2 + size * elems[k] * cosf(radiansQuotient * k * degreesQuotient), LOGICAL_WIDTH / 2 + size * elems[k] * sinf(radiansQuotient * k * degreesQuotient)}, /* second point location */ 
                         { r, g, b, 0xFF }, /* second color */
                         { 0.f, 0.f }
                     };
                     vertices[2] = {
-                        {LOGICAL_WIDTH / 2 + size  * elems[k] * cos(radiansQuotient * (k + 1) * degreesQuotient), LOGICAL_WIDTH / 2 + size * elems[k] * sin(radiansQuotient * (k + 1) * degreesQuotient)}, /* third point location */ 
+                        {LOGICAL_WIDTH / 2 + size  * elems[k] * cosf(radiansQuotient * (k + 1) * degreesQuotient), LOGICAL_WIDTH / 2 + size * elems[k] * sinf(radiansQuotient * (k + 1) * degreesQuotient)}, /* third point location */ 
                         { r, g, b, 0xFF }, /* third color */
                         { 0.f, 0.f }
                     };
@@ -223,7 +223,7 @@ void SortRenderer::update(std::vector<int>& elems, int a, int b)
     SDL_RenderPresent(app->renderer);
     if(SDL_PollEvent(&app->event))
     {
-        ImGui_ImplSDL2_ProcessEvent(&app->event);
+        ImGui_ImplSDL3_ProcessEvent(&app->event);
         if (app->event.type == SDL_EVENT_QUIT)
         {
             app->sorter->wantClose = true;
@@ -236,15 +236,15 @@ void SortRenderer::update(std::vector<int>& elems, int a, int b)
 static bool p_open = true;
 int SortRenderer::renderGUI()
 {
-    ImGui_ImplSDLRenderer2_NewFrame();
-    ImGui_ImplSDL2_NewFrame();
+    ImGui_ImplSDLRenderer3_NewFrame();
+    ImGui_ImplSDL3_NewFrame();
     ImGui::NewFrame();
 
     if(!p_open) {
         app->sorter->wantClose = true;
         
         ImGui::Render();
-        ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
+        ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), app->renderer);
         return 2;
     }
     bool shouldSort = false;
@@ -373,7 +373,7 @@ int SortRenderer::renderGUI()
         ImGui::End();
     }
     ImGui::Render();
-    ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
+    ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), app->renderer);
     if(shouldSort)
     {
         shouldSort = false;
