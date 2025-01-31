@@ -83,7 +83,6 @@ int App::init()
         LOGINFO("Creating SDL renderer");
         this->renderer = SDL_CreateRenderer(this->window, NULL);
         LOGINFO("Setting render parameters");
-        SDL_SetRenderLogicalPresentation(this->renderer, LOGICAL_WIDTH, LOGICAL_WIDTH, SDL_LOGICAL_PRESENTATION_STRETCH);
         SDL_SetRenderDrawColor(this->renderer, 0x0, 0x0, 0x0, 0x0);
 		SDL_SetRenderDrawBlendMode(this->renderer, SDL_BLENDMODE_BLEND);
         LOGINFO("Clearing window");
@@ -99,7 +98,7 @@ int App::init()
 void App::run()
 {
     LOGINFO("Generating array");
-    std::vector<int> nums(LOGICAL_WIDTH);
+    std::vector<int> nums(512);
     for (int index = 0; index < nums.capacity(); index++)
         nums[index] = index + 1;
 
@@ -112,7 +111,7 @@ void App::run()
     {
         while(!this->sorter->wantClose) {
             float sec = 0.04;
-            int freq = this->sorter->elems[this->current_element] * (LOGICAL_WIDTH / (float)this->sorter->elems.size()) + 100;
+            int freq = this->sorter->elems[this->current_element] * (WIN_HEIGHT / (float)this->sorter->elems.size()) + 100;
             freq = std::clamp(freq, 100, 800);
             if (this->sorter->isSorting || this->sorter->isShuffling){
                 snd->load(sec, freq);
@@ -134,7 +133,6 @@ void App::run()
             LOGINFO("Exit signal recieved");
             break;
         }
-        SDL_Delay(1);
     }
 }
 
@@ -147,12 +145,8 @@ void App::calculateDeltaTime()
 
 int App::loadFont() {
     TTF_Init();
-    char buffer[MAX_PATH] = {0};
-    GetModuleFileNameA(NULL, buffer, MAX_PATH);
-    std::string::size_type pos = std::string(buffer).find_last_of("\\/");
-    std::string str = std::string(buffer).substr(0, pos);
-    str += "\\res\\font.ttf";
-    font = TTF_OpenFont(str.c_str(), 12);
+    std::string basePath{SDL_GetBasePath()};
+    font = TTF_OpenFont((basePath + "\\res\\font.ttf").c_str(), 12);
     if (font == NULL) {
         return -1;
     }
