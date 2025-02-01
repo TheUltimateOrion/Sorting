@@ -16,12 +16,11 @@ void PigeonHoleSort::sort()
             max = elems[i];
         comparisions++;
     }
-    int range = max - min + 1; // Find range
  
     // Create an array of vectors. Size of array
-    // range. Each vector represents a hole that
+    // max - min + 1. Each vector represents a hole that
     // is going to contain matching elements.
-    std::vector<int> holes[range];
+    std::vector<int> holes[max - min + 1];
  
     // Traverse through input array and put every
     // element in its respective hole
@@ -32,7 +31,7 @@ void PigeonHoleSort::sort()
     // every hole, take its elements and put in
     // array.
     int index = 0;  // index in sorted array
-    for (int i = 0; i < range; i++)
+    for (int i = 0; i < max - min + 1; i++)
     {
        std::vector<int>::iterator it;
        for (it = holes[i].begin(); it != holes[i].end(); ++it)
