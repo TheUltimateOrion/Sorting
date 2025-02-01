@@ -36,7 +36,10 @@ jobs:
           - os: macos-latest
             c_compiler: gcc
             cpp_compiler: g++
-
+    name: MINGW64
+    defaults:
+      run:
+        shell: msys2 {0}
     steps:
     - uses: actions/checkout@v4
       with:
