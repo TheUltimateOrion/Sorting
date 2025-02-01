@@ -46,6 +46,8 @@ jobs:
       with:
         version: 12.2.0 
         platform: x64
+        install: >-
+          mingw-w64-x86_64-ninja
 
     - name: Set reusable strings
       # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
@@ -59,8 +61,8 @@ jobs:
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       run: >
         cmake -B ${{ steps.strings.outputs.build-output-dir }}
-        -DCMAKE_CXX_COMPILER=${{ steps.mingw.gcc }}
-        -DCMAKE_C_COMPILER=${{ steps.mingw.gxx }}
+        -DCMAKE_CXX_COMPILER=${{ steps.mingw.outputs.gcc }}
+        -DCMAKE_C_COMPILER=${{ steps.mingw.outputs.gxx }}
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
         -S ${{ github.workspace }}
 
