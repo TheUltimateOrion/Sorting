@@ -28,7 +28,6 @@ void Sort::reverse()
 
 void Sort::shuffle()
 {
-    LOGERR(this->elems.capacity());
     LOGINFO("Shuffling");
     isShuffling = true;
     this->wantStop = false;
@@ -44,7 +43,6 @@ void Sort::shuffle()
             return;
         elems[i] = temp[i];
     }
-    LOGERR(this->elems.capacity());
     sorted = false;
     isShuffling = false;
     SDL_Delay(500);
