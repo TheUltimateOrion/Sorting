@@ -1,6 +1,14 @@
 #pragma once
 
 #define SDL_MAIN_HANDLED
+
+#include <iostream>
+#include <algorithm>
+#include <vector>
+#include <cmath>
+#include <thread>
+#include <random>
+
 #include <imgui/imgui.h>
 #include <imgui/backend/imgui_impl_sdl3.h>
 #include <imgui/backend/imgui_impl_sdlrenderer3.h>
@@ -10,7 +18,7 @@
 #include <AL/al.h>
 #include <AL/alc.h>
 
-#include <bits/stdc++.h>
+
 
 #define WIN_WIDTH  1920.0f
 #define WIN_HEIGHT 1080.0f
