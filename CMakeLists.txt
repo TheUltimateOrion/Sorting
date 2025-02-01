@@ -6,6 +6,7 @@ include(CTest)
 enable_testing()
 
 set(SDLTTF_VENDORED ON) # tell SDL_ttf to build its own dependencies
+set(CMAKE_CXX_STANDARD 17)
 
 add_subdirectory(libs/SDL EXCLUDE_FROM_ALL)
 add_subdirectory(libs/SDL_ttf EXCLUDE_FROM_ALL)
@@ -26,8 +27,6 @@ includes/imgui
 includes/imgui/backend
 includes/openal
 )
-
-
 
 target_link_libraries(${PROJECT} PRIVATE SDL3_ttf::SDL3_ttf SDL3::SDL3 openal)
 
