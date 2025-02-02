@@ -23,7 +23,7 @@ jobs:
         platform:
         - { name: Windows-x86_64,  os: windows-latest, shell: 'msys2 {0}', msystem: mingw64, msys-env: mingw-w64-x86_64, shared: 1, static: 0, cmake: '-DSDLTTF_VENDORED=OFF -G "Ninja Multi-Config"', artifact: 'SDL3_ttf-mingw64' }
         - { name: Linux-x86_64,    os: ubuntu-latest,  shell: sh,   cmake: '-DSDLTTF_VENDORED=ON -GNinja', shared: 1, static: 0, artifact: 'SDL3_image-linux-x64' }
-        - { name: MacOS-arm64,     os: macos-12,       shell: sh,   cmake: '-DSDLTTF_VENDORED=ON -GNinja', shared: 1, static: 0, artifact: 'SDL3_image-macos' }
+        - { name: MacOS-arm64,     os: macos-13,       shell: sh,   cmake: '-DSDLTTF_VENDORED=ON -GNinja', shared: 1, static: 0, artifact: 'SDL3_image-macos' }
 
 
     steps:
@@ -32,7 +32,7 @@ jobs:
         submodules: recursive
         
     - name: 'Setup MSYS2'
-      if: ${{ matrix.platform.shell  }} == 'msys2 {0}'
+      if: ${{ matrix.platform.shell == 'msys2 {0}' }}
       uses: msys2/setup-msys2@v2
       with:
         msystem: ${{ matrix.platform.msystem }}
