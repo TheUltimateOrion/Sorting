@@ -47,15 +47,15 @@ SDL_Color SortRenderer::HSVToRGB(unsigned char hue, unsigned char sat, unsigned 
     return rgb;
 }
 
-void SortRenderer::renderText(std::string txt, int x, int y, SDL_Color color)
+void SortRenderer::renderText(std::string txt, float x, float y, SDL_Color color)
 {
     
     SDL_Surface* textSurface = TTF_RenderText_Solid(app->font, txt.c_str(), 0, color); // SDL_Surface* textSurface = TTF_RenderText_Solid(app->font, txt.c_str(), color);
     SDL_Texture* text = SDL_CreateTextureFromSurface(app->renderer, textSurface);
-    int text_width = textSurface->w;
-    int text_height = textSurface->h;
+    float text_width = static_cast<float>(textSurface->w);
+    float text_height = static_cast<float>(textSurface->h);
     SDL_DestroySurface(textSurface); // SDL_FreeSurface(textSurface);
-    SDL_FRect renderQuad = { x, y, text_width, text_height };
+    SDL_FRect renderQuad = { x, y, text_width, text_height};
     SDL_RenderTexture(app->renderer, text, NULL, &renderQuad); // SDL_RenderCopy(app->renderer, text, NULL, &renderQuad);
     SDL_DestroyTexture(text);
 }
@@ -73,20 +73,20 @@ void SortRenderer::renderInfo()
     if (app->sorter->isSorting || (::last_time == 0.0f))
         textColor = { 0xFF, 0xFF, 0xFF, 0 };
     
-    renderText("TIME: " + std::to_string(::last_time) + 's', 10, 10, textColor);
+    renderText("TIME: " + std::to_string(::last_time) + 's', 10.0f, 10.0f, textColor);
     renderText(std::string("Sort: ") + app->items[app->current_category][app->current_item], 10, 30, { 0xFF, 0xFF, 0xFF, 0 });
 
     app->swaps = app->sorter->swaps;
     app->comparisions = app->sorter->comparisions;
-    renderText("Swaps: " + std::to_string(app->swaps), 10, 50, { 0xFF, 0xFF, 0xFF, 0 });
-    renderText("Comparisions: " + std::to_string(app->comparisions), 10, 70, { 0xFF, 0xFF, 0xFF, 0 });
+    renderText("Swaps: " + std::to_string(app->swaps), 10.0f, 50.0f, { 0xFF, 0xFF, 0xFF, 0 });
+    renderText("Comparisions: " + std::to_string(app->comparisions), 10.0f, 70.0f, { 0xFF, 0xFF, 0xFF, 0 });
 
     if (app->sorter->isSorting)
-        renderText("Sorting...", 10, 90, { 0xFF, 0xFF, 0xFF, 0 });
+        renderText("Sorting...", 10.0f, 90.0f, { 0xFF, 0xFF, 0xFF, 0 });
     if (app->sorter->isShuffling)
-        renderText("Shuffling...", 10, 90, { 0xFF, 0xFF, 0xFF, 0 });
+        renderText("Shuffling...", 10.0f, 90.0f, { 0xFF, 0xFF, 0xFF, 0 });
     if (!(app->sorter->isShuffling) && !(app->sorter->isSorting) && app->sorter->sorted)
-        renderText("Sorted", 10, 90, { 0xFF, 0xFF, 0xFF, 0 });
+        renderText("Sorted", 10.0f, 90.0f, { 0xFF, 0xFF, 0xFF, 0 });
     SDL_SetRenderDrawColor(app->renderer, _r, _g, _b, _a);
 }
 
