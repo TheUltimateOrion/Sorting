@@ -30,11 +30,15 @@ includes/imgui/backend
 includes/openal
 )
 
-if(WIN32 OR LINUX)
+if(WIN32)
     set(OPENAL_LIB openal)
     install(TARGETS ${PROJECT} SDL3-shared SDL3_ttf-shared RUNTIME DESTINATION ${CMAKE_SOURCE_DIR}/dist)
 elseif(APPLE)
     set(OPENAL_LIB "-framework OpenAL")
+    install(TARGETS ${PROJECT} RUNTIME DESTINATION ${CMAKE_SOURCE_DIR}/dist)
+    install(TARGETS SDL3-shared SDL3_ttf-shared LIBRARY DESTINATION ${CMAKE_SOURCE_DIR}/dist)
+elseif(LINUX)
+    set(OPENAL_LIB openal)
     install(TARGETS ${PROJECT} RUNTIME DESTINATION ${CMAKE_SOURCE_DIR}/dist)
     install(TARGETS SDL3-shared SDL3_ttf-shared LIBRARY DESTINATION ${CMAKE_SOURCE_DIR}/dist)
 endif()
