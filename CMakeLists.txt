@@ -1,10 +1,12 @@
 cmake_minimum_required(VERSION 3.30.1)
-set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}" CACHE INTERNAL "")
 set(PROJECT Sorting)
 project(${PROJECT} VERSION 0.1.0)
 include(CTest)
 enable_testing()
 
+set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}" CACHE INTERNAL "")
+set(CPACK_PROJECT_NAME ${PROJECT_NAME})
+set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 set(SDLTTF_VENDORED ON) # tell SDL_ttf to build its own dependencies
 set(CMAKE_CXX_STANDARD 17)
 
@@ -27,14 +29,16 @@ includes/imgui
 includes/imgui/backend
 includes/openal
 )
-if(WIN32)
-    target_link_libraries(${PROJECT} PRIVATE SDL3_ttf::SDL3_ttf SDL3::SDL3 openal)
-elseif(APPLE)
-    target_link_libraries(${PROJECT} PRIVATE SDL3_ttf::SDL3_ttf SDL3::SDL3 "-framework OpenAL")
-endif()
 
-set(CPACK_PROJECT_NAME ${PROJECT_NAME})
-set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
-install(TARGETS ${PROJECT} SDL3-shared SDL3_ttf-shared RUNTIME DESTINATION ${CMAKE_SOURCE_DIR}/dist)
+if(WIN32)
+    set(OPENAL_LIB openal)
+    install(TARGETS ${PROJECT} SDL3-shared SDL3_ttf-shared RUNTIME DESTINATION ${CMAKE_SOURCE_DIR}/dist)
+elseif(APPLE)
+    set(OPENAL_LIB "-framework OpenAL")
+    install(TARGETS ${PROJECT} RUNTIME DESTINATION ${CMAKE_SOURCE_DIR}/dist)
+    install(TARGETS SDL3-shared SDL3_ttf-shared LIBRARY DESTINATION ${CMAKE_SOURCE_DIR}/dist)
+endif()
+target_link_libraries(${PROJECT} PRIVATE SDL3_ttf::SDL3_ttf SDL3::SDL3 ${OPENAL_LIB})
+
 install(DIRECTORY res/ DESTINATION ${CMAKE_SOURCE_DIR}/dist/res)
 include(CPack)
