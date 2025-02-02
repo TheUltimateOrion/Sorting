@@ -119,8 +119,10 @@ jobs:
       with:
         submodules: recursive
 
-    - name: Install OpenAL
-      run: "apt-get install openal"
+    - name: Install Prerequisites
+      run: | 
+        sudo apt-get update
+        sudo apt-get install -y openal
           
     - name: Set reusable strings
       # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
