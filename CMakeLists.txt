@@ -4,7 +4,7 @@ project(${PROJECT} VERSION 0.1.0)
 include(CTest)
 enable_testing()
 
-set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}" CACHE INTERNAL "")
+set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR}/dist)
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 set(SDLTTF_VENDORED ON) # tell SDL_ttf to build its own dependencies
@@ -32,17 +32,20 @@ includes/openal
 
 if(WIN32)
     set(OPENAL_LIB openal)
-    install(TARGETS ${PROJECT} SDL3-shared SDL3_ttf-shared RUNTIME DESTINATION ${CMAKE_SOURCE_DIR}/dist)
+    install(TARGETS ${PROJECT} SDL3-shared SDL3_ttf-shared RUNTIME DESTINATION .)
 elseif(APPLE)
     set(OPENAL_LIB "-framework OpenAL")
-    install(TARGETS ${PROJECT} RUNTIME DESTINATION ${CMAKE_SOURCE_DIR}/dist)
-    install(TARGETS SDL3-shared SDL3_ttf-shared LIBRARY DESTINATION ${CMAKE_SOURCE_DIR}/dist)
+    install(TARGETS ${PROJECT} RUNTIME DESTINATION .)
+    install(TARGETS SDL3-shared SDL3_ttf-shared LIBRARY DESTINATION .)
 elseif(LINUX)
     set(OPENAL_LIB openal)
-    install(TARGETS ${PROJECT} RUNTIME DESTINATION ${CMAKE_SOURCE_DIR}/dist)
-    install(TARGETS SDL3-shared SDL3_ttf-shared LIBRARY DESTINATION ${CMAKE_SOURCE_DIR}/dist)
+    install(TARGETS ${PROJECT} RUNTIME DESTINATION)
+    install(TARGETS SDL3-shared SDL3_ttf-shared LIBRARY DESTINATION)
+    set_target_properties(${PROJECT} PROPERTIES
+        BUILD_RPATH "$ORIGIN"
+        INSTALL_RPATH "$ORIGIN"
+    )
 endif()
 target_link_libraries(${PROJECT} PRIVATE SDL3_ttf::SDL3_ttf SDL3::SDL3 ${OPENAL_LIB})
-
-install(DIRECTORY res/ DESTINATION ${CMAKE_SOURCE_DIR}/dist/res)
+install(DIRECTORY res/ DESTINATION res)
 include(CPack)
