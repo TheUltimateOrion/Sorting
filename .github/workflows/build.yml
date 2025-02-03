@@ -9,10 +9,9 @@ on:
     branches: [ "main" ]
 
 jobs:
-  Build:
+  EnvSetup:
     name: ${{ matrix.platform.name }}
     runs-on: ${{ matrix.platform.os }}
-
     defaults:
       run:
         shell: ${{ matrix.platform.shell }}
@@ -21,11 +20,10 @@ jobs:
       fail-fast: false
       matrix:
         platform:
-        - { name: Windows-x86_64,  os: windows-latest, shell: 'msys2 {0}', msystem: mingw64, msys-env: mingw-w64-x86_64, shared: 1, static: 0, cmake: '-DSDLTTF_VENDORED=OFF -G "Ninja Multi-Config"', artifact: 'SDL3_ttf-mingw64' }
-        - { name: Linux-x86_64,    os: ubuntu-latest,  shell: sh,   cmake: '-DSDLTTF_VENDORED=ON -GNinja', shared: 1, static: 0, artifact: 'SDL3_image-linux-x64' }
-        - { name: MacOS-arm64,     os: macos-13,       shell: sh,   cmake: '-DSDLTTF_VENDORED=ON -GNinja', shared: 1, static: 0, artifact: 'SDL3_image-macos' }
-
-
+        - { name: Windows-x86_64,  os: windows-latest, shell: 'msys2 {0}', msystem: mingw64, artifact: 'SortingVisualizer-Windows-x64' }
+        - { name: Linux-x86_64,    os: ubuntu-latest,  shell: sh,   artifact: 'SortingVisualizer-Linux-x64' }
+        - { name: MacOS-arm64,     os: macos-13,       shell: sh,   artifact: 'SortingVisualizer-MacOS' }
+    
     steps:
     - uses: actions/checkout@v4
       with:
@@ -62,6 +60,24 @@ jobs:
         libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxss-dev
         libxkbcommon-dev libdrm-dev libgbm-dev libgl1-mesa-dev libgles2-mesa-dev
         libegl1-mesa-dev libdbus-1-dev libibus-1.0-dev libudev-dev fcitx-libs-dev
+  
+  Build:
+    name: ${{ matrix.platform.name }}
+    runs-on: ${{ matrix.platform.os }}
+    needs: EnvSetup
+
+    defaults:
+      run:
+        shell: ${{ matrix.platform.shell }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+        - { name: Windows-x86_64,  os: windows-latest, shell: 'msys2 {0}', msystem: mingw64, artifact: 'SortingVisualizer-Windows-x64' }
+        - { name: Linux-x86_64,    os: ubuntu-latest,  shell: sh,   artifact: 'SortingVisualizer-Linux-x64' }
+        - { name: MacOS-arm64,     os: macos-13,       shell: sh,   artifact: 'SortingVisualizer-MacOS' }
+    steps:
           
     - name: Set reusable strings
       # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
