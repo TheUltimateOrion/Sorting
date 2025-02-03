@@ -39,8 +39,8 @@ elseif(APPLE)
     install(TARGETS SDL3-shared SDL3_ttf-shared LIBRARY DESTINATION .)
 elseif(LINUX)
     set(OPENAL_LIB openal)
-    install(TARGETS ${PROJECT} RUNTIME DESTINATION)
-    install(TARGETS SDL3-shared SDL3_ttf-shared LIBRARY DESTINATION)
+    install(TARGETS ${PROJECT} RUNTIME DESTINATION .)
+    install(TARGETS SDL3-shared SDL3_ttf-shared LIBRARY DESTINATION .)
     set_target_properties(${PROJECT} PROPERTIES
         BUILD_RPATH "$ORIGIN"
         INSTALL_RPATH "$ORIGIN"

@@ -146,7 +146,7 @@ void App::calculateDeltaTime()
 int App::loadFont() {
     TTF_Init();
     std::string basePath{SDL_GetBasePath()};
-    font = TTF_OpenFont((basePath + "\\res\\font.ttf").c_str(), 12);
+    font = TTF_OpenFont((basePath + "/res/font.ttf").c_str(), 12);
     if (font == NULL) {
         return -1;
     }

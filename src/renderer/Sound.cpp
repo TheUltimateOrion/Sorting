@@ -32,7 +32,7 @@ int SoundEngine::init()
     ctx = alcCreateContext(dev, NULL);
     LOGINFO("Making current context");
     alcMakeContextCurrent(ctx);
-    LOGINFO("Generating sources");
+    LOGINFO("Generating OpenAL sources");
     alGenSources(1, &this->src);
     AL_CHECK_ERR(-1);
     return 0;
