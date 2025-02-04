@@ -24,7 +24,7 @@ jobs:
         platform:
         - { name: build-win,  os: windows-latest, shell: 'msys2 {0}', msystem: mingw64, artifact: 'SortingVisualizer-Windows-x64' }
         - { name: build-linux,    os: ubuntu-latest,  shell: sh,   artifact: 'SortingVisualizer-Linux-x64' }
-        - { name: build-osx    os: macos-13,       shell: sh,   artifact: 'SortingVisualizer-MacOS' }
+        - { name: build-osx,    os: macos-13,       shell: sh,   artifact: 'SortingVisualizer-MacOS' }
     
     steps:
     - uses: actions/checkout@v4
