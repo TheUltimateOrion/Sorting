@@ -1,6 +1,6 @@
 #include "sort/CombSort.h"
 
-CombSort::CombSort(std::vector<int>& arr, ImGuiIO* io) : Sort(arr, io) {}
+CombSort::CombSort(std::vector<int>& arr) : Sort(arr) {}
 
 int CombSort::getNextGap(int gap)
 {

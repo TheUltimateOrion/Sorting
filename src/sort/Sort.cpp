@@ -1,6 +1,6 @@
 #include "renderer/Renderer.h"
 
-Sort::Sort(std::vector<int>& arr, ImGuiIO* io) : elems(arr), isSorting(false), isShuffling(false), sorted(true), wantClose(false), wantStop(false), speed(speed), io(io), start_time(0) {}
+Sort::Sort(std::vector<int>& arr) : elems(arr), isSorting(false), isShuffling(false), sorted(true), wantClose(false), wantStop(false), speed(speed), start_time(0) {}
 
 void Sort::reverse()
 {

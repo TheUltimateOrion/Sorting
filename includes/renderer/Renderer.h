@@ -4,7 +4,7 @@
 #ifndef SORTCASE
 #define SORTCASE(num, typeSort)\
     case num: {\
-        app->sorter = new typeSort(app->sorter->elems, app->sorter->io);\
+        app->sorter = new typeSort(app->sorter->elems);\
         goto _jmp;\
     } break;
 #endif
@@ -12,7 +12,7 @@
 #ifndef SORTCASERADIX
 #define SORTCASERADIX(num, typeSort)\
     case num: {\
-        app->sorter = new typeSort(app->sorter->elems, app->sorter->io, app->setRadix);\
+        app->sorter = new typeSort(app->sorter->elems, app->setRadix);\
         goto _jmp;\
     } break;
 #endif

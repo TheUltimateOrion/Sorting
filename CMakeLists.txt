@@ -10,14 +10,7 @@ set(SDLTTF_VENDORED ON) # tell SDL_ttf to build its own dependencies
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-include(CTest)
 add_subdirectory(external)
-
-add_executable(${PROJECT}_TEST tests/main.test.cc)
-target_link_libraries(${PROJECT}_TEST PRIVATE GTest::gtest_main)
-
-include(GoogleTest)
-gtest_discover_tests(${PROJECT}_TEST)
 
 file(GLOB SOURCE_FILES 
 src/imgui/*.cpp 
@@ -54,3 +47,16 @@ elseif(LINUX)
 endif()
 target_link_libraries(${PROJECT} PRIVATE SDL3_ttf::SDL3_ttf SDL3::SDL3 ${OPENAL_LIB})
 install(DIRECTORY res/ DESTINATION res)
+
+include(CTest)
+add_executable(${PROJECT}_TEST test/main.test.cc ${SOURCE_FILES})
+target_include_directories(${PROJECT}_TEST PRIVATE 
+includes/
+includes/imgui
+includes/imgui/backend
+includes/openal
+)
+target_link_libraries(${PROJECT}_TEST PRIVATE GTest::gtest_main SDL3_ttf::SDL3_ttf SDL3::SDL3 ${OPENAL_LIB})
+
+include(GoogleTest)
+gtest_discover_tests(${PROJECT}_TEST)

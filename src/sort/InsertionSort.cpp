@@ -1,6 +1,6 @@
 #include "sort/InsertionSort.h"
 
-InsertionSort::InsertionSort(std::vector<int>& arr, ImGuiIO* io) : Sort(arr, io) {}
+InsertionSort::InsertionSort(std::vector<int>& arr) : Sort(arr) {}
 
 void InsertionSort::sort()
 {

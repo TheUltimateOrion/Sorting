@@ -103,7 +103,7 @@ void App::run()
         nums[index] = index + 1;
 
     LOGINFO("Initializing sorter");
-	this->sorter = new BubbleSort(nums, io);
+	this->sorter = new BubbleSort(nums);
     this->sorter->setSpeed(1);
 
     LOGINFO("Creating audio thread");

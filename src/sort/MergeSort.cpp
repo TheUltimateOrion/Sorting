@@ -1,6 +1,6 @@
 #include "sort/MergeSort.h"
 
-MergeSort::MergeSort(std::vector<int>& arr, ImGuiIO* io) : Sort(arr, io) {}
+MergeSort::MergeSort(std::vector<int>& arr) : Sort(arr) {}
 
 void MergeSort::merge(int const left, int const mid, int const right)
 {

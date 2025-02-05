@@ -8,7 +8,7 @@ private:
     int partition(std::vector<int>& arr, int low, int high);
     void quickSort(std::vector<int>& arr, int low, int high);
 public:
-    QuickSort(std::vector<int>& arr, ImGuiIO* io);
+    QuickSort(std::vector<int>& arr);
 
     void sort() override;
 };

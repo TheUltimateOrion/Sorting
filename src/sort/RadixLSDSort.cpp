@@ -1,6 +1,6 @@
 #include "sort/RadixLSDSort.h"
 
-RadixLSDSort::RadixLSDSort(std::vector<int>& arr, ImGuiIO* io, int radix) : Sort(arr, io), radix(radix) {}
+RadixLSDSort::RadixLSDSort(std::vector<int>& arr, int radix) : Sort(arr), radix(radix) {}
 
 void RadixLSDSort::countSortByDigits(int exponent, int minValue)
 {

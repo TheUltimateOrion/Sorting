@@ -1,6 +1,6 @@
 #include "sort/BogoSort.h"
 
-BogoSort::BogoSort(std::vector<int>& arr, ImGuiIO* io) : Sort(arr, io) {}
+BogoSort::BogoSort(std::vector<int>& arr) : Sort(arr) {}
 
 bool BogoSort::isSorted(std::vector<int>& elems, int n)
 {

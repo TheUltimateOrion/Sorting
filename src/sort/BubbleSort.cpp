@@ -1,6 +1,6 @@
 #include "sort/BubbleSort.h"
 
-BubbleSort::BubbleSort(std::vector<int>& arr, ImGuiIO* io) : Sort(arr, io) {}
+BubbleSort::BubbleSort(std::vector<int>& arr) : Sort(arr) {}
 
 void BubbleSort::sort()
 {
@@ -12,7 +12,7 @@ void BubbleSort::sort()
             if (elems[j] > elems[j + 1])
             {
                 //std::cout << elems[j] << ": " << elems[j + 1] << std::endl;
-                this->swap(elems, j, j + 1);
+                swap(elems, j, j + 1);
                 this->sortRenderer->update(this->elems, j, j + 1);
                 if (wantClose || wantStop)
                     return;

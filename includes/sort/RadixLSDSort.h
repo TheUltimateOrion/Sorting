@@ -8,7 +8,7 @@ private:
     int radix;
     void countSortByDigits(int exponent, int minValue);
 public:
-    RadixLSDSort(std::vector<int>& arr, ImGuiIO* io, int radix);
+    RadixLSDSort(std::vector<int>& arr, int radix);
 
     void sort() override;
 };

@@ -15,7 +15,6 @@ public:
     bool isShuffling;
     bool wantClose;
     bool wantStop;
-    ImGuiIO* io;
     std::vector<int> elems;
     float speed;
     float start_time;
@@ -24,7 +23,7 @@ public:
 
     SortRenderer* sortRenderer;
 
-    Sort(std::vector<int>& arr, ImGuiIO* io);
+    Sort(std::vector<int>& arr);
 
     void swap(std::vector<int>& array, int a, int b);
 

@@ -1,6 +1,6 @@
 #include "sort/GravitySort.h"
 
-GravitySort::GravitySort(std::vector<int>& arr, ImGuiIO* io) : Sort(arr, io) {}
+GravitySort::GravitySort(std::vector<int>& arr) : Sort(arr) {}
 
 void GravitySort::sort()
 {
