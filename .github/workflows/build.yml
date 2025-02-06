@@ -45,16 +45,12 @@ jobs:
           cmake:p
           ninja:p
           openal:p
-          
-    - name: Install Mac Prerequisites
-      if: ${{ contains( matrix.platform.name, 'MacOS') }}
-      run: "brew install openal-soft"
 
     - name: Update Linux packages
-      if: ${{ contains( matrix.platform.name, 'Linux') }}
+      if: ${{ contains( matrix.platform.name, 'linux') }}
       run: sudo apt-get update
     - name: Install Linux Prerequisites
-      if: ${{ contains( matrix.platform.name, 'Linux') }}
+      if: ${{ contains( matrix.platform.name, 'linux') }}
       run: > 
         sudo apt-get install build-essential git make
         pkg-config cmake ninja-build gnome-desktop-testing libasound2-dev libpulse-dev
