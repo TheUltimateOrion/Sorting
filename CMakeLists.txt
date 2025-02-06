@@ -49,14 +49,14 @@ target_link_libraries(${PROJECT} PRIVATE SDL3_ttf::SDL3_ttf SDL3::SDL3 ${OPENAL_
 install(DIRECTORY res/ DESTINATION res)
 
 include(CTest)
-add_executable(${PROJECT}_TEST test/main.test.cc ${SOURCE_FILES})
+add_executable(${PROJECT}_TEST test/main.test.cc)
 target_include_directories(${PROJECT}_TEST PRIVATE 
 includes/
 includes/imgui
 includes/imgui/backend
 includes/openal
 )
-target_link_libraries(${PROJECT}_TEST PRIVATE GTest::gtest_main SDL3_ttf::SDL3_ttf SDL3::SDL3 ${OPENAL_LIB})
+target_link_libraries(${PROJECT}_TEST PRIVATE GTest::gtest_main)
 
 include(GoogleTest)
 gtest_discover_tests(${PROJECT}_TEST)
