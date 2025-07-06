@@ -15,8 +15,6 @@ App::App() noexcept
 	};
 
     this->displayTypes = {"Bar", "Dot", "Rainbow Rectangle", "Circle", "Circle Dot", "Disparity Circle", "Spiral", "Spiral Dot"};
-
-    snd = SoundEngine::get();
 }
 
 App::~App()
@@ -42,14 +40,13 @@ App::~App()
 
     LOGINFO("Quitting...");
     SDL_Quit();
-    delete this->sortRenderer;
 }
 
 void App::_setupGUI()
 {
     LOGINFO("Setting up ImGui context");
     IMGUI_CHECKVERSION();
-    ImGuiContext* ctx= ImGui::CreateContext();
+    ImGuiContext* ctx = ImGui::CreateContext();
     ImGui::SetCurrentContext(ctx);
 	
     LOGINFO("Configuring ImGui io");
@@ -62,7 +59,6 @@ void App::_setupGUI()
     LOGINFO("Setting up ImGui renderer");
     ImGui_ImplSDL3_InitForSDLRenderer(this->window, this->renderer);
     ImGui_ImplSDLRenderer3_Init(this->renderer);
-    this->sortRenderer = new SortRenderer();
 }
 
 int App::init()
@@ -70,13 +66,15 @@ int App::init()
     LOGINFO("Initializing App");
     LOGINFO("Loading font");
     if(this->loadFont() < 0)
-    {
+    {   
         LOGERR("Font not found");
         return -1;
     }
     LOGINFO("Font loaded successfully");
 
+
     LOGINFO("Initializing sound subsystem");
+    snd = SoundEngine::get();
     if (snd->init() < 0)
     {
         LOGERR("Sound could not be initialized");

@@ -1,6 +1,6 @@
 #include "renderer/Sound.h"
 
-SoundEngine::SoundEngine() : buf(0), src(0), samples(NULL) {}
+SoundEngine::SoundEngine() : buf(0), src(0), samples(nullptr) {}
 
 SoundEngine *SoundEngine::get() {
     static SoundEngine instance;
@@ -22,17 +22,17 @@ const char* SoundEngine::alErrorString(ALenum err) const noexcept {
 
 int SoundEngine::init()
 {
-    ALCdevice *dev = NULL;
-    ALCcontext *ctx = NULL;
+    ALCdevice *dev = nullptr;
+    ALCcontext *ctx = nullptr;
 
     LOGINFO("Finding default OpenAL audio device");
-    const char *defname = alcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
+    const char *defname = alcGetString(nullptr, ALC_DEFAULT_DEVICE_SPECIFIER);
     //std::cout << "Default device: " << defname << std::endl;
 
-    LOGINFO("Opening OpenAL audio device");
+    LOGINFO("Opening OpenAL audio device: " << defname);
     dev = alcOpenDevice(defname);
     LOGINFO("Creating new OpenAL context");
-    ctx = alcCreateContext(dev, NULL);
+    ctx = alcCreateContext(dev, nullptr);
     LOGINFO("Making current context");
     alcMakeContextCurrent(ctx);
     LOGINFO("Generating OpenAL sources");
@@ -77,17 +77,17 @@ void SoundEngine::play() noexcept
 
 SoundEngine::~SoundEngine()
 {
-    ALCdevice *dev = NULL;
-    ALCcontext *ctx = NULL;
+    ALCdevice *dev = nullptr;
+    ALCcontext *ctx = nullptr;
     LOGINFO("Deleting current OpenAL context");
     ctx = alcGetCurrentContext();
     dev = alcGetContextsDevice(ctx);
 
-    alcMakeContextCurrent(NULL);
+    alcMakeContextCurrent(nullptr);
     alcDestroyContext(ctx);
     LOGINFO("Closing OpenAL device");
     alcCloseDevice(dev);
-    if (this->samples != NULL) delete samples;
+    if (this->samples != nullptr) delete samples;
 }
 
 ALenum SoundEngine::alGetLastError() const noexcept { return this->err; }

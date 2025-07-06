@@ -16,6 +16,9 @@
 #include <AL/al.h>
 #include <AL/alc.h>
 
+#include "renderer/DisplayType.h"
+#include "sort/SortCategories.h"
+
 constexpr float WIN_WIDTH = 1920.0f;
 constexpr float WIN_HEIGHT = 1080.0f;
 
@@ -49,7 +52,7 @@ public:
     TTF_Font *font;
 
     SoundEngine* snd;
-    SortRenderer* sortRenderer;
+    std::unique_ptr<SortRenderer> sortRenderer;
     std::shared_ptr<Sort> sorter;
 
     Uint64 NOW = SDL_GetPerformanceCounter();
@@ -70,10 +73,10 @@ public:
     int current_item = 0;
     
     std::vector<const char *> categories;
-    int current_category = 0;
+    enum SortCategory current_category = SortCategory::Exchange;
 
     std::vector<const char *> displayTypes;
-    int displayType = 0;
+    enum DisplayType displayType = DisplayType::Bar;
 
     bool isRadix = false;
     int setRadix = 2;

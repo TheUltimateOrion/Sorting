@@ -10,6 +10,8 @@
 #include "sort/CombSort.h"
 #include "sort/BogoSort.h"
 #include "sort/MergeSort.h"
+#include "sort/SortCategories.h"
+#include "renderer/DisplayType.h"
 
 SDL_Color SortRenderer::HSVToRGB(unsigned char hue, unsigned char sat, unsigned char value) const noexcept
 {
@@ -56,7 +58,7 @@ void SortRenderer::renderText(const std::string& txt, float x, float y, SDL_Colo
     float text_height = static_cast<float>(textSurface->h);
     SDL_DestroySurface(textSurface); // SDL_FreeSurface(textSurface);
     SDL_FRect renderQuad = { x, y, text_width, text_height};
-    SDL_RenderTexture(app->renderer, text, NULL, &renderQuad); // SDL_RenderCopy(app->renderer, text, NULL, &renderQuad);
+    SDL_RenderTexture(app->renderer, text, nullptr, &renderQuad); // SDL_RenderCopy(app->renderer, text, NULL, &renderQuad);
     SDL_DestroyTexture(text);
 }
 
@@ -118,22 +120,22 @@ void SortRenderer::update(std::vector<int>& elems, int a, int b) const noexcept
         SDL_Vertex vertices[3];
         
         switch (app->displayType) {
-            case 0: {
+            case DisplayType::Bar: {
                 // SDL_RenderDrawLine(renderer, k + 1, elems.size() , k + 1, elems.size()  - elems[k]);
                 // std::cout << -elems[k] * spacing << std::endl;
                 app->rect = (SDL_FRect) {k * spacing, WIN_HEIGHT, spacing, -(elems[k] * spacing * WIN_HEIGHT / WIN_WIDTH)};
                 SDL_RenderFillRect(app->renderer, &app->rect);
             } break;
-            case 1: {
+            case DisplayType::Dot: {
                 // SDL_RenderDrawPoint(renderer, k + 1, elems.size()  - elems[k]);
                 SDL_RenderPoint(app->renderer, (k + 1) * spacing, (WIN_HEIGHT - elems[k] * spacing * WIN_HEIGHT / WIN_WIDTH)); // SDL_RenderDrawPoint(app->renderer, (k + 1) * spacing, (elems.size() - elems[k]) * spacing);
             } break;
-            case 2: {
+            case DisplayType::RainbowRectangle: {
                 app->isColored = true;
                 app->rect = (SDL_FRect){k * spacing, 0, spacing, WIN_HEIGHT};
                 SDL_RenderFillRect(app->renderer, &app->rect);
             } break;
-            case 3: {
+            case DisplayType::Circle: {
                 app->isColored = true;
                 float r = 0.0f, g = 0.0f, b = 0.0f, a = 0.0f;
                 SDL_GetRenderDrawColorFloat(app->renderer, &r, &g, &b, &a);
@@ -153,22 +155,22 @@ void SortRenderer::update(std::vector<int>& elems, int a, int b) const noexcept
                     { r, g, b, 0xFF }, /* third color */
                     { 0.f, 0.f }
                 };
-                if (!SDL_RenderGeometry(app->renderer, NULL, vertices, 3, NULL, 0))
+                if (!SDL_RenderGeometry(app->renderer, nullptr, vertices, 3, nullptr, 0))
                 {
                     LOGERR(SDL_GetError());
                 }
             } break;
-            case 4: {
+            case DisplayType::CircleDot: {
                 //std::cout << elems[k] / (k + 1) << std::endl;
                 // size = 200.0f * ((float)elems[k] / (float)(k + 1));
                 size = std::min(WIN_HEIGHT, WIN_WIDTH) * 0.75 * 0.5;
                 SDL_RenderPoint(app->renderer, WIN_WIDTH / 2 + size * cosf(radiansQuotient * k * degreesQuotient), WIN_HEIGHT / 2 + size * sinf(radiansQuotient * k * degreesQuotient));
             } break;
-            case 5: {
+            case DisplayType::DisparityCircle: {
                 size = std::min(WIN_HEIGHT, WIN_WIDTH) * 0.75 * 0.5;
                 SDL_RenderLine(app->renderer, WIN_WIDTH / 2 + size * cosf(radiansQuotient * elems[k] * degreesQuotient), WIN_HEIGHT / 2 + size * sinf(radiansQuotient * elems[k] * degreesQuotient), WIN_WIDTH / 2 + size * cosf(radiansQuotient * (k + 1) * degreesQuotient), WIN_HEIGHT / 2 + size * sinf(radiansQuotient * (k + 1) * degreesQuotient));
             } break;
-            case 6: {
+            case DisplayType::Spiral: {
                 float r = 0, g = 0, b = 0, a = 0;
                 SDL_GetRenderDrawColorFloat(app->renderer, &r, &g, &b, &a);
                 size = 0.5f * std::min(WIN_HEIGHT, WIN_WIDTH) / (float)elems.size();
@@ -188,9 +190,9 @@ void SortRenderer::update(std::vector<int>& elems, int a, int b) const noexcept
                     { 0.f, 0.f }
                 };
                 // SDL_RenderDrawPoint(renderer, WIN_WIDTH / 2 + 50 * (k / elems[k]) * cos(radiansQuotient * (k + 1) * degreesQuotient), WIN_WIDTH / 2 + 50 * (k / elems[k]) * sin(radiansQuotient * (k + 1) * degreesQuotient));
-                SDL_RenderGeometry(app->renderer, NULL, vertices, 3, NULL, 0);
+                SDL_RenderGeometry(app->renderer, nullptr, vertices, 3, nullptr, 0);
             } break;
-            case 7: {
+            case DisplayType::SpiralDot: {
                 size = 0.5f * std::min(WIN_HEIGHT, WIN_WIDTH) / (float)elems.size();
                 SDL_RenderPoint(app->renderer, WIN_WIDTH / 2 + size * elems[k] * cos(radiansQuotient * k * degreesQuotient), WIN_HEIGHT / 2 + size * elems[k] * sin(radiansQuotient * k * degreesQuotient)); // SDL_RenderDrawPoint(app->renderer, WIN_WIDTH / 2 + size * elems[k] * cos(radiansQuotient * k * degreesQuotient), WIN_WIDTH / 2 + size * elems[k] * sin(radiansQuotient * k * degreesQuotient));
             } break;
@@ -221,6 +223,7 @@ void SortRenderer::update(std::vector<int>& elems, int a, int b) const noexcept
 }
 
 static bool p_open = true;
+
 int SortRenderer::renderGUI() const noexcept
 {
     ImGui_ImplSDLRenderer3_NewFrame();
@@ -234,7 +237,9 @@ int SortRenderer::renderGUI() const noexcept
         ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), app->renderer);
         return 2;
     }
+
     bool shouldSort = false;
+
     {
         ImGui::Begin("Configure", &p_open);
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / app->io->Framerate, app->io->Framerate);
@@ -245,7 +250,7 @@ int SortRenderer::renderGUI() const noexcept
             {
                 bool is_selected = (app->categories[app->current_category] == app->categories[n]); // You can store your selection however you want, outside or inside your objects
                 if (ImGui::Selectable(app->categories[n], is_selected))
-                    app->current_category = n;
+                    app->current_category = static_cast<SortCategory>(n);
                 if (is_selected)
                     ImGui::SetItemDefaultFocus();   // You may set the initial focus when opening the combo (scrolling + for keyboard navigation support)
             }
@@ -277,7 +282,7 @@ int SortRenderer::renderGUI() const noexcept
             {
                 bool is_selected = (app->displayTypes[app->displayType] == app->displayTypes[n]); // You can store your selection however you want, outside or inside your objects
                 if (ImGui::Selectable(app->displayTypes[n], is_selected))
-                    app->displayType = n;
+                    app->displayType = static_cast<DisplayType>(n);
                 if (is_selected)
                     ImGui::SetItemDefaultFocus();   // You may set the initial focus when opening the combo (scrolling + for keyboard navigation support)
             }
@@ -307,7 +312,7 @@ int SortRenderer::renderGUI() const noexcept
                 LOGINFO("Starting sort");
                 switch(app->current_category)
                 {
-                    case 0: {
+                    case SortCategory::Exchange: {
                         switch(app->current_item)
                         {
                             SORTCASE(0, BubbleSort);
@@ -315,7 +320,7 @@ int SortRenderer::renderGUI() const noexcept
                             SORTCASE(2, CombSort);
                         }
                     } break;
-                    case 1: {
+                    case SortCategory::Distribution: {
                         switch(app->current_item)
                         {
                             SORTCASERADIX(0, RadixLSDSort);
@@ -325,17 +330,17 @@ int SortRenderer::renderGUI() const noexcept
                         }
                     } break;
                     
-                    case 2: {
+                    case SortCategory::Insertion: {
                         switch(app->current_item) {
                             SORTCASE(0, InsertionSort);
                         }
                     } break;
-                    case 3: {
+                    case SortCategory::Merge: {
                         switch(app->current_item) {
                             SORTCASE(0, MergeSort);
                         }
                     } break;
-                    case 4: {
+                    case SortCategory::Select: {
                         switch(app->current_item) {
                             SORTCASE(0, SelectionSort);
                         }
@@ -359,6 +364,7 @@ int SortRenderer::renderGUI() const noexcept
         ImGui::Checkbox("Reverse instead of Shuffling", &app->reverse);
         ImGui::End();
     }
+    
     ImGui::Render();
     ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), app->renderer);
     if(shouldSort)

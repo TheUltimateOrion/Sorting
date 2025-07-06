@@ -13,7 +13,7 @@ int main(int argc, char **argv) // (int argc, char const *argv[])
 
     app = std::make_unique<App>(); // Create a unique pointer to App
 
-    if (app->init() < 0) return -1;
+    if (app->init() < 0) return EXIT_FAILURE;
 
     app->run();
 

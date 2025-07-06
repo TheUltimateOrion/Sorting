@@ -16,7 +16,7 @@ public:
     unsigned int swaps = 0; 
     unsigned int comparisions = 0; 
 
-    std::vector<int> elems;
+    std::vector<int>& elems;
 
     Sort(std::vector<int>& arr);
 
