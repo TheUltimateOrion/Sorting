@@ -49,10 +49,12 @@ elseif(LINUX)
         INSTALL_RPATH "$ORIGIN"
     )
 endif()
+
 target_link_libraries(${PROJECT} PRIVATE SDL3_ttf::SDL3_ttf SDL3::SDL3 ${OPENAL_LIB})
 install(DIRECTORY res/ DESTINATION res)
 
 include(CTest)
+
 add_executable(${PROJECT}_TEST test/main.test.cc)
 target_include_directories(${PROJECT}_TEST PRIVATE 
 includes/

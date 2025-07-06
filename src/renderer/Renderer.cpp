@@ -11,7 +11,7 @@
 #include "sort/BogoSort.h"
 #include "sort/MergeSort.h"
 
-SDL_Color SortRenderer::HSVToRGB(unsigned char hue, unsigned char sat, unsigned char value)
+SDL_Color SortRenderer::HSVToRGB(unsigned char hue, unsigned char sat, unsigned char value) const noexcept
 {
     SDL_Color rgb;
     unsigned char region, remainder, p, q, t;
@@ -47,7 +47,7 @@ SDL_Color SortRenderer::HSVToRGB(unsigned char hue, unsigned char sat, unsigned 
     return rgb;
 }
 
-void SortRenderer::renderText(std::string txt, float x, float y, SDL_Color color)
+void SortRenderer::renderText(const std::string& txt, float x, float y, SDL_Color color) const noexcept
 {
     
     SDL_Surface* textSurface = TTF_RenderText_Solid(app->font, txt.c_str(), 0, color); // SDL_Surface* textSurface = TTF_RenderText_Solid(app->font, txt.c_str(), color);
@@ -60,7 +60,7 @@ void SortRenderer::renderText(std::string txt, float x, float y, SDL_Color color
     SDL_DestroyTexture(text);
 }
 
-void SortRenderer::renderInfo()
+void SortRenderer::renderInfo() const noexcept
 {
     Uint8 _r, _g, _b, _a; SDL_GetRenderDrawColor(app->renderer, &_r, &_g, &_b, &_a);
     SDL_FRect rect = {0.0f, 0.0f, 230.0f, 125.0f};
@@ -90,7 +90,7 @@ void SortRenderer::renderInfo()
     SDL_SetRenderDrawColor(app->renderer, _r, _g, _b, _a);
 }
 
-void SortRenderer::update(std::vector<int>& elems, int a, int b)
+void SortRenderer::update(std::vector<int>& elems, int a, int b) const noexcept
 {
     app->calculateDeltaTime();
     SDL_SetRenderDrawColor(app->renderer, 0x0, 0x0, 0x0, 0x0);
@@ -111,7 +111,7 @@ void SortRenderer::update(std::vector<int>& elems, int a, int b)
                 SDL_SetRenderDrawColor(app->renderer, sortColor.r, sortColor.g, sortColor.b, 0xFF);
             }
         }
-        float spacing = WIN_WIDTH / elems.size();
+        const float spacing = WIN_WIDTH / elems.size();
         float degreesQuotient = 360.0f / (float)elems.size();
         float radiansQuotient = (M_PI / 180);
         float size;
@@ -221,7 +221,7 @@ void SortRenderer::update(std::vector<int>& elems, int a, int b)
 }
 
 static bool p_open = true;
-int SortRenderer::renderGUI()
+int SortRenderer::renderGUI() const noexcept
 {
     ImGui_ImplSDLRenderer3_NewFrame();
     ImGui_ImplSDL3_NewFrame();

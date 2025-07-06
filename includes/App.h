@@ -1,7 +1,26 @@
 #pragma once
-#include "renderer/Renderer.h"
-#include "renderer/Sound.h"
-#include "sort/BubbleSort.h"
+
+#include <iostream>
+#include <algorithm>
+#include <vector>
+#include <cmath>
+#include <thread>
+#include <random>
+#include <memory>
+
+#include <imgui/imgui.h>
+#include <imgui/backend/imgui_impl_sdl3.h>
+#include <imgui/backend/imgui_impl_sdlrenderer3.h>
+#include <SDL3/SDL.h>
+#include <SDL3_ttf/SDL_ttf.h>
+#include <AL/al.h>
+#include <AL/alc.h>
+
+constexpr float WIN_WIDTH = 1920.0f;
+constexpr float WIN_HEIGHT = 1080.0f;
+
+#define LOGINFO(str) std::cout << "[INFO]"  << '[' << (double) clock() / 1000.0 << "s]: " << str << std::endl;
+#define LOGERR(str)  std::cerr << "[ERROR]" << '[' << (double) clock() / 1000.0 << "s]: " << str << std::endl;
 
 #ifndef HANDLE_ERROR
 #define HANDLE_ERROR(str, ret)\
@@ -12,10 +31,12 @@
 #endif
 
 #ifndef STYLESET
-#define STYLESET(param) style->Colors[ImGuiCol_##param]
+#define STYLESET(param) style.Colors[ImGuiCol_##param]
 #endif
 
-extern App* app;
+class SoundEngine;
+class SortRenderer;
+class Sort;
 
 class App
 {
@@ -28,6 +49,8 @@ public:
     TTF_Font *font;
 
     SoundEngine* snd;
+    SortRenderer* sortRenderer;
+    std::shared_ptr<Sort> sorter;
 
     Uint64 NOW = SDL_GetPerformanceCounter();
     Uint64 LAST = 0;
@@ -35,6 +58,7 @@ public:
     int setLength = 512;
     unsigned int swaps = 0;
     unsigned int comparisions = 0;
+
     ImGuiIO* io;
 
     int current_element = 0;
@@ -55,10 +79,10 @@ public:
     int setRadix = 2;
     SDL_FRect rect;
     bool reverse = false;
-    
-    Sort* sorter;
 
-    App();
+    std::vector<int> data;
+
+    App() noexcept;
     ~App();
     
     int init();
@@ -66,8 +90,10 @@ public:
 
     void startAudioThread();
 
-    void calculateDeltaTime();
-    ImGuiIO& configureIO();
-    int loadFont();
-    void setStyle(ImGuiStyle* style);
+    void calculateDeltaTime() noexcept;
+    ImGuiIO& configureIO() noexcept;
+    [[nodiscard]] int loadFont();
+    void setStyle(ImGuiStyle& style) const noexcept;
 };
+
+extern std::unique_ptr<App> app;

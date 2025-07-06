@@ -13,7 +13,7 @@ void InsertionSort::sort()
         while (j > 0 && elems[j - 1] > temp)
         {
             elems[j] = elems[j - 1];
-            this->sortRenderer->update(this->elems, j, j - 1);
+            app->sortRenderer->update(elems, j, j - 1);
             if (wantClose || wantStop)
                 return;
             --j;

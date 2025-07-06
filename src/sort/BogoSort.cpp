@@ -16,7 +16,7 @@ void BogoSort::bogoShuffle(std::vector<int>& elems, int n)
     for (int i = 0; i < n; i++) {
         int randInt = rand() % n;
         swap(elems, i, randInt);
-        this->sortRenderer->update(this->elems, randInt, randInt);
+        app->sortRenderer->update(elems, randInt, randInt);
         if (wantClose || wantStop)
             return;
     }

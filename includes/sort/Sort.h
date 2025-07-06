@@ -1,9 +1,5 @@
 #pragma once
-#include "../main.h"
-
-class SortRenderer;
-
-class App;
+#include "../App.h"
 
 static float last_time;
 
@@ -15,13 +11,12 @@ public:
     bool isShuffling;
     bool wantClose;
     bool wantStop;
-    std::vector<int> elems;
     float speed;
     float start_time;
     unsigned int swaps = 0; 
     unsigned int comparisions = 0; 
 
-    SortRenderer* sortRenderer;
+    std::vector<int> elems;
 
     Sort(std::vector<int>& arr);
 

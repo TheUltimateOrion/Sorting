@@ -1,8 +1,9 @@
 #include "App.h"
+#include "renderer/Sound.h"
+#include "sort/Sort.h"
+#include "sort/BubbleSort.h"
 
-App* app;
-
-App::App()
+App::App() noexcept
 {
 	this->categories = {"Exchange", "Distribution", "Insertion", "Merge", "Select"};
     this->items = {
@@ -19,23 +20,29 @@ App::App()
 }
 
 App::~App()
-{
-    //std::cout << func_time(bubble_sort, nums) << " seconds" << std::endl;
+{    
     LOGINFO("Destroying font renderer");
-    TTF_CloseFont(this->font);
+    if (this->font) TTF_CloseFont(this->font);
     TTF_Quit();
+
     LOGINFO("Shutting down ImGui renderer");
     ImGui_ImplSDLRenderer3_Shutdown();
+
+    LOGINFO("Shutting down ImGui");
     ImGui_ImplSDL3_Shutdown();
+
     LOGINFO("Destroying ImGui context");
     ImGui::DestroyContext();
+
     LOGINFO("Destroying SDL renderer");
-    SDL_DestroyRenderer(this->renderer);
+    if (this->renderer) SDL_DestroyRenderer(this->renderer);
+
     LOGINFO("Destroying SDL window");
-    SDL_DestroyWindow(this->window);
-    delete snd;
+    if(this->window) SDL_DestroyWindow(this->window);
+
     LOGINFO("Quitting...");
     SDL_Quit();
+    delete this->sortRenderer;
 }
 
 void App::_setupGUI()
@@ -46,15 +53,16 @@ void App::_setupGUI()
     ImGui::SetCurrentContext(ctx);
 	
     LOGINFO("Configuring ImGui io");
-	this->io = &app->configureIO();
+	this->io = &this->configureIO();
 
     LOGINFO("Setting ImGui styling");
-    ImGuiStyle * style = &ImGui::GetStyle();
+    ImGuiStyle& style = ImGui::GetStyle();
 	this->setStyle(style);
         
     LOGINFO("Setting up ImGui renderer");
     ImGui_ImplSDL3_InitForSDLRenderer(this->window, this->renderer);
     ImGui_ImplSDLRenderer3_Init(this->renderer);
+    this->sortRenderer = new SortRenderer();
 }
 
 int App::init()
@@ -98,21 +106,27 @@ int App::init()
 void App::run()
 {
     LOGINFO("Generating array");
-    std::vector<int> nums(512);
-    for (int index = 0; index < nums.capacity(); index++)
-        nums[index] = index + 1;
+
+    constexpr int defaultSize = 512;
+    data.resize(defaultSize);
+    for (int index = 0; index < defaultSize; ++index)
+        data[index] = index + 1;
 
     LOGINFO("Initializing sorter");
-	this->sorter = new BubbleSort(nums);
+    this->sorter = std::make_shared<BubbleSort>(data);
     this->sorter->setSpeed(1);
 
     LOGINFO("Creating audio thread");
     std::thread audioThread([this]()
     {
         while(!this->sorter->wantClose) {
-            float sec = 0.04;
-            int freq = this->sorter->elems[this->current_element] * (WIN_HEIGHT / (float)this->sorter->elems.size()) + 100;
-            freq = std::clamp(freq, 100, 800);
+            constexpr float sec = 0.04f;
+            constexpr int base = 100;
+            constexpr int min = 100;
+            constexpr int max = 800;
+
+            int freq = this->data[this->current_element] * (WIN_HEIGHT / (float)this->data.size()) + base;
+            freq = std::clamp(freq, min, max);
             if (this->sorter->isSorting || this->sorter->isShuffling){
                 snd->load(sec, freq);
                 HANDLE_ERROR("Error loading audio", );
@@ -128,7 +142,7 @@ void App::run()
     SDL_PollEvent(&this->event);
     while(1)
     {
-        this->sorter->sortRenderer->update(this->sorter->elems, 1, 1);
+        this->sortRenderer->update(this->data, 1, 1);
         if (this->event.type == SDL_EVENT_QUIT || this->sorter->wantClose) {
             LOGINFO("Exit signal recieved");
             break;
@@ -136,7 +150,7 @@ void App::run()
     }
 }
 
-void App::calculateDeltaTime()
+void App::calculateDeltaTime() noexcept
 {
    LAST = NOW;
    NOW = SDL_GetPerformanceCounter();
@@ -146,26 +160,35 @@ void App::calculateDeltaTime()
 int App::loadFont() {
     TTF_Init();
     std::string basePath{SDL_GetBasePath()};
-    font = TTF_OpenFont((basePath + "/res/font.ttf").c_str(), 12);
+    constexpr const char* relPath = "/res/font.ttf";
+    font = TTF_OpenFont((basePath + relPath).c_str(), 12);
     if (font == NULL) {
         return -1;
     }
     return 0;
 }
 
-void App::setStyle(ImGuiStyle* style)
+void App::setStyle(ImGuiStyle& style) const noexcept
 {
-    style->WindowPadding = ImVec2(15, 15);
-	style->WindowRounding = 3.0f;
-	style->FramePadding = ImVec2(5, 5);
-	style->FrameRounding = 3.0f;
-	// style->ItemSpacing = ImVec2(12, 8);
-	// style->ItemInnerSpacing = ImVec2(8, 6);
-	style->IndentSpacing = 25.0f;
-	style->ScrollbarSize = 15.0f;
-	style->ScrollbarRounding = 3.0f;
-	style->GrabMinSize = 5.0f;
-	style->GrabRounding = 3.0f;
+    constexpr float WINDOW_PADDING = 15.0f;
+    constexpr float WINDOW_ROUNDING = 3.0f;
+    constexpr float FRAME_PADDING = 5.0f;
+    constexpr float FRAME_ROUNDING = 3.0f;
+    constexpr float INDENT_SPACING = 25.0f;
+    constexpr float SCROLLBAR_SIZE = 15.0f;
+    constexpr float SCROLLBAR_ROUNDING = 3.0f;
+    constexpr float GRAB_MIN_SIZE = 5.0f;
+    constexpr float GRAB_ROUNDING = 3.0f;
+
+    style.WindowPadding = ImVec2(WINDOW_PADDING, WINDOW_PADDING);
+    style.WindowRounding = WINDOW_ROUNDING;
+    style.FramePadding = ImVec2(FRAME_PADDING, FRAME_PADDING);
+    style.FrameRounding = FRAME_ROUNDING;
+    style.IndentSpacing = INDENT_SPACING;
+    style.ScrollbarSize = SCROLLBAR_SIZE;
+    style.ScrollbarRounding = SCROLLBAR_ROUNDING;
+    style.GrabMinSize = GRAB_MIN_SIZE;
+    style.GrabRounding = GRAB_ROUNDING;
  
 	STYLESET(Text)= ImVec4(0.80f, 0.80f, 0.83f, 1.00f);
 	STYLESET(TextDisabled) = ImVec4(0.24f, 0.23f, 0.29f, 1.00f);
@@ -206,7 +229,7 @@ void App::setStyle(ImGuiStyle* style)
 	STYLESET(TextSelectedBg) = ImVec4(0.25f, 1.00f, 0.00f, 0.43f);
 }
 
-ImGuiIO& App::configureIO()
+ImGuiIO& App::configureIO() noexcept
 {
     ImGuiIO& io = ImGui::GetIO();
     (void)io;

@@ -2,9 +2,12 @@
 
 SoundEngine::SoundEngine() : buf(0), src(0), samples(NULL) {}
 
-SoundEngine* SoundEngine::get() { return new SoundEngine(); }
+SoundEngine *SoundEngine::get() {
+    static SoundEngine instance;
+    return &instance;
+}
 
-const char* SoundEngine::alErrorString(ALenum err) {
+const char* SoundEngine::alErrorString(ALenum err) const noexcept {
     switch (err) {
         case AL_NO_ERROR: return "AL_NO_ERROR";
         case ALC_INVALID_DEVICE: return "ALC_INVALID_DEVICE";
@@ -38,18 +41,18 @@ int SoundEngine::init()
     return 0;
 }
 
-void SoundEngine::load(float ms, float freq)
+void SoundEngine::load(float ms, float freq) noexcept
 {
     alGenBuffers(1, &this->buf);
     AL_CHECK_ERR();
 
     /* Fill buffer with Sine-Wave */
-    unsigned sample_rate = 22050;
+    constexpr unsigned sample_rate = 22050;
     size_t buf_size = ms * sample_rate;
 
     this->samples = new short[buf_size];
-    for(int i=0; i<buf_size; ++i) {
-        this->samples[i] = 32760 * sin( (2.f*float(M_PI)*freq)/sample_rate * i );
+    for(int i = 0; i < buf_size; ++i) {
+        this->samples[i] = 32760 * sin((2.f * float(M_PI) * freq) / sample_rate * i);
     }
 
     /* Download buffer to OpenAL */
@@ -57,12 +60,14 @@ void SoundEngine::load(float ms, float freq)
     AL_CHECK_ERR();
 }
 
-void SoundEngine::play()
+void SoundEngine::play() noexcept
 {
     alSourcei(this->src, AL_BUFFER, this->buf);
     AL_CHECK_ERR();
 
-    alSourcef(this->src, AL_GAIN, 0.1f);
+    constexpr float gain = 0.1f;
+
+    alSourcef(this->src, AL_GAIN, gain);
     AL_CHECK_ERR();
 
     alSourcePlay(this->src);
@@ -85,4 +90,4 @@ SoundEngine::~SoundEngine()
     if (this->samples != NULL) delete samples;
 }
 
-ALenum SoundEngine::alGetLastError() { return this->err; }
+ALenum SoundEngine::alGetLastError() const noexcept { return this->err; }

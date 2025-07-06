@@ -37,7 +37,7 @@ void PigeonHoleSort::sort()
        for (it = holes[i].begin(); it != holes[i].end(); ++it)
        {
             elems[index++]  = *it;
-            this->sortRenderer->update(this->elems, index + 1, index + 1);
+            app->sortRenderer->update(elems, index + 1, index + 1);
             if (wantClose || wantStop)
                 return;
        }

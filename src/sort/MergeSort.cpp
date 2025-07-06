@@ -26,14 +26,14 @@ void MergeSort::merge(int const left, int const mid, int const right)
         if (leftArray[indexOfSubArrayOne]
             <= rightArray[indexOfSubArrayTwo]) {
             elems[indexOfMergedArray] = leftArray[indexOfSubArrayOne];
-            this->sortRenderer->update(this->elems, indexOfSubArrayOne, indexOfSubArrayOne);
+            app->sortRenderer->update(elems, indexOfSubArrayOne, indexOfSubArrayOne);
             if (wantClose || wantStop)
                 return;
             indexOfSubArrayOne++;
         }
         else {
             elems[indexOfMergedArray] = rightArray[indexOfSubArrayTwo];
-            this->sortRenderer->update(this->elems, indexOfSubArrayTwo, indexOfSubArrayTwo);
+            app->sortRenderer->update(elems, indexOfSubArrayTwo, indexOfSubArrayTwo);
             if (wantClose || wantStop)
                 return;
             indexOfSubArrayTwo++;
@@ -46,7 +46,7 @@ void MergeSort::merge(int const left, int const mid, int const right)
     // left[], if there are any
     while (indexOfSubArrayOne < subArrayOne) {
         elems[indexOfMergedArray] = leftArray[indexOfSubArrayOne];
-        this->sortRenderer->update(this->elems, indexOfMergedArray, indexOfSubArrayOne);
+        app->sortRenderer->update(elems, indexOfMergedArray, indexOfSubArrayOne);
         if (wantClose || wantStop)
             return;
         indexOfSubArrayOne++;
@@ -57,7 +57,7 @@ void MergeSort::merge(int const left, int const mid, int const right)
     // right[], if there are any
     while (indexOfSubArrayTwo < subArrayTwo) {
         elems[indexOfMergedArray] = rightArray[indexOfSubArrayTwo];
-        this->sortRenderer->update(this->elems, indexOfMergedArray, indexOfSubArrayTwo);
+        app->sortRenderer->update(elems, indexOfMergedArray, indexOfSubArrayTwo);
         if (wantClose || wantStop)
             return;
         indexOfSubArrayTwo++;

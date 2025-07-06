@@ -1,5 +1,5 @@
 #pragma once
-#include "../main.h"
+#include "../App.h"
 
 #ifndef AL_CHECK_ERR
 #define AL_CHECK_ERR(ret) \
@@ -16,16 +16,17 @@ private:
     ALuint src = 0;
     short *samples;
     ALenum err = AL_NO_ERROR;
+
 public:
-    static SoundEngine* get();
+    static SoundEngine *get();
 
     SoundEngine();
     ~SoundEngine();
 
-    ALenum alGetLastError();
-    const char* alErrorString(ALenum err);
+    ALenum alGetLastError() const noexcept;
+    const char* alErrorString(ALenum err) const noexcept;
 
-    int init();
-    void load(float ms, float freq);
-    void play();
+    [[nodiscard]] int init();
+    void load(float ms, float freq) noexcept;
+    void play() noexcept;
 };

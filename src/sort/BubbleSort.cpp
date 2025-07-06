@@ -13,7 +13,7 @@ void BubbleSort::sort()
             {
                 //std::cout << elems[j] << ": " << elems[j + 1] << std::endl;
                 swap(elems, j, j + 1);
-                this->sortRenderer->update(this->elems, j, j + 1);
+                app->sortRenderer->update(elems, j, j + 1);
                 if (wantClose || wantStop)
                     return;
             }

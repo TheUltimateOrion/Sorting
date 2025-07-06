@@ -14,7 +14,7 @@ void Sort::reverse()
     std::reverse(temp.begin(), temp.end());
     for (int i = 0; i < temp.capacity(); i++)
     {
-        this->sortRenderer->update(this->elems, i, i);
+        app->sortRenderer->update(elems, i, i);
         if (wantClose || wantStop)
             return;
         elems[i] = temp[i];
@@ -38,7 +38,7 @@ void Sort::shuffle()
     std::shuffle(std::begin(temp), std::end(temp), std::default_random_engine(0));
     for (int i = 0; i < temp.capacity(); i++)
     {
-        this->sortRenderer->update(this->elems, i, i);
+        app->sortRenderer->update(elems, i, i);
         if (wantClose || wantStop)
             return;
         elems[i] = temp[i];
