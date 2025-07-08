@@ -5,54 +5,34 @@ GravitySort::GravitySort(std::vector<int>& arr) : Sort(arr) {}
 void GravitySort::sort()
 {
     isSorting = true;
-    int max = 0;
-    for (auto elem : elems) {
-        if (elem > max) {
-            app->sortRenderer->update(elems, std::distance(elems.begin(), std::find(elems.begin(), elems.end(), elem)), std::distance(elems.begin(), std::find(elems.begin(), elems.end(), elem)));
-            if (wantClose || wantStop)
-                return;
-            max = elem;
-        }
-    }
+    int max = *std::max_element(elems.begin(), elems.end());
+    if (max <= 0) return;
 
-    std::vector<std::vector<int>> abacus(elems.size(), std::vector<int>(max, 0));
-    for (int i = 0; i < elems.size(); i++)
-    {
-        for (int j = 0; j < elems[i]; j++)
-        {
-            abacus[i][abacus[0].capacity() - j - 1] = 1;
-        }
-    }
+    size_t n = elems.size();
+    
+    std::vector<std::vector<int>> abacus(n, std::vector<int>(max, 0));
+    for (int i = 0; i < n; ++i)
+        for (int j = 0; j < elems[i]; ++j)
+            abacus[i][max - j - 1] = 1;
 
-    for (int i = 0; i < abacus[0].capacity(); i++)
-    {
-        for (int j = 0; j < abacus.capacity(); j++)
-        {
-            if (abacus[j][i] == 1)
-            {
-                int drops = j;
-                while (drops + 1 < abacus.capacity() && abacus[drops][i] == 1)
-                    drops++;
-                if (abacus[drops][i] == 0)
-                {
-                    abacus[j][i] = 0;
-                    abacus[drops][i] = 1;
-                }
-            }
-        }
-
+    for (int col = 0; col < max; ++col) {
         int count = 0;
-        for (int x = 0; x < abacus.capacity(); x++)
-        {
-            count = 0;
-            for(int y = 0; y < abacus[0].capacity(); y++)
-                    count+=abacus[x][y];
-            elems[x] = count;
-            app->sortRenderer->update(elems, x, x);
-            if (wantClose || wantStop)
-                return;
+        
+        for (int row = 0; row < n; ++row)
+            count += abacus[row][col];
+
+        for (int row = n - 1; row >= 0; --row)
+            abacus[row][col] = (count-- > 0 ? 1 : 0);
+
+        for (int i = 0; i < n; ++i) {
+            elems[i] = std::accumulate(abacus[i].begin(), abacus[i].end(), 0);
+            this->first = i;
+            this->second = i;
+            HIGH_RES_WAIT(1.f / Sort::speed);
+            if (wantClose || wantStop) return;
         }
     }
+    
     isSorting = false;
     sorted = true;
 }

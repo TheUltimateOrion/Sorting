@@ -18,7 +18,21 @@ App::App() noexcept
 }
 
 App::~App()
-{    
+{   
+    LOGINFO("Joining and Destroying Sorting Thread");
+    if (this->sortThread.has_value()) {
+        if (this->sortThread->joinable())
+            this->sortThread->join();
+        this->sortThread.reset();
+    }
+
+    LOGINFO("Joining Audio Thread");
+    if (this->audioThread.has_value()) {
+        if (this->audioThread->joinable())
+            this->audioThread->join();
+        this->audioThread.reset();
+    }
+
     LOGINFO("Destroying font renderer");
     if (this->font) TTF_CloseFont(this->font);
     TTF_Quit();
@@ -40,6 +54,8 @@ App::~App()
 
     LOGINFO("Quitting...");
     SDL_Quit();
+
+
 }
 
 void App::_setupGUI()
@@ -95,6 +111,7 @@ int App::init()
         SDL_RenderClear(this->renderer);
     }
     LOGINFO("Setting up GUI");
+    this->sortRenderer = std::make_unique<SortRenderer>();
 	this->_setupGUI();
 
     srand(time(NULL));
@@ -112,10 +129,10 @@ void App::run()
 
     LOGINFO("Initializing sorter");
     this->sorter = std::make_shared<BubbleSort>(data);
-    this->sorter->setSpeed(1);
 
     LOGINFO("Creating audio thread");
-    std::thread audioThread([this]()
+
+    this->audioThread = std::make_optional<std::thread>([this]()
     {
         while(!this->sorter->wantClose) {
             constexpr float sec = 0.04f;
@@ -134,13 +151,13 @@ void App::run()
             }
         }
     });
-    audioThread.detach();
 
     LOGINFO("Starting main loop");
     SDL_PollEvent(&this->event);
+
     while(1)
     {
-        this->sortRenderer->update(this->data, 1, 1);
+        this->sortRenderer->update();
         if (this->event.type == SDL_EVENT_QUIT || this->sorter->wantClose) {
             LOGINFO("Exit signal recieved");
             break;

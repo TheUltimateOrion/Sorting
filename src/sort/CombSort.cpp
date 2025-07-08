@@ -26,6 +26,7 @@ void CombSort::sort()
     {
         // Find next gap
         gap = getNextGap(gap);
+        if (wantClose || wantStop) return;
  
         // Initialize swapped as false so that we can
         // check if swap happened or not
@@ -37,9 +38,7 @@ void CombSort::sort()
             if (elems[i] > elems[i + gap])
             {
                 swap(elems, i, i + gap);
-                app->sortRenderer->update(elems, i, i + gap);
-                if (wantClose || wantStop)
-                    return;
+                if (wantClose || wantStop) return;
                 swapped = true;
             }
             comparisions++;

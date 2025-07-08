@@ -19,13 +19,15 @@
 
 class SortRenderer
 {
+private:
+    SDL_Color HSVToRGB(unsigned char hue, unsigned char sat, unsigned char value) const noexcept;
+    std::vector<int> elems;
 public:
-    void update(std::vector<int>& elems, int a, int b) const noexcept;
+    void update() noexcept;
 
     void renderText(const std::string& txt, float x, float y, SDL_Color color) const noexcept;
     void renderInfo() const noexcept;
 
-    SDL_Color HSVToRGB(unsigned char hue, unsigned char sat, unsigned char value) const noexcept;
 
     int renderGUI() const noexcept;
 };

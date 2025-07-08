@@ -71,17 +71,15 @@ void SortRenderer::renderInfo() const noexcept
 
     SDL_Color textColor = { 0, 0xFF, 0, 0 };
     if (app->sorter->isSorting)
-        ::last_time = (float)clock() / 1000.0f - app->sorter->start_time;
-    if (app->sorter->isSorting || (::last_time == 0.0f))
+        app->sorter->last_time = static_cast<float>(clock()) / 1000.0f - app->sorter->start_time;
+    if (app->sorter->isSorting || (app->sorter->last_time == 0.0f))
         textColor = { 0xFF, 0xFF, 0xFF, 0 };
     
-    renderText("TIME: " + std::to_string(::last_time) + 's', 10.0f, 10.0f, textColor);
+    renderText("TIME: " + std::to_string(app->sorter->last_time) + 's', 10.0f, 10.0f, textColor);
     renderText(std::string("Sort: ") + app->items[app->current_category][app->current_item], 10, 30, { 0xFF, 0xFF, 0xFF, 0 });
 
-    app->swaps = app->sorter->swaps;
-    app->comparisions = app->sorter->comparisions;
-    renderText("Swaps: " + std::to_string(app->swaps), 10.0f, 50.0f, { 0xFF, 0xFF, 0xFF, 0 });
-    renderText("Comparisions: " + std::to_string(app->comparisions), 10.0f, 70.0f, { 0xFF, 0xFF, 0xFF, 0 });
+    renderText("Swaps: " + std::to_string(app->sorter->swaps), 10.0f, 50.0f, { 0xFF, 0xFF, 0xFF, 0 });
+    renderText("Comparisions: " + std::to_string(app->sorter->comparisions), 10.0f, 70.0f, { 0xFF, 0xFF, 0xFF, 0 });
 
     if (app->sorter->isSorting)
         renderText("Sorting...", 10.0f, 90.0f, { 0xFF, 0xFF, 0xFF, 0 });
@@ -92,19 +90,21 @@ void SortRenderer::renderInfo() const noexcept
     SDL_SetRenderDrawColor(app->renderer, _r, _g, _b, _a);
 }
 
-void SortRenderer::update(std::vector<int>& elems, int a, int b) const noexcept
+void SortRenderer::update() noexcept
 {
+    elems = app->data;
+
     app->calculateDeltaTime();
     SDL_SetRenderDrawColor(app->renderer, 0x0, 0x0, 0x0, 0x0);
     SDL_RenderClear(app->renderer);
 
-    app->current_element = a;
+    app->current_element = app->sorter->first;
 
     SDL_Color sortColor; 
     for (int k = 0; k < elems.size(); k++)
     {
         sortColor = HSVToRGB(elems[k] * 0xFF / elems.size(), 0xFF, 0xFF);
-        if (k == a || k == b)
+        if (k == app->sorter->first || k == app->sorter->second)
             SDL_SetRenderDrawColor(app->renderer, 0xFF, 0x0, 0x0, 0xFF);
         else {
             SDL_SetRenderDrawColor(app->renderer, 0xFF, 0xFF, 0xFF, 0xFF);
@@ -114,7 +114,7 @@ void SortRenderer::update(std::vector<int>& elems, int a, int b) const noexcept
             }
         }
         const float spacing = WIN_WIDTH / elems.size();
-        float degreesQuotient = 360.0f / (float)elems.size();
+        float degreesQuotient = 360.0f / static_cast<float>(elems.size());
         float radiansQuotient = (M_PI / 180);
         float size;
         SDL_Vertex vertices[3];
@@ -173,7 +173,7 @@ void SortRenderer::update(std::vector<int>& elems, int a, int b) const noexcept
             case DisplayType::Spiral: {
                 float r = 0, g = 0, b = 0, a = 0;
                 SDL_GetRenderDrawColorFloat(app->renderer, &r, &g, &b, &a);
-                size = 0.5f * std::min(WIN_HEIGHT, WIN_WIDTH) / (float)elems.size();
+                size = 0.5f * std::min(WIN_HEIGHT, WIN_WIDTH) / static_cast<float>(elems.size());
                 vertices[0] = {
                     {WIN_WIDTH / 2, WIN_HEIGHT / 2}, /* first point location */ 
                     { r, g, b, 0xFF }, /* first color */ 
@@ -193,7 +193,7 @@ void SortRenderer::update(std::vector<int>& elems, int a, int b) const noexcept
                 SDL_RenderGeometry(app->renderer, nullptr, vertices, 3, nullptr, 0);
             } break;
             case DisplayType::SpiralDot: {
-                size = 0.5f * std::min(WIN_HEIGHT, WIN_WIDTH) / (float)elems.size();
+                size = 0.5f * std::min(WIN_HEIGHT, WIN_WIDTH) / static_cast<float>(elems.size());
                 SDL_RenderPoint(app->renderer, WIN_WIDTH / 2 + size * elems[k] * cos(radiansQuotient * k * degreesQuotient), WIN_HEIGHT / 2 + size * elems[k] * sin(radiansQuotient * k * degreesQuotient)); // SDL_RenderDrawPoint(app->renderer, WIN_WIDTH / 2 + size * elems[k] * cos(radiansQuotient * k * degreesQuotient), WIN_WIDTH / 2 + size * elems[k] * sin(radiansQuotient * k * degreesQuotient));
             } break;
         }
@@ -206,6 +206,7 @@ void SortRenderer::update(std::vector<int>& elems, int a, int b) const noexcept
         app->sorter->isShuffling = false;
         app->sorter->isSorting = false;
         app->sorter->sorted = true;
+        app->sorter->wantStop = false;
         return;
     } else if (ret == 2) return;
         
@@ -219,7 +220,9 @@ void SortRenderer::update(std::vector<int>& elems, int a, int b) const noexcept
             return;
         }
     }
-    // SDL_Delay(1 / (app->sorter->speed));
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    
 }
 
 static bool p_open = true;
@@ -238,7 +241,7 @@ int SortRenderer::renderGUI() const noexcept
         return 2;
     }
 
-    bool shouldSort = false;
+    std::atomic<bool> shouldSort = false;
 
     {
         ImGui::Begin("Configure", &p_open);
@@ -246,7 +249,7 @@ int SortRenderer::renderGUI() const noexcept
         
         if (ImGui::BeginCombo("##combo1", app->categories[app->current_category])) // The second parameter is the label previewed before opening the combo.
         {
-            for (int n = 0; n < app->categories.capacity(); n++)
+            for (int n = 0; n < app->categories.size(); n++)
             {
                 bool is_selected = (app->categories[app->current_category] == app->categories[n]); // You can store your selection however you want, outside or inside your objects
                 if (ImGui::Selectable(app->categories[n], is_selected))
@@ -257,11 +260,11 @@ int SortRenderer::renderGUI() const noexcept
             ImGui::EndCombo();
         }
 
-        if(app->current_item >= app->items[app->current_category].capacity()) app->current_item = 0;
+        if(app->current_item >= app->items[app->current_category].size()) app->current_item = 0;
 
         if (ImGui::BeginCombo("##combo2", app->items[app->current_category][app->current_item])) // The second parameter is the label previewed before opening the combo.
         {
-            for (int n = 0; n < app->items[app->current_category].capacity(); n++)
+            for (int n = 0; n < app->items[app->current_category].size(); n++)
             {
                 bool is_selected = (app->items[app->current_category][app->current_item] == app->items[app->current_category][n]); // You can store your selection however you want, outside or inside your objects
                 if (ImGui::Selectable(app->items[app->current_category][n], is_selected))
@@ -278,7 +281,7 @@ int SortRenderer::renderGUI() const noexcept
 
         if (ImGui::BeginCombo("##combo3", app->displayTypes[app->displayType])) // The second parameter is the label previewed before opening the combo.
         {
-            for (int n = 0; n < app->displayTypes.capacity(); n++)
+            for (int n = 0; n < app->displayTypes.size(); n++)
             {
                 bool is_selected = (app->displayTypes[app->displayType] == app->displayTypes[n]); // You can store your selection however you want, outside or inside your objects
                 if (ImGui::Selectable(app->displayTypes[n], is_selected))
@@ -296,8 +299,8 @@ int SortRenderer::renderGUI() const noexcept
         ImGui::SeparatorText("Variables");
         ImGui::Spacing();
 
-        app->setSpeed = std::clamp((double)app->setSpeed, 0.001, 1000.0);
-        ImGui::InputFloat("Set Speed", &app->setSpeed, 0.001f);
+        ImGui::InputFloat("Set Speed", &Sort::speed, 0.001f);
+        Sort::speed = std::clamp(Sort::speed, 0.001f, 1000.f);
 
         app->setLength = std::clamp(app->setLength, 2, 1024*10);
         ImGui::InputInt("Set Length", &app->setLength, 2);
@@ -346,7 +349,6 @@ int SortRenderer::renderGUI() const noexcept
                         }
                         
                         _jmp:
-                        app->sorter->setSpeed(app->setSpeed);
                         app->sorter->setLength(app->setLength);
                     } break;   
                     default:
@@ -358,6 +360,11 @@ int SortRenderer::renderGUI() const noexcept
             if(ImGui::Button("Stop")) {
                 LOGINFO("Stopping sort");    
                 app->sorter->wantStop = true;
+                if (app->sortThread.has_value()) {
+                    if (app->sortThread->joinable())
+                        app->sortThread->join();
+                    app->sortThread.reset();
+                }
             }
         }
         ImGui::SameLine();
@@ -369,20 +376,34 @@ int SortRenderer::renderGUI() const noexcept
     ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), app->renderer);
     if(shouldSort)
     {
-        shouldSort = false;
-        if(!app->reverse)
-            app->sorter->shuffle();
-        else
-            app->sorter->reverse();
-        if (app->sorter->wantClose) return 2;
-        if(!(app->sorter->wantStop)) {
-            LOGINFO("Sorting");
-            app->sorter->sort();
+        if (app->sortThread.has_value()) {
+            if (app->sortThread->joinable())
+                app->sortThread->join();
+            app->sortThread.reset();
         }
-        if (app->sorter->wantStop) {
-            return 1;
-        }
-        if (app->sorter->wantClose) return 2;
+
+        app->sortThread = std::make_optional<std::thread>([&]() {
+            shouldSort = false;
+            if(!app->reverse)
+                app->sorter->shuffle();
+            else
+                app->sorter->reverse();
+
+            if (app->sorter->wantStop) return;
+
+            if(!(app->sorter->wantStop)) {
+                LOGINFO("Sorting");
+                app->sorter->sort();
+            }
+
+            if (app->sorter->wantStop) return;
+        });
     }
+    if (app->sorter->wantClose) return 2;
+
+    if (app->sorter->wantStop) {
+        return 1;
+    }
+    
     return 0;
 }

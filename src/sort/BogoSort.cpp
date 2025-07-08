@@ -16,9 +16,7 @@ void BogoSort::bogoShuffle(std::vector<int>& elems, int n)
     for (int i = 0; i < n; i++) {
         int randInt = rand() % n;
         swap(elems, i, randInt);
-        app->sortRenderer->update(elems, randInt, randInt);
-        if (wantClose || wantStop)
-            return;
+        if (wantClose || wantStop) return;
     }
 }
 
@@ -28,8 +26,7 @@ void BogoSort::sort()
 
     while(!isSorted(elems, elems.size())) {
         bogoShuffle(elems, elems.size());
-        if (wantClose || wantStop)
-            return;
+        if (wantClose || wantStop) return;
     }
     isSorting = false;
     sorted = true;

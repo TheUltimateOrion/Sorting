@@ -7,10 +7,9 @@ void RadixLSDSort::countSortByDigits(int exponent, int minValue)
 	int bucketIndex;
     std::vector<int> buckets(radix);
     std::vector<int> output(elems.size());
+
     // Initialize bucket
-    for (int i = 0; i < radix; i++) {
-        buckets[i] = 0;
-	}
+    std::fill(buckets.begin(), buckets.end(), 0);
     
     // Count frequencies
     for (int i = 0; i < elems.size(); i++) {
@@ -27,7 +26,8 @@ void RadixLSDSort::countSortByDigits(int exponent, int minValue)
     for (int i = elems.size() - 1; i >= 0; i--) {
         bucketIndex = (int)(((elems[i] - minValue) / exponent) % radix);
         output[--buckets[bucketIndex]] = elems[i];
-		app->sortRenderer->update(output, i, i);
+		this->first = i;
+		this->second = bucketIndex;
 		if (wantClose || wantStop)
 			return;
 	}
@@ -35,9 +35,11 @@ void RadixLSDSort::countSortByDigits(int exponent, int minValue)
     // Copy back
     for (int i = 0; i < elems.size(); i++) {
         elems[i] = output[i];
-		app->sortRenderer->update(output, i, i);
-		if (wantClose || wantStop)
-			return;
+		this->first = i;
+        this->second = ((output[i] - minValue) / exponent) % radix;
+		// this->second = bucketIndex;
+        HIGH_RES_WAIT(1.f / Sort::speed);
+		if (wantClose || wantStop) return;
     }
 }
 
@@ -66,59 +68,3 @@ void RadixLSDSort::sort()
 	isSorting = false;
 	sorted = true;
 }
-
-// void RadixLSDSort::sort()
-// {
-// 	isSorting = true;
-
-// 	int maxNum = elems[0];
-
-// 	for (int i = 1; i < elems.size(); i++)
-// 	{
-// 		maxNum = std::max(maxNum, elems[i]);
-// 	}
-
-// 	int digitsCount = 0;
-// 	while (maxNum > 0)
-// 	{
-// 		digitsCount++;
-// 		maxNum /= 10;
-// 	}
-
-// 	for (int i = 0; i < digitsCount; i++)
-// 	{
-// 		int pwr = std::pow(10, i);
-// 		std::vector<int> new_elems(elems.size());
-
-// 		int count_array[10];
-// 		memset(count_array, 0, sizeof(count_array));
-
-// 		for (int j = 0; j < elems.size(); j++)
-// 		{
-// 			int num = (elems[j] / pwr) % 10;
-
-// 			count_array[num]++;
-// 		}
-
-// 		for(int j = 1; j < 10; j++){
-//             count_array[j] += count_array[j-1];
-//         }
-
-//         for(int j = elems.size() - 1; j >= 0; j--){
-//             int num = (elems[j] / pwr) % 10;
-//             new_elems[count_array[num] - 1] = elems[j];
-//             count_array[num]--;
-//         }
-
-//         // Now, we are updating the array with the new array
-//         for(int j = 0;j < elems.size(); j++) {
-//             app->sortRenderer->render(elems, j, j);
-//             if (wantClose || wantStop)
-//                 return;
-//             elems[j] = new_elems[j];
-// 		}
-// 	}
-
-//     isSorting = false;
-//     sorted = true;
-// }

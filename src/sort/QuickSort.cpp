@@ -12,39 +12,41 @@ int QuickSort::partition(std::vector<int>& arr, int low, int high)
         if (arr[j] < pivot) {
             i++;
             swap(arr, i, j);
-            app->sortRenderer->update(elems, i, j);
-            if (wantClose || wantStop)
-                return 0;
+            // app->sortRenderer->update(i, j);
         }
-        comparisions++;
+        if (wantClose || wantStop) return 0;
+        this->comparisions++;
     }
-    app->sortRenderer->update(elems, i + 1, high);
-    if (wantClose || wantStop)
-        return 0;
+    this->first = i + 1;
+    this->second = high;
+    // app->sortRenderer->update(i + 1, high);
     swap(arr, i + 1, high);
+    if (wantClose || wantStop) return 0;
     return (i + 1);
 }
 
 void QuickSort::sort()
 {
     isSorting = true;
-    this->quickSort(elems, 0, elems.size());
+    this->quickSort(elems, 0, elems.size() - 1);
+
     if (wantClose || wantStop)
         return;
+    
     isSorting = false;
     sorted = true;
 }
 
 void QuickSort::quickSort(std::vector<int>& arr, int low, int high)
 {
+    if (wantClose || wantStop) return;
+    
     if (low < high) {
         int pi = partition(arr, low, high);
 
+        if (wantClose || wantStop) return;
         quickSort(arr, low, pi - 1);
-        if (wantClose || wantStop)
-            return;
+        if (wantClose || wantStop) return;
         quickSort(arr, pi + 1, high);
-        if (wantClose || wantStop)
-            return;
     }
 }

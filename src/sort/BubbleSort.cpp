@@ -9,14 +9,16 @@ void BubbleSort::sort()
     {
         for (int j = 0; j < i; j++)
         {
-            if (elems[j] > elems[j + 1])
             {
-                //std::cout << elems[j] << ": " << elems[j + 1] << std::endl;
-                swap(elems, j, j + 1);
-                app->sortRenderer->update(elems, j, j + 1);
-                if (wantClose || wantStop)
-                    return;
+                if (elems[j] > elems[j + 1])
+                {
+                    swap(elems, j, j + 1);
+                    // app->sortRenderer->update(j, j + 1);
+                    if (wantClose || wantStop)
+                        return;
+                }
             }
+            // std::this_thread::sleep_for(std::chrono::milliseconds(1));
             comparisions++;
         }
     }

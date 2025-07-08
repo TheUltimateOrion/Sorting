@@ -13,12 +13,18 @@ void InsertionSort::sort()
         while (j > 0 && elems[j - 1] > temp)
         {
             elems[j] = elems[j - 1];
-            app->sortRenderer->update(elems, j, j - 1);
-            if (wantClose || wantStop)
-                return;
+            this->first = j;
+            this->second = j - 1;
+            HIGH_RES_WAIT(1.f / Sort::speed);
+            if (wantClose || wantStop) return;
             --j;
         }
+
         elems[j] = temp;
+        this->first = j;
+        this->second = i;
+        HIGH_RES_WAIT(1.f / Sort::speed);
+        if (wantClose || wantStop) return;
     }
     isSorting = false;
     sorted = true;

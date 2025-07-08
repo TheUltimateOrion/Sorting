@@ -1,20 +1,30 @@
 #pragma once
 #include "../App.h"
 
-static float last_time;
-
+#define HIGH_RES_WAIT(t)\
+    auto start = std::chrono::high_resolution_clock::now();\
+    while (true) {\
+        auto now = std::chrono::high_resolution_clock::now();\
+        double elapsed = std::chrono::duration<double, std::milli>(now - start).count();\
+        if (elapsed >= (t)) break;\
+    }
 class Sort
 {
 public:
-    bool sorted;
-    bool isSorting;
-    bool isShuffling;
-    bool wantClose;
-    bool wantStop;
-    float speed;
-    float start_time;
+    std::atomic<bool> sorted;
+    std::atomic<bool> isSorting;
+    std::atomic<bool> isShuffling;
+    std::atomic<bool> wantClose;
+    std::atomic<bool> wantStop;
+
+    static float speed;
+    float start_time = 0.0f;
+    float last_time = 0.0f;
     unsigned int swaps = 0; 
     unsigned int comparisions = 0; 
+
+    int first = 0;
+    int second = 0;
 
     std::vector<int>& elems;
 
@@ -24,7 +34,6 @@ public:
 
     void shuffle();
     void reverse();
-    void setSpeed(float speed);
     void setLength(unsigned int length);
     
     virtual void sort() = 0;

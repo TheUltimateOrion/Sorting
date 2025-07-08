@@ -7,6 +7,9 @@
 #include <thread>
 #include <random>
 #include <memory>
+#include <mutex>
+#include <atomic>
+#include <optional>
 
 #include <imgui/imgui.h>
 #include <imgui/backend/imgui_impl_sdl3.h>
@@ -59,14 +62,11 @@ public:
     Uint64 LAST = 0;
     double deltaTime = 0;
     int setLength = 512;
-    unsigned int swaps = 0;
-    unsigned int comparisions = 0;
 
     ImGuiIO* io;
 
     int current_element = 0;
 
-    float setSpeed = 1.0f;
     bool isColored = false;
 
     std::vector<std::vector<const char *>> items;
@@ -84,6 +84,9 @@ public:
     bool reverse = false;
 
     std::vector<int> data;
+
+    std::optional<std::thread> sortThread;
+    std::optional<std::thread> audioThread;
 
     App() noexcept;
     ~App();
