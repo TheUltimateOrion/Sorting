@@ -46,6 +46,13 @@ void RadixLSDSort::countSortByDigits(int exponent, int minValue)
 void RadixLSDSort::sort()
 {
 	isSorting = true;
+
+    if (elems.empty()) {
+        isSorting = false;
+        sorted = true;
+        return;
+    }
+    
 	int minValue = elems[0];
     int maxValue = elems[0];
     for (int i = 1; i < elems.size(); i++) {

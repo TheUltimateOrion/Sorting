@@ -3,7 +3,7 @@
 #include "sort/Sort.h"
 #include "sort/BubbleSort.h"
 
-App::App() noexcept
+App::App() noexcept : current_element(0)
 {
 	this->categories = {"Exchange", "Distribution", "Insertion", "Merge", "Select"};
     this->items = {
@@ -140,14 +140,24 @@ void App::run()
             constexpr int min = 100;
             constexpr int max = 800;
 
-            int freq = this->data[this->current_element] * (WIN_HEIGHT / (float)this->data.size()) + base;
+            int freq = 0;
+            {
+                std::lock_guard<std::mutex> lock(this->m_mtx);
+
+                if (this->data.empty() || this->current_element.load() >= this->data.size()) {
+                    std::this_thread::sleep_for(100ms);
+                    continue;  // skip this iteration;
+                }
+
+                freq = this->data[this->current_element] * (WIN_HEIGHT / static_cast<float>(this->data.size())) + base;
+            }
             freq = std::clamp(freq, min, max);
             if (this->sorter->isSorting || this->sorter->isShuffling){
                 snd->load(sec, freq);
                 HANDLE_ERROR("Error loading audio", );
                 snd->play();
                 HANDLE_ERROR("Error playing audio", );
-                std::this_thread::sleep_for(std::chrono::milliseconds((int)(sec * 1000)));
+                std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(sec * 1000)));
             }
         }
     });
@@ -163,13 +173,6 @@ void App::run()
             break;
         }
     }
-}
-
-void App::calculateDeltaTime() noexcept
-{
-   LAST = NOW;
-   NOW = SDL_GetPerformanceCounter();
-   deltaTime = (double)((NOW - LAST)*1000 / (double)SDL_GetPerformanceFrequency() );
 }
 
 int App::loadFont() {

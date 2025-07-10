@@ -92,13 +92,14 @@ void SortRenderer::renderInfo() const noexcept
 
 void SortRenderer::update() noexcept
 {
-    elems = app->data;
-
-    app->calculateDeltaTime();
+    {
+        LOCK_GUARD;
+        elems = app->data;
+    }
     SDL_SetRenderDrawColor(app->renderer, 0x0, 0x0, 0x0, 0x0);
     SDL_RenderClear(app->renderer);
 
-    app->current_element = app->sorter->first;
+    app->current_element = app->sorter->first.load();
 
     SDL_Color sortColor; 
     for (int k = 0; k < elems.size(); k++)
@@ -221,7 +222,7 @@ void SortRenderer::update() noexcept
         }
     }
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    std::this_thread::sleep_for(1ms);
     
 }
 
@@ -302,8 +303,8 @@ int SortRenderer::renderGUI() const noexcept
         ImGui::InputFloat("Set Speed", &Sort::speed, 0.001f);
         Sort::speed = std::clamp(Sort::speed, 0.001f, 1000.f);
 
-        app->setLength = std::clamp(app->setLength, 2, 1024*10);
-        ImGui::InputInt("Set Length", &app->setLength, 2);
+        ImGui::InputInt("Set Array Length", &Sort::length, 2);
+        Sort::length = std::clamp(Sort::length, 2, 1024*10);
 
         if (app->current_category == 1 && app->current_item == 0)
             ImGui::SliderInt("Set Buckets/Radix", &app->setRadix, 2, 10, "%d");
@@ -347,9 +348,6 @@ int SortRenderer::renderGUI() const noexcept
                         switch(app->current_item) {
                             SORTCASE(0, SelectionSort);
                         }
-                        
-                        _jmp:
-                        app->sorter->setLength(app->setLength);
                     } break;   
                     default:
                         std::cout << "Invalid Sort!" << std::endl;

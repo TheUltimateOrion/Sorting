@@ -5,6 +5,13 @@ GravitySort::GravitySort(std::vector<int>& arr) : Sort(arr) {}
 void GravitySort::sort()
 {
     isSorting = true;
+
+    if (elems.empty()) {
+        isSorting = false;
+        sorted = true;
+        return;
+    }
+
     int max = *std::max_element(elems.begin(), elems.end());
     if (max <= 0) return;
 

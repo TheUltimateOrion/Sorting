@@ -1,6 +1,9 @@
 #pragma once
 #include "Sort.h"
+
+#ifndef TESTING
 #include "../renderer/Renderer.h"
+#endif
 
 class BogoSort : virtual public Sort
 {

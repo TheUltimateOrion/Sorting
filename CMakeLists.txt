@@ -53,16 +53,20 @@ endif()
 target_link_libraries(${PROJECT} PRIVATE SDL3_ttf::SDL3_ttf SDL3::SDL3 ${OPENAL_LIB})
 install(DIRECTORY res/ DESTINATION res)
 
-include(CTest)
+include(GoogleTest)
 
-add_executable(${PROJECT}_TEST test/main.test.cc)
+file(GLOB TEST_FILES
+src/sort/*.cpp
+)
+
+add_executable(${PROJECT}_TEST test/main.test.cc ${TEST_FILES})
 target_include_directories(${PROJECT}_TEST PRIVATE 
 includes/
 includes/imgui
-includes/imgui/backend
+includes/imgui/backends
 includes/openal
 )
 target_link_libraries(${PROJECT}_TEST PRIVATE GTest::gtest_main)
+target_compile_definitions(${PROJECT}_TEST PRIVATE TESTING)
 
-include(GoogleTest)
 gtest_discover_tests(${PROJECT}_TEST)

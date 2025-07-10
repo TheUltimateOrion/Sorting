@@ -5,7 +5,7 @@
 #define SORTCASE(num, typeSort)\
     case num: {\
         app->sorter = std::make_shared<typeSort>(app->data);\
-        goto _jmp;\
+        app->sorter->setLength(Sort::length);\
     } break;
 #endif
 
@@ -13,7 +13,7 @@
 #define SORTCASERADIX(num, typeSort)\
     case num: {\
         app->sorter = std::make_shared<typeSort>(app->data, app->setRadix);\
-        goto _jmp;\
+        app->sorter->setLength(Sort::length);\
     } break;
 #endif
 

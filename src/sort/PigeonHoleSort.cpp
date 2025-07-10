@@ -18,7 +18,7 @@ void PigeonHoleSort::sort()
             max = elems[i];
             
         this->first = i;
-        this->second = this->first;
+        this->second = this->first.load();
         HIGH_RES_WAIT(1.f / Sort::speed);
         if (wantClose || wantStop) return;
 

@@ -13,6 +13,13 @@ int CombSort::getNextGap(int gap)
 void CombSort::sort()
 {
     isSorting = true;
+
+    if(elems.empty()) {
+        isSorting = false;
+        sorted = true;
+        return;
+    }
+    
     // Initialize gap
     int gap = elems.size();
  

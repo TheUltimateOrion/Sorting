@@ -11,6 +11,10 @@
 #include <atomic>
 #include <optional>
 
+using namespace std::literals::chrono_literals;
+
+#ifndef TESTING
+
 #include <imgui/imgui.h>
 #include <imgui/backend/imgui_impl_sdl3.h>
 #include <imgui/backend/imgui_impl_sdlrenderer3.h>
@@ -22,11 +26,20 @@
 #include "renderer/DisplayType.h"
 #include "sort/SortCategories.h"
 
+#endif
+
 constexpr float WIN_WIDTH = 1920.0f;
 constexpr float WIN_HEIGHT = 1080.0f;
 
 #define LOGINFO(str) std::cout << "[INFO]"  << '[' << (double) clock() / 1000.0 << "s]: " << str << std::endl;
 #define LOGERR(str)  std::cerr << "[ERROR]" << '[' << (double) clock() / 1000.0 << "s]: " << str << std::endl;
+
+
+#ifndef TESTING
+#define LOCK_GUARD std::lock_guard<std::mutex> lock(app->m_mtx)
+#else
+#define LOCK_GUARD do {} while(0);
+#endif
 
 #ifndef HANDLE_ERROR
 #define HANDLE_ERROR(str, ret)\
@@ -40,12 +53,19 @@ constexpr float WIN_HEIGHT = 1080.0f;
 #define STYLESET(param) style.Colors[ImGuiCol_##param]
 #endif
 
+#ifndef TESTING
+
 class SoundEngine;
 class SortRenderer;
 class Sort;
 
 class App
 {
+private:
+    mutable std::mutex m_mtx;
+
+    friend class Sort;
+    friend class SortRenderer;
 private:
     void _setupGUI();
 public:
@@ -58,14 +78,9 @@ public:
     std::unique_ptr<SortRenderer> sortRenderer;
     std::shared_ptr<Sort> sorter;
 
-    Uint64 NOW = SDL_GetPerformanceCounter();
-    Uint64 LAST = 0;
-    double deltaTime = 0;
-    int setLength = 512;
-
     ImGuiIO* io;
 
-    int current_element = 0;
+    std::atomic<int> current_element;
 
     bool isColored = false;
 
@@ -96,10 +111,11 @@ public:
 
     void startAudioThread();
 
-    void calculateDeltaTime() noexcept;
     ImGuiIO& configureIO() noexcept;
     [[nodiscard]] int loadFont();
     void setStyle(ImGuiStyle& style) const noexcept;
 };
 
 extern std::unique_ptr<App> app;
+
+#endif

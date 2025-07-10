@@ -1,6 +1,10 @@
 #pragma once
+
 #include "../App.h"
 
+#if defined(TESTING)
+#define HIGH_RES_WAIT(t) do {} while(0);
+#else 
 #define HIGH_RES_WAIT(t)\
     auto start = std::chrono::high_resolution_clock::now();\
     while (true) {\
@@ -8,6 +12,7 @@
         double elapsed = std::chrono::duration<double, std::milli>(now - start).count();\
         if (elapsed >= (t)) break;\
     }
+#endif
 class Sort
 {
 public:
@@ -18,13 +23,15 @@ public:
     std::atomic<bool> wantStop;
 
     static float speed;
+    static int length;
+
     float start_time = 0.0f;
     float last_time = 0.0f;
-    unsigned int swaps = 0; 
-    unsigned int comparisions = 0; 
+    unsigned int swaps; 
+    unsigned int comparisions; 
 
-    int first = 0;
-    int second = 0;
+    std::atomic<int> first;
+    std::atomic<int>  second;
 
     std::vector<int>& elems;
 
