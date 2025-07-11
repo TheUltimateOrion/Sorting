@@ -8,7 +8,7 @@
 class GravitySort : virtual public Sort
 {
 public:
-    GravitySort(std::vector<int>& arr);
+    GravitySort(std::vector<int>& t_arr);
 
     void sort() override;
 };

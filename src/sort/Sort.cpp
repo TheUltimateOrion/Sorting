@@ -1,4 +1,5 @@
 #include "sort/Sort.h"
+#include "core/logging/Logging.h"
 
 #ifndef TESTING
 #include "renderer/Renderer.h"
@@ -7,7 +8,7 @@
 float Sort::speed = 1.0f;
 int Sort::length = 512;
 
-Sort::Sort(std::vector<int>& arr) : elems(arr), isSorting(false), isShuffling(false), sorted(true), wantClose(false), wantStop(false), start_time(0), first(0), second(0) {}
+Sort::Sort(std::vector<int>& t_arr) : m_first(0), m_second(0), elems(t_arr), sorted(true), isSorting(false), isShuffling(false), wantClose(false), wantStop(false), startTime(0) {}
 
 void Sort::reverse()
 {
@@ -26,15 +27,15 @@ void Sort::reverse()
     }
 
     std::reverse(temp.begin(), temp.end());
-    for (int i = 0; i < temp.capacity(); i++)
+    for (size_t i = 0; i < temp.capacity(); i++)
     {
         {
             LOCK_GUARD;
             elems[i] = temp[i];
         }
 
-        this->first = i;
-        this->second = this->first.load();
+        m_first = i;
+        m_second = m_first.load();
         if (wantClose || wantStop) return;
     }
 
@@ -42,8 +43,8 @@ void Sort::reverse()
 
     sorted = false;
     this->isShuffling = false;
-    this->start_time = static_cast<float>(clock()) / 1000.0f;
-    this->last_time = this->start_time;
+    this->startTime = AppCtx::getTimestamp();
+    this->lastTime = this->lastTime;
 }
 
 void Sort::shuffle()
@@ -64,14 +65,14 @@ void Sort::shuffle()
 
     std::shuffle(std::begin(temp), std::end(temp), std::default_random_engine(0));
 
-    for (int i = 0; i < temp.capacity(); i++)
+    for (size_t i = 0; i < temp.capacity(); i++)
     {
         {
             LOCK_GUARD;
             elems[i] = temp[i];
         }
-        this->first = i;
-        this->second = this->first.load();
+        m_first = i;
+        m_second = m_first.load();
         
         HIGH_RES_WAIT(1000.0 / static_cast<double>(elems.size()))
         if (wantClose || wantStop) return;
@@ -81,18 +82,18 @@ void Sort::shuffle()
     isShuffling = false;
 
     std::this_thread::sleep_for(500ms);
-    this->start_time = static_cast<float>(clock()) / 1000.0f;
-    this->last_time = this->start_time;
+    this->startTime = AppCtx::getTimestamp();
+    this->lastTime = this->startTime;
 }
 
-void Sort::swap(std::vector<int>& array, int a, int b)
+void Sort::swap(std::vector<int>& array, size_t a, size_t b)
 {
-    this->first = a;
-    this->second = b;
+    m_first = a;
+    m_second = b;
 
     {
         LOCK_GUARD;
-        if (a < 0 || a >= array.size() || b < 0 || b >= array.size()) {
+        if (a >= array.size() || b >= array.size()) {
             LOGERR("Swap indices out of bounds: " << a << ", " << b);
             return;
         }
@@ -108,6 +109,6 @@ void Sort::setLength(unsigned int len)
 {
     LOGINFO("Resizing to " << len);
     elems.resize(len);
-    for (int index = 0; index < elems.size(); index++)
-        elems[index] = index + 1;
+    for (size_t i = 0; i < elems.size(); ++i)
+        elems[i] = i + 1;
 }

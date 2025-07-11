@@ -8,10 +8,10 @@
 class RadixLSDSort : virtual public Sort
 {
 private:
-    int radix;
-    void countSortByDigits(int exponent, int minValue);
+    int m_radix;
+    void countSortByDigits(int t_exponent, int t_minValue);
 public:
-    RadixLSDSort(std::vector<int>& arr, int radix);
+    RadixLSDSort(std::vector<int>& t_arr, int t_radix);
 
     void sort() override;
 };

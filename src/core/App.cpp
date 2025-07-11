@@ -1,9 +1,9 @@
-#include "App.h"
-#include "renderer/Sound.h"
+#include "core/App.h"
+#include "sound/Sound.h"
 #include "sort/Sort.h"
 #include "sort/BubbleSort.h"
 
-App::App() noexcept : current_element(0)
+App::App() noexcept : currentElement(0)
 {
 	this->categories = {"Exchange", "Distribution", "Insertion", "Merge", "Select"};
     this->items = {
@@ -94,14 +94,14 @@ int App::init()
     if (snd->init() < 0)
     {
         LOGERR("Sound could not be initialized");
-        HANDLE_ERROR("Error initalizing", -1);
+        AL_HANDLE_ERROR("Error initalizing", -1);
     }
     LOGINFO("Initialized sound subsystem successfully");
 
 	// Window and Renderer Setups
     {    
         LOGINFO("Creating SDL Window");
-        this->window = SDL_CreateWindow("Sorting Algorithms", WIN_WIDTH, WIN_HEIGHT, SDL_WINDOW_HIGH_PIXEL_DENSITY);
+        this->window = SDL_CreateWindow("Sorting Algorithms", AppCtx::kWinWidth, AppCtx::kWinHeight, SDL_WINDOW_HIGH_PIXEL_DENSITY);
         LOGINFO("Creating SDL renderer");
         this->renderer = SDL_CreateRenderer(this->window, NULL);
         LOGINFO("Setting render parameters");
@@ -142,21 +142,21 @@ void App::run()
 
             int freq = 0;
             {
-                std::lock_guard<std::mutex> lock(this->m_mtx);
+                std::lock_guard<std::mutex> lock(this->m_mutex);
 
-                if (this->data.empty() || this->current_element.load() >= this->data.size()) {
+                if (this->data.empty() || this->currentElement.load() >= this->data.size()) {
                     std::this_thread::sleep_for(100ms);
                     continue;  // skip this iteration;
                 }
 
-                freq = this->data[this->current_element] * (WIN_HEIGHT / static_cast<float>(this->data.size())) + base;
+                freq = this->data[this->currentElement] * (AppCtx::kWinHeight / static_cast<float>(this->data.size())) + base;
             }
             freq = std::clamp(freq, min, max);
             if (this->sorter->isSorting || this->sorter->isShuffling){
                 snd->load(sec, freq);
-                HANDLE_ERROR("Error loading audio", );
+                AL_HANDLE_ERROR("Error loading audio", );
                 snd->play();
-                HANDLE_ERROR("Error playing audio", );
+                AL_HANDLE_ERROR("Error playing audio", );
                 std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(sec * 1000)));
             }
         }
@@ -186,7 +186,7 @@ int App::loadFont() {
     return 0;
 }
 
-void App::setStyle(ImGuiStyle& style) const noexcept
+void App::setStyle(ImGuiStyle& t_style) const noexcept
 {
     constexpr float WINDOW_PADDING = 15.0f;
     constexpr float WINDOW_ROUNDING = 3.0f;
@@ -198,15 +198,15 @@ void App::setStyle(ImGuiStyle& style) const noexcept
     constexpr float GRAB_MIN_SIZE = 5.0f;
     constexpr float GRAB_ROUNDING = 3.0f;
 
-    style.WindowPadding = ImVec2(WINDOW_PADDING, WINDOW_PADDING);
-    style.WindowRounding = WINDOW_ROUNDING;
-    style.FramePadding = ImVec2(FRAME_PADDING, FRAME_PADDING);
-    style.FrameRounding = FRAME_ROUNDING;
-    style.IndentSpacing = INDENT_SPACING;
-    style.ScrollbarSize = SCROLLBAR_SIZE;
-    style.ScrollbarRounding = SCROLLBAR_ROUNDING;
-    style.GrabMinSize = GRAB_MIN_SIZE;
-    style.GrabRounding = GRAB_ROUNDING;
+    t_style.WindowPadding = ImVec2(WINDOW_PADDING, WINDOW_PADDING);
+    t_style.WindowRounding = WINDOW_ROUNDING;
+    t_style.FramePadding = ImVec2(FRAME_PADDING, FRAME_PADDING);
+    t_style.FrameRounding = FRAME_ROUNDING;
+    t_style.IndentSpacing = INDENT_SPACING;
+    t_style.ScrollbarSize = SCROLLBAR_SIZE;
+    t_style.ScrollbarRounding = SCROLLBAR_ROUNDING;
+    t_style.GrabMinSize = GRAB_MIN_SIZE;
+    t_style.GrabRounding = GRAB_ROUNDING;
  
 	STYLESET(Text)= ImVec4(0.80f, 0.80f, 0.83f, 1.00f);
 	STYLESET(TextDisabled) = ImVec4(0.24f, 0.23f, 0.29f, 1.00f);

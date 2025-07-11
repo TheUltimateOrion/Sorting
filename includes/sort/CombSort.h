@@ -8,9 +8,9 @@
 class CombSort : virtual public Sort
 {
 private:
-    int getNextGap(int gap);
+    int getNextGap(int t_gap);
 public:
-    CombSort(std::vector<int>& arr);
+    CombSort(std::vector<int>& t_arr);
 
     void sort() override;
 };

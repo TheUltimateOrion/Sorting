@@ -1,26 +1,26 @@
 #include "sort/QuickSort.h"
 
-QuickSort::QuickSort(std::vector<int>& arr) : Sort(arr) {}
+QuickSort::QuickSort(std::vector<int>& t_arr) : Sort(t_arr) {}
 
-int QuickSort::partition(std::vector<int>& arr, int low, int high)
+int QuickSort::partition(int t_low, int t_high)
 {
-    int pivot = arr[high];
+    int pivot = elems[t_high];
 
-    int i = (low - 1);
+    int i = (t_low - 1);
 
-    for (int j = low; j <= high - 1; j++) {
-        if (arr[j] < pivot) {
+    for (int j = t_low; j <= t_high - 1; j++) {
+        if (elems[j] < pivot) {
             i++;
-            swap(arr, i, j);
-            // app->sortRenderer->update(i, j);
+            swap(elems, i, j);
+            // AppCtx::g_app->sortRenderer->update(i, j);
         }
         if (wantClose || wantStop) return 0;
         this->comparisions++;
     }
-    this->first = i + 1;
-    this->second = high;
-    // app->sortRenderer->update(i + 1, high);
-    swap(arr, i + 1, high);
+    m_first = i + 1;
+    m_second = t_high;
+    // AppCtx::g_app->sortRenderer->update(i + 1, t_high);
+    swap(elems, i + 1, t_high);
     if (wantClose || wantStop) return 0;
     return (i + 1);
 }
@@ -28,7 +28,7 @@ int QuickSort::partition(std::vector<int>& arr, int low, int high)
 void QuickSort::sort()
 {
     isSorting = true;
-    this->quickSort(elems, 0, elems.size() - 1);
+    this->quickSort(0, elems.size() - 1);
 
     if (wantClose || wantStop)
         return;
@@ -37,16 +37,16 @@ void QuickSort::sort()
     sorted = true;
 }
 
-void QuickSort::quickSort(std::vector<int>& arr, int low, int high)
+void QuickSort::quickSort(int t_low, int t_high)
 {
     if (wantClose || wantStop) return;
     
-    if (low < high) {
-        int pi = partition(arr, low, high);
+    if (t_low < t_high) {
+        int pi = partition(t_low, t_high);
 
         if (wantClose || wantStop) return;
-        quickSort(arr, low, pi - 1);
+        quickSort(t_low, pi - 1);
         if (wantClose || wantStop) return;
-        quickSort(arr, pi + 1, high);
+        quickSort(pi + 1, t_high);
     }
 }

@@ -1,9 +1,10 @@
 #include "sort/BogoSort.h"
 
-BogoSort::BogoSort(std::vector<int>& arr) : Sort(arr) {}
+BogoSort::BogoSort(std::vector<int>& t_arr) : Sort(t_arr) {}
 
-bool BogoSort::isSorted(std::vector<int>& elems, int n)
+bool BogoSort::isSorted()
 {
+    size_t n = elems.size();
     while (--n > 0) {
         if (elems[n] < elems[n - 1])
             return false;
@@ -11,9 +12,11 @@ bool BogoSort::isSorted(std::vector<int>& elems, int n)
     return true;
 }
 
-void BogoSort::bogoShuffle(std::vector<int>& elems, int n)
+void BogoSort::bogoShuffle()
 {
-    for (int i = 0; i < n; i++) {
+    size_t n = elems.size();
+
+    for (size_t i = 0; i < n; ++i) {
         int randInt = rand() % n;
         swap(elems, i, randInt);
         if (wantClose || wantStop) return;
@@ -24,8 +27,8 @@ void BogoSort::sort()
 {
     isSorting = true;
 
-    while(!isSorted(elems, elems.size())) {
-        bogoShuffle(elems, elems.size());
+    while(!isSorted()) {
+        bogoShuffle();
         if (wantClose || wantStop) return;
     }
     isSorting = false;

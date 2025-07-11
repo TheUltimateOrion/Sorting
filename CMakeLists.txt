@@ -7,8 +7,9 @@ set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR}/dist)
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 set(SDLTTF_VENDORED ON) # tell SDL_ttf to build its own dependencies
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_FLAGS "-O3 -Wall -Wextra")
 
 add_subdirectory(external)
 
@@ -16,8 +17,10 @@ file(GLOB SOURCE_FILES
 src/imgui/*.cpp 
 src/imgui/backends/*.cpp 
 src/*.cpp 
+src/core/*.cpp
 src/sort/*.cpp
 src/renderer/*.cpp 
+src/sound/*.cpp 
 )
 
 add_executable(${PROJECT} ${SOURCE_FILES})

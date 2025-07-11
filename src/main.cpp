@@ -1,21 +1,20 @@
 #define SDL_MAIN_HANDLED
-#include "App.h"
+#include "core/App.h"
 
-std::unique_ptr<App> app = nullptr; // Declare app as a unique pointer
+std::unique_ptr<App> AppCtx::g_app = nullptr; // Initialize the unique pointer
 
-
-int main(int argc, char **argv) // (int argc, char const *argv[])
+int main()
 {
-    if(SDL_Init(SDL_INIT_VIDEO) < 0) {
+    if(!SDL_Init(SDL_INIT_VIDEO)) {
         LOGERR("Could not initialize SDL: " << SDL_GetError());
         return -1;
     }
 
-    app = std::make_unique<App>(); // Create a unique pointer to App
+    AppCtx::g_app = std::make_unique<App>(); // Create a unique pointer to App
 
-    if (app->init() < 0) return EXIT_FAILURE;
-
-    app->run();
+    if (AppCtx::g_app->init() < 0) return EXIT_FAILURE;
+    LOGINFO("App initialized successfully");
+    AppCtx::g_app->run();
 
     return EXIT_SUCCESS;
 }

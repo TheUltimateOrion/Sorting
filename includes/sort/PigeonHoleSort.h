@@ -8,7 +8,7 @@
 class PigeonHoleSort : virtual public Sort
 {
 public:
-    PigeonHoleSort(std::vector<int>& arr);
+    PigeonHoleSort(std::vector<int>& t_arr);
 
     void sort() override;
 };

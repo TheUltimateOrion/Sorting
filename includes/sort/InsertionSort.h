@@ -8,7 +8,7 @@
 class InsertionSort : virtual  public Sort
 {
 public:
-    InsertionSort(std::vector<int>& arr);
+    InsertionSort(std::vector<int>& t_arr);
 
     void sort() override;
 };

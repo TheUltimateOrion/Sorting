@@ -1,6 +1,6 @@
 #include "sort/InsertionSort.h"
 
-InsertionSort::InsertionSort(std::vector<int>& arr) : Sort(arr) {}
+InsertionSort::InsertionSort(std::vector<int>& t_arr) : Sort(t_arr) {}
 
 void InsertionSort::sort()
 {
@@ -13,16 +13,16 @@ void InsertionSort::sort()
         while (j > 0 && elems[j - 1] > temp)
         {
             elems[j] = elems[j - 1];
-            this->first = j;
-            this->second = j - 1;
+            m_first = j;
+            m_second = j - 1;
             HIGH_RES_WAIT(1.f / Sort::speed);
             if (wantClose || wantStop) return;
             --j;
         }
 
         elems[j] = temp;
-        this->first = j;
-        this->second = i;
+        m_first = j;
+        m_second = i;
         HIGH_RES_WAIT(1.f / Sort::speed);
         if (wantClose || wantStop) return;
     }

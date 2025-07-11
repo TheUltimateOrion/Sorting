@@ -1,7 +1,7 @@
 #include "sort/SelectionSort.h"
 
 
-SelectionSort::SelectionSort(std::vector<int>& arr) : Sort(arr) {}
+SelectionSort::SelectionSort(std::vector<int>& t_arr) : Sort(t_arr) {}
 
 void SelectionSort::sort()
 {
@@ -13,8 +13,8 @@ void SelectionSort::sort()
         int min = i;
         for (int j = i + 1; j < size; j++)
         {
-            this->first = j;
-            this->second = min;
+            m_first = j;
+            m_second = min;
             comparisions++;
 
             if (elems[j] < elems[min])

@@ -10,6 +10,7 @@
 #include <mutex>
 #include <atomic>
 #include <optional>
+#include <array>
 
 using namespace std::literals::chrono_literals;
 
@@ -25,32 +26,19 @@ using namespace std::literals::chrono_literals;
 
 #include "renderer/DisplayType.h"
 #include "sort/SortCategories.h"
+#include "core/logging/Logging.h"
+#include "core/AppCtx.h"
 
 #endif
 
-constexpr float WIN_WIDTH = 1920.0f;
-constexpr float WIN_HEIGHT = 1080.0f;
-
-#define LOGINFO(str) std::cout << "[INFO]"  << '[' << (double) clock() / 1000.0 << "s]: " << str << std::endl;
-#define LOGERR(str)  std::cerr << "[ERROR]" << '[' << (double) clock() / 1000.0 << "s]: " << str << std::endl;
-
-
 #ifndef TESTING
-#define LOCK_GUARD std::lock_guard<std::mutex> lock(app->m_mtx)
+#define LOCK_GUARD std::lock_guard<std::mutex> lock(AppCtx::g_app->m_mutex)
 #else
 #define LOCK_GUARD do {} while(0);
 #endif
 
-#ifndef HANDLE_ERROR
-#define HANDLE_ERROR(str, ret)\
-    if (snd->alGetLastError() != AL_NO_ERROR) {\
-        std::cerr << str << " with code: " << snd->alErrorString(snd->alGetLastError()) << "(" << snd->alGetLastError() << ")" << std::endl;\
-        return ret;\
-    }
-#endif
-
 #ifndef STYLESET
-#define STYLESET(param) style.Colors[ImGuiCol_##param]
+#define STYLESET(param) t_style.Colors[ImGuiCol_##param]
 #endif
 
 #ifndef TESTING
@@ -59,10 +47,11 @@ class SoundEngine;
 class SortRenderer;
 class Sort;
 
+
 class App
 {
 private:
-    mutable std::mutex m_mtx;
+    mutable std::mutex m_mutex;
 
     friend class Sort;
     friend class SortRenderer;
@@ -80,22 +69,21 @@ public:
 
     ImGuiIO* io;
 
-    std::atomic<int> current_element;
+    std::atomic<size_t> currentElement;
 
     bool isColored = false;
 
     std::vector<std::vector<const char *>> items;
-    int current_item = 0;
+    size_t current_item = 0;
     
-    std::vector<const char *> categories;
-    enum SortCategory current_category = SortCategory::Exchange;
+    std::array<const char *, 5> categories;
+    enum SortCategory currentCategory = SortCategory::Exchange;
 
-    std::vector<const char *> displayTypes;
-    enum DisplayType displayType = DisplayType::Bar;
+    std::array<const char *, 8> displayTypes;
+    enum DisplayType currentDisplayType = DisplayType::Bar;
 
     bool isRadix = false;
     int setRadix = 2;
-    SDL_FRect rect;
     bool reverse = false;
 
     std::vector<int> data;
@@ -113,9 +101,7 @@ public:
 
     ImGuiIO& configureIO() noexcept;
     [[nodiscard]] int loadFont();
-    void setStyle(ImGuiStyle& style) const noexcept;
+    void setStyle(ImGuiStyle& t_style) const noexcept;
 };
-
-extern std::unique_ptr<App> app;
 
 #endif

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../App.h"
+#include "core/App.h"
 
 #if defined(TESTING)
 #define HIGH_RES_WAIT(t) do {} while(0);
@@ -15,7 +15,13 @@
 #endif
 class Sort
 {
+protected:
+    std::atomic<size_t> m_first;
+    std::atomic<size_t> m_second;
+
 public:
+    std::vector<int>& elems;
+
     std::atomic<bool> sorted;
     std::atomic<bool> isSorting;
     std::atomic<bool> isShuffling;
@@ -25,19 +31,18 @@ public:
     static float speed;
     static int length;
 
-    float start_time = 0.0f;
-    float last_time = 0.0f;
+    double startTime = 0.0;
+    double lastTime = 0.0;
+
     unsigned int swaps; 
     unsigned int comparisions; 
 
-    std::atomic<int> first;
-    std::atomic<int>  second;
+    size_t getFirst() noexcept { return m_first.load(); }
+    size_t getSecond() noexcept { return m_second.load(); }
 
-    std::vector<int>& elems;
+    Sort(std::vector<int>& t_arr);
 
-    Sort(std::vector<int>& arr);
-
-    void swap(std::vector<int>& array, int a, int b);
+    void swap(std::vector<int>& array, size_t a, size_t b);
 
     void shuffle();
     void reverse();

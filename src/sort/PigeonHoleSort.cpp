@@ -1,6 +1,6 @@
 #include "sort/PigeonHoleSort.h"
 
-PigeonHoleSort::PigeonHoleSort(std::vector<int>& arr) : Sort(arr) {}
+PigeonHoleSort::PigeonHoleSort(std::vector<int>& t_arr) : Sort(t_arr) {}
 
 void PigeonHoleSort::sort()
 {
@@ -17,8 +17,8 @@ void PigeonHoleSort::sort()
         if (elems[i] > max)
             max = elems[i];
             
-        this->first = i;
-        this->second = this->first.load();
+        m_first = i;
+        m_second = m_first.load();
         HIGH_RES_WAIT(1.f / Sort::speed);
         if (wantClose || wantStop) return;
 
@@ -31,11 +31,11 @@ void PigeonHoleSort::sort()
         holes[elems[i] - min].push_back(elems[i]);
 
     int index = 0;
-    for (int i = 0; i < holes.size(); ++i) {
+    for (size_t i = 0; i < holes.size(); ++i) {
         for (int val : holes[i]) {
             elems[index] = val;
-            this->first = index;
-            this->second = i;
+            m_first = index;
+            m_second = i;
             HIGH_RES_WAIT(1.f / Sort::speed);
             if (wantClose || wantStop) return;
             index++;

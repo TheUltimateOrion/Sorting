@@ -8,10 +8,10 @@
 class BogoSort : virtual public Sort
 {
 private:
-    bool isSorted(std::vector<int>& elems, int n);
-    void bogoShuffle(std::vector<int>& elems, int n);
+    bool isSorted();
+    void bogoShuffle();
 public:
-    BogoSort(std::vector<int>& arr);
+    BogoSort(std::vector<int>& t_arr);
 
     void sort() override;
 };

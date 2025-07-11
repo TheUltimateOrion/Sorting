@@ -1,43 +1,43 @@
 #include "sort/RadixLSDSort.h"
 
-RadixLSDSort::RadixLSDSort(std::vector<int>& arr, int radix) : Sort(arr), radix(radix) {}
+RadixLSDSort::RadixLSDSort(std::vector<int>& t_arr, int t_radix) : Sort(t_arr), m_radix(t_radix) {}
 
 void RadixLSDSort::countSortByDigits(int exponent, int minValue)
 {
 	int bucketIndex;
-    std::vector<int> buckets(radix);
+    std::vector<int> buckets(m_radix);
     std::vector<int> output(elems.size());
 
     // Initialize bucket
     std::fill(buckets.begin(), buckets.end(), 0);
     
     // Count frequencies
-    for (int i = 0; i < elems.size(); i++) {
-        bucketIndex = (int)(((elems[i] - minValue) / exponent) % radix);
+    for (size_t i = 0; i < elems.size(); i++) {
+        bucketIndex = (int)(((elems[i] - minValue) / exponent) % m_radix);
         buckets[bucketIndex]++;
 	}
     
     // Compute cumulates
-    for (int i = 1; i < radix; i++) {
+    for (int i = 1; i < m_radix; i++) {
         buckets[i] += buckets[i - 1];
 	}
 
     // Move records
     for (int i = elems.size() - 1; i >= 0; i--) {
-        bucketIndex = (int)(((elems[i] - minValue) / exponent) % radix);
+        bucketIndex = (int)(((elems[i] - minValue) / exponent) % m_radix);
         output[--buckets[bucketIndex]] = elems[i];
-		this->first = i;
-		this->second = bucketIndex;
+		m_first = i;
+		m_second = bucketIndex;
 		if (wantClose || wantStop)
 			return;
 	}
 
     // Copy back
-    for (int i = 0; i < elems.size(); i++) {
+    for (size_t i = 0; i < elems.size(); i++) {
         elems[i] = output[i];
-		this->first = i;
-        this->second = ((output[i] - minValue) / exponent) % radix;
-		// this->second = bucketIndex;
+		m_first = i;
+        m_second = ((output[i] - minValue) / exponent) % m_radix;
+		// m_second = bucketIndex;
         HIGH_RES_WAIT(1.f / Sort::speed);
 		if (wantClose || wantStop) return;
     }
@@ -55,7 +55,7 @@ void RadixLSDSort::sort()
     
 	int minValue = elems[0];
     int maxValue = elems[0];
-    for (int i = 1; i < elems.size(); i++) {
+    for (size_t i = 1; i < elems.size(); i++) {
         if (elems[i] < minValue) {
             minValue = elems[i];
         } else if (elems[i] > maxValue) {
@@ -70,7 +70,7 @@ void RadixLSDSort::sort()
         countSortByDigits(exponent, minValue);
 		if (wantClose || wantStop)
 			return;
-        exponent *= radix;
+        exponent *= m_radix;
     }
 	isSorting = false;
 	sorted = true;

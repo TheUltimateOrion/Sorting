@@ -1,6 +1,6 @@
 #include "sort/MergeSort.h"
 
-MergeSort::MergeSort(std::vector<int>& arr) : Sort(arr) {}
+MergeSort::MergeSort(std::vector<int>& t_arr) : Sort(t_arr) {}
 
 void MergeSort::merge(int const left, int const mid, int const right)
 {
@@ -20,14 +20,14 @@ void MergeSort::merge(int const left, int const mid, int const right)
     while (indexOfSubArrayOne < subArrayOne && indexOfSubArrayTwo < subArrayTwo) {
         if (leftArray[indexOfSubArrayOne] <= rightArray[indexOfSubArrayTwo]) {
             elems[indexOfMergedArray] = leftArray[indexOfSubArrayOne];
-            this->first = indexOfMergedArray;
-            this->second = indexOfSubArrayOne + left;
+            m_first = indexOfMergedArray;
+            m_second = indexOfSubArrayOne + left;
             
             indexOfSubArrayOne++;
         } else {
             elems[indexOfMergedArray] = rightArray[indexOfSubArrayTwo];
-            this->first = indexOfMergedArray;
-            this->second = mid + indexOfSubArrayTwo + 1;
+            m_first = indexOfMergedArray;
+            m_second = mid + indexOfSubArrayTwo + 1;
             if (wantClose || wantStop)
                 return;
             indexOfSubArrayTwo++;
@@ -44,8 +44,8 @@ void MergeSort::merge(int const left, int const mid, int const right)
     // left[], if there are any
     while (indexOfSubArrayOne < subArrayOne) {
         elems[indexOfMergedArray] = leftArray[indexOfSubArrayOne];
-        this->first = indexOfMergedArray;
-        this->second = indexOfSubArrayOne + left;
+        m_first = indexOfMergedArray;
+        m_second = indexOfSubArrayOne + left;
 
         HIGH_RES_WAIT(1.f / Sort::speed);
         if (wantClose || wantStop) return;
@@ -58,8 +58,8 @@ void MergeSort::merge(int const left, int const mid, int const right)
     // right[], if there are any
     while (indexOfSubArrayTwo < subArrayTwo) {
         elems[indexOfMergedArray] = rightArray[indexOfSubArrayTwo];
-        this->first = indexOfMergedArray;
-        this->second = mid + indexOfSubArrayTwo + 1;
+        m_first = indexOfMergedArray;
+        m_second = mid + indexOfSubArrayTwo + 1;
 
         HIGH_RES_WAIT(1.f / Sort::speed);
         if (wantClose || wantStop) return;
@@ -69,15 +69,15 @@ void MergeSort::merge(int const left, int const mid, int const right)
     }
 }
  
-void MergeSort::_mergeSort(int const begin, int const end)
+void MergeSort::mergeSort(int const begin, int const end)
 {
     if (begin >= end)
         return;
  
     int mid = begin + (end - begin) / 2;
-    _mergeSort(begin, mid);
+    mergeSort(begin, mid);
     if (wantClose || wantStop) return;
-    _mergeSort(mid + 1, end);
+    mergeSort(mid + 1, end);
     if (wantClose || wantStop) return;
     merge(begin, mid, end);
     if (wantClose || wantStop) return;
@@ -91,7 +91,7 @@ void MergeSort::sort()
     int begin = 0;
     int end = elems.size() - 1;
 
-    _mergeSort(begin ,end);
+    mergeSort(begin ,end);
     if (wantClose || wantStop) return;
     isSorting = false;
     sorted = true;
