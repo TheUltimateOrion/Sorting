@@ -1,5 +1,8 @@
-#include "core/logging/Logging.h"
-#include "sound/Sound.h"
+#include "sound/sound_engine.h"
+
+#include <cmath>
+
+#include "core/logging/logging.h"
 
 SoundEngine::SoundEngine() : m_buf(0), m_src(0), m_samples(nullptr) {}
 
@@ -40,7 +43,7 @@ int SoundEngine::init()
     alcMakeContextCurrent(ctx);
 
     LOGINFO("Generating OpenAL sources");
-    alGenSources(1, &this->m_src);
+    alGenSources(1, &m_src);
 
     AL_CHECK_ERR(-1);
     return 0;
@@ -48,35 +51,35 @@ int SoundEngine::init()
 
 void SoundEngine::load(float t_ms, float t_freq) noexcept
 {
-    alGenBuffers(1, &this->m_buf);
+    alGenBuffers(1, &m_buf);
     AL_CHECK_ERR();
 
     /* Fill buffer with Sine-Wave */
     constexpr unsigned sample_rate = 22050;
     size_t buf_size = t_ms * sample_rate;
 
-    this->m_samples = new short[buf_size];
+    m_samples = new short[buf_size];
     
     for(size_t i = 0; i < buf_size; ++i) {
-        this->m_samples[i] = 32760 * sin((2.f * float(M_PI) * t_freq) / sample_rate * i);
+        m_samples[i] = 32760 * sin((2.f * float(M_PI) * t_freq) / sample_rate * i);
     }
 
     /* Download buffer to OpenAL */
-    alBufferData(this->m_buf, AL_FORMAT_MONO16, this->m_samples, buf_size, sample_rate);
+    alBufferData(m_buf, AL_FORMAT_MONO16, m_samples, buf_size, sample_rate);
     AL_CHECK_ERR();
 }
 
 void SoundEngine::play() noexcept
 {
-    alSourcei(this->m_src, AL_BUFFER, this->m_buf);
+    alSourcei(m_src, AL_BUFFER, m_buf);
     AL_CHECK_ERR();
 
     constexpr float gain = 0.1f;
 
-    alSourcef(this->m_src, AL_GAIN, gain);
+    alSourcef(m_src, AL_GAIN, gain);
     AL_CHECK_ERR();
 
-    alSourcePlay(this->m_src);
+    alSourcePlay(m_src);
     AL_CHECK_ERR();
     return;
 }
@@ -93,7 +96,7 @@ SoundEngine::~SoundEngine()
     alcDestroyContext(ctx);
     LOGINFO("Closing OpenAL device");
     alcCloseDevice(dev);
-    if (this->m_samples != nullptr) delete m_samples;
+    if (m_samples != nullptr) delete m_samples;
 }
 
-ALenum SoundEngine::alGetLastError() const noexcept { return this->m_err; }
+ALenum SoundEngine::alGetLastError() const noexcept { return m_err; }

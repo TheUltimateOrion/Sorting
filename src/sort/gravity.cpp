@@ -1,6 +1,11 @@
-#include "sort/GravitySort.h"
+#include "sort/distribution/gravity.h"
 
-GravitySort::GravitySort(std::vector<int>& t_arr) : Sort(t_arr) {}
+#include <numeric>
+#include <algorithm>
+
+#include "utils/common.h"
+
+GravitySort::GravitySort(std::vector<int>& t_arr) : BaseSort(t_arr) {}
 
 void GravitySort::sort()
 {
@@ -35,7 +40,7 @@ void GravitySort::sort()
             elems[i] = std::accumulate(abacus[i].begin(), abacus[i].end(), 0);
             m_first = i;
             m_second = i;
-            HIGH_RES_WAIT(1.f / Sort::speed);
+            HIGH_RES_WAIT(1.f / BaseSort::s_speed);
             if (wantClose || wantStop) return;
         }
     }

@@ -1,14 +1,19 @@
-#include "core/App.h"
-#include "core/logging/Logging.h"
-#include "sort/Sort.h"
-#include "sort/BubbleSort.h"
-#include "sound/Sound.h"
-#include "utils/CommonUtils.h"
+#include "core/app.h"
+
+#include <imgui/backend/imgui_impl_sdl3.h>
+#include <imgui/backend/imgui_impl_sdlrenderer3.h>
+
+#include "core/logging/logging.h"
+#include "sort/exchange/bubble.h"
+#include "sound/sound_engine.h"
+#include "utils/common.h"
+
+using namespace std::literals::chrono_literals;
 
 App::App() noexcept : currentElement(0), currentCategory(SortCategory::Exchange), currentDisplayType(DisplayType::Bar)
 {
-	this->categories = {"Exchange", "Distribution", "Insertion", "Merge", "Select"};
-    this->sortTypes = std::array<std::vector<const char*>, 5> {{
+	categories = {"Exchange", "Distribution", "Insertion", "Merge", "Select"};
+    sortTypes = std::array<std::vector<const char*>, 5> {{
         { "BubbleSort", "QuickSort", "CombSort" },
         { "RadixLSDSort", "PigeonHoleSort", "GravitySort", "BogoSort" },
         { "InsertionSort" },
@@ -16,27 +21,27 @@ App::App() noexcept : currentElement(0), currentCategory(SortCategory::Exchange)
         { "SelectionSort" }
     }};
 
-    this->displayTypes = {"Bar", "Dot", "Rainbow Rectangle", "Circle", "Circle Dot", "Disparity Circle", "Spiral", "Spiral Dot"};
+    displayTypes = {"Bar", "Dot", "Rainbow Rectangle", "Circle", "Circle Dot", "Disparity Circle", "Spiral", "Spiral Dot"};
 }
 
 App::~App()
 {   
     LOGINFO("Joining and Destroying Sorting Thread");
-    if (this->sortThread.has_value()) {
-        if (this->sortThread->joinable())
-            this->sortThread->join();
-        this->sortThread.reset();
+    if (sortThread.has_value()) {
+        if (sortThread->joinable())
+            sortThread->join();
+        sortThread.reset();
     }
 
     LOGINFO("Joining Audio Thread");
-    if (this->audioThread.has_value()) {
-        if (this->audioThread->joinable())
-            this->audioThread->join();
-        this->audioThread.reset();
+    if (m_audioThread.has_value()) {
+        if (m_audioThread->joinable())
+            m_audioThread->join();
+        m_audioThread.reset();
     }
 
     LOGINFO("Destroying font renderer");
-    if (this->font) TTF_CloseFont(this->font);
+    if (font) TTF_CloseFont(font);
     TTF_Quit();
 
     LOGINFO("Shutting down ImGui renderer");
@@ -49,10 +54,10 @@ App::~App()
     ImGui::DestroyContext();
 
     LOGINFO("Destroying SDL renderer");
-    if (this->renderer) SDL_DestroyRenderer(this->renderer);
+    if (renderer) SDL_DestroyRenderer(renderer);
 
     LOGINFO("Destroying SDL window");
-    if(this->window) SDL_DestroyWindow(this->window);
+    if(m_window) SDL_DestroyWindow(m_window);
 
     LOGINFO("Quitting...");
     SDL_Quit();
@@ -60,63 +65,28 @@ App::~App()
 
 }
 
-int App::initImGui()
-{
-    LOGINFO("Setting up ImGui context");
-    IMGUI_CHECKVERSION();
-    ImGuiContext* ctx = ImGui::CreateContext();
-    ImGui::SetCurrentContext(ctx);
-	
-    LOGINFO("Configuring ImGui io");
-	this->m_io = &configureIO();
-
-    LOGINFO("Setting ImGui styling");
-    ImGuiStyle& style = ImGui::GetStyle();
-	this->setStyle(style);
-        
-    LOGINFO("Setting up ImGui renderer");
-    if (!ImGui_ImplSDL3_InitForSDLRenderer(this->window, this->renderer)) return -1;
-
-    if (!ImGui_ImplSDLRenderer3_Init(this->renderer)) return -1;
-
-    return 0;
-}
 
 int App::init()
 {
     LOGINFO("Initializing App");
-    LOGINFO("Loading font");
-    if(this->loadFont() < 0)
+    
+    if (initSDL() < 0)
+    {
+        LOGERR("SDL could not be initialized");
+        return -1;
+    }
+    
+    if(initFont() < 0)
     {   
         LOGERR("Font not found");
         return -1;
     }
-    LOGINFO("Font loaded successfully");
 
-
-    LOGINFO("Initializing sound subsystem");
-    snd = SoundEngine::get();
-    if (snd->init() < 0)
+    if (initAudio() < 0)
     {
-        LOGERR("Sound could not be initialized");
-        AL_HANDLE_ERROR("Error initalizing", -1);
+        LOGERR("Audio could not be initialized");
+        return -1;
     }
-    LOGINFO("Initialized sound subsystem successfully");
-
-	// Window and Renderer Setups
-    {    
-        LOGINFO("Creating SDL Window");
-        this->window = SDL_CreateWindow("Sorting Algorithms", AppCtx::kWinWidth, AppCtx::kWinHeight, SDL_WINDOW_HIGH_PIXEL_DENSITY);
-        LOGINFO("Creating SDL renderer");
-        this->renderer = SDL_CreateRenderer(this->window, NULL);
-        LOGINFO("Setting render parameters");
-        SDL_SetRenderDrawColor(this->renderer, 0x0, 0x0, 0x0, 0x0);
-		SDL_SetRenderDrawBlendMode(this->renderer, SDL_BLENDMODE_BLEND);
-        LOGINFO("Clearing window");
-        SDL_RenderClear(this->renderer);
-    }
-    LOGINFO("Setting up GUI");
-    this->sortRenderer = std::make_unique<SortRenderer>();
 
 	if (initImGui() < 0)
     {
@@ -124,8 +94,90 @@ int App::init()
         
     }
 
+    LOGINFO("Creating SortView");
+    // Create the SortView instance
+    m_sortView = std::make_unique<SortView>();
     srand(time(NULL));
 	return 0;
+}
+
+int App::initSDL()
+{
+    LOGINFO("Initializing SDL");
+    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS))
+    {
+        LOGERR("Could not initialize SDL");
+        return -1;
+    }
+    LOGINFO("SDL initialized successfully");
+
+    LOGINFO("Creating SDL Window");
+
+    m_window = SDL_CreateWindow("Sorting Algorithms", AppCtx::kWinWidth, AppCtx::kWinHeight, SDL_WINDOW_HIGH_PIXEL_DENSITY);
+    LOGINFO("Creating SDL renderer");
+    renderer = SDL_CreateRenderer(m_window, NULL);
+    LOGINFO("Setting render parameters");
+    SDL_SetRenderDrawColor(renderer, 0x0, 0x0, 0x0, 0x0);
+	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    LOGINFO("Clearing window");
+    SDL_RenderClear(renderer);
+
+    return 0;
+}
+
+int App::initFont() 
+{
+    LOGINFO("Loading font");
+    TTF_Init();
+    std::string basePath{SDL_GetBasePath()};
+    constexpr const char* relPath = "/res/font.ttf";
+    font = TTF_OpenFont((basePath + relPath).c_str(), 12);
+
+    if (font == NULL)
+        return -1;
+    
+    LOGINFO("Font loaded successfully from " << (basePath + relPath));
+    return 0;
+}
+
+int App::initAudio()
+{
+    LOGINFO("Initializing audio subsystem");
+    m_soundEngine = SoundEngine::get();
+    if (m_soundEngine->init() < 0)
+    {
+        LOGERR("Sound could not be initialized");
+        if (m_soundEngine->alGetLastError() != AL_NO_ERROR) {
+            LOGERR("Error playing audio with code: " << m_soundEngine->alErrorString(m_soundEngine->alGetLastError()) << "(" << m_soundEngine->alGetLastError() << ")");
+            return -1;
+        }
+    }
+    LOGINFO("Audio subsystem initialized successfully");
+    return 0;
+}
+
+int App::initImGui()
+{
+    LOGINFO("Setting up GUI");
+
+    LOGINFO("Setting up ImGui context");
+    IMGUI_CHECKVERSION();
+    ImGuiContext* ctx = ImGui::CreateContext();
+    ImGui::SetCurrentContext(ctx);
+	
+    LOGINFO("Configuring ImGui io");
+	m_io = &configureIO();
+
+    LOGINFO("Setting ImGui styling");
+    ImGuiStyle& style = ImGui::GetStyle();
+	setStyle(style);
+        
+    LOGINFO("Setting up ImGui renderer");
+    if (!ImGui_ImplSDL3_InitForSDLRenderer(m_window, renderer)) return -1;
+
+    if (!ImGui_ImplSDLRenderer3_Init(renderer)) return -1;
+
+    return 0;
 }
 
 void App::run()
@@ -138,13 +190,30 @@ void App::run()
         data[index] = index + 1;
 
     LOGINFO("Initializing sorter");
-    this->sorter = std::make_shared<BubbleSort>(data);
+    sorter = std::make_shared<BubbleSort>(data);
 
     LOGINFO("Creating audio thread");
 
-    this->audioThread = std::make_optional<std::thread>([this]()
+    startAudioThread();
+
+    LOGINFO("Starting main loop");
+    SDL_PollEvent(&event);
+
+    while(1)
     {
-        while(!this->sorter->wantClose) {
+        m_sortView->update();
+        if (event.type == SDL_EVENT_QUIT || sorter->wantClose) {
+            LOGINFO("Exit signal recieved");
+            break;
+        }
+    }
+}
+
+void App::startAudioThread()
+{
+    m_audioThread = std::make_optional<std::thread>([this]()
+    {
+        while(!sorter->wantClose) {
             constexpr float sec = 0.04f;
             constexpr int base = 100;
             constexpr int min = 100;
@@ -152,48 +221,33 @@ void App::run()
 
             int freq = 0;
             {
-                std::lock_guard<std::mutex> lock(this->m_mutex);
+                std::lock_guard<std::mutex> lock(m_mutex);
 
-                if (this->data.empty() || this->currentElement.load() >= this->data.size()) {
+                if (data.empty() || currentElement.load() >= data.size()) {
                     std::this_thread::sleep_for(100ms);
                     continue;  // skip this iteration;
                 }
 
-                freq = this->data[this->currentElement] * (AppCtx::kWinHeight / static_cast<float>(this->data.size())) + base;
+                freq = data[currentElement] * (AppCtx::kWinHeight / static_cast<float>(data.size())) + base;
             }
             freq = std::clamp(freq, min, max);
-            if (this->sorter->isSorting || this->sorter->isShuffling){
-                snd->load(sec, freq);
-                AL_HANDLE_ERROR("Error loading audio", );
-                snd->play();
-                AL_HANDLE_ERROR("Error playing audio", );
+            if (sorter->isSorting || sorter->isShuffling){
+                m_soundEngine->load(sec, freq);
+                if (m_soundEngine->alGetLastError() != AL_NO_ERROR) {
+                    LOGERR("Error loading audio with code: " << m_soundEngine->alErrorString(m_soundEngine->alGetLastError()) << "(" << m_soundEngine->alGetLastError() << ")");
+                    return;
+                }
+
+                m_soundEngine->play();
+                if (m_soundEngine->alGetLastError() != AL_NO_ERROR) {
+                    LOGERR("Error playing audio with code: " << m_soundEngine->alErrorString(m_soundEngine->alGetLastError()) << "(" << m_soundEngine->alGetLastError() << ")");
+                    return;
+                }
+
                 std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(sec * 1000)));
             }
         }
     });
-
-    LOGINFO("Starting main loop");
-    SDL_PollEvent(&this->event);
-
-    while(1)
-    {
-        this->sortRenderer->update();
-        if (this->event.type == SDL_EVENT_QUIT || this->sorter->wantClose) {
-            LOGINFO("Exit signal recieved");
-            break;
-        }
-    }
-}
-
-int App::loadFont() {
-    TTF_Init();
-    std::string basePath{SDL_GetBasePath()};
-    constexpr const char* relPath = "/res/font.ttf";
-    font = TTF_OpenFont((basePath + relPath).c_str(), 12);
-    if (font == NULL) {
-        return -1;
-    }
-    return 0;
 }
 
 void App::setStyle(ImGuiStyle& t_style) const noexcept
@@ -267,5 +321,5 @@ ImGuiIO& App::configureIO() noexcept
 }
 
 float App::getFramerate() const {
-    return this->m_io->Framerate;
+    return m_io->Framerate;
 }

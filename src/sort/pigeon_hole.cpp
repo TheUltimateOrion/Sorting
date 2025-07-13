@@ -1,6 +1,12 @@
-#include "sort/PigeonHoleSort.h"
+#include "sort/distribution/pigeon_hole.h"
 
-PigeonHoleSort::PigeonHoleSort(std::vector<int>& t_arr) : Sort(t_arr) {}
+#ifndef TESTING
+#include "renderer/sort_view.h"
+#endif
+
+#include "utils/common.h"
+
+PigeonHoleSort::PigeonHoleSort(std::vector<int>& t_arr) : BaseSort(t_arr) {}
 
 void PigeonHoleSort::sort()
 {
@@ -19,7 +25,7 @@ void PigeonHoleSort::sort()
             
         m_first = i;
         m_second = m_first.load();
-        HIGH_RES_WAIT(1.f / Sort::speed);
+        HIGH_RES_WAIT(1.f / BaseSort::s_speed);
         if (wantClose || wantStop) return;
 
         comparisions += 2;
@@ -36,7 +42,7 @@ void PigeonHoleSort::sort()
             elems[index] = val;
             m_first = index;
             m_second = i;
-            HIGH_RES_WAIT(1.f / Sort::speed);
+            HIGH_RES_WAIT(1.f / BaseSort::s_speed);
             if (wantClose || wantStop) return;
             index++;
         }

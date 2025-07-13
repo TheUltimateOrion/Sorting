@@ -1,6 +1,12 @@
-#include "sort/MergeSort.h"
+#include "sort/merge/merge.h"
 
-MergeSort::MergeSort(std::vector<int>& t_arr) : Sort(t_arr) {}
+#ifndef TESTING
+#include "renderer/sort_view.h"
+#endif
+
+#include "utils/common.h"
+
+MergeSort::MergeSort(std::vector<int>& t_arr) : BaseSort(t_arr) {}
 
 void MergeSort::merge(int const left, int const mid, int const right)
 {
@@ -33,7 +39,7 @@ void MergeSort::merge(int const left, int const mid, int const right)
             indexOfSubArrayTwo++;
         }
             
-        HIGH_RES_WAIT(1.f / Sort::speed);
+        HIGH_RES_WAIT(1.f / BaseSort::s_speed);
         if (wantClose || wantStop) return;
 
         comparisions++;
@@ -47,7 +53,7 @@ void MergeSort::merge(int const left, int const mid, int const right)
         m_first = indexOfMergedArray;
         m_second = indexOfSubArrayOne + left;
 
-        HIGH_RES_WAIT(1.f / Sort::speed);
+        HIGH_RES_WAIT(1.f / BaseSort::s_speed);
         if (wantClose || wantStop) return;
 
         indexOfSubArrayOne++;
@@ -61,7 +67,7 @@ void MergeSort::merge(int const left, int const mid, int const right)
         m_first = indexOfMergedArray;
         m_second = mid + indexOfSubArrayTwo + 1;
 
-        HIGH_RES_WAIT(1.f / Sort::speed);
+        HIGH_RES_WAIT(1.f / BaseSort::s_speed);
         if (wantClose || wantStop) return;
         
         indexOfSubArrayTwo++;

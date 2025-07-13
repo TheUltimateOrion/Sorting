@@ -1,24 +1,32 @@
-#include "sort/Sort.h"
-#include "core/logging/Logging.h"
-#include "utils/CommonUtils.h"
+#include "sort/base.h"
+
+#include <thread>
+#include <random>
+
+#include "core/app.h"
+#include "core/app_ctx.h"
+#include "core/logging/logging.h"
+#include "utils/common.h"
 
 #ifndef TESTING
-#include "renderer/Renderer.h"
+#include "renderer/sort_view.h"
 #endif
 
-float Sort::speed = 1.0f;
-int Sort::length = 512;
+using namespace std::literals::chrono_literals;
 
-Sort::Sort(std::vector<int>& t_arr) : m_first(0), m_second(0), elems(t_arr), sorted(true), isSorting(false), isShuffling(false), wantClose(false), wantStop(false), startTime(0) {}
+float BaseSort::s_speed = 1.0f;
+int BaseSort::s_length = 512;
 
-void Sort::reverse()
+BaseSort::BaseSort(std::vector<int>& t_arr, bool t_isRadix) : m_isRadix(t_isRadix), m_first(0), m_second(0), elems(t_arr), sorted(true), isSorting(false), isShuffling(false), wantClose(false), wantStop(false), startTime(0) {}
+
+void BaseSort::reverse()
 {
     LOGINFO("Reversing");
 
-    this->isShuffling = true;
-    this->wantStop = false;
-    this->swaps = 0;
-    this->comparisions = 0;
+    isShuffling = true;
+    wantStop = false;
+    swaps = 0;
+    comparisions = 0;
 
     std::vector<int> temp(elems.size());
 
@@ -43,19 +51,19 @@ void Sort::reverse()
     std::this_thread::sleep_for(500ms);
 
     sorted = false;
-    this->isShuffling = false;
-    this->startTime = AppCtx::getTimestamp();
-    this->lastTime = this->lastTime;
+    isShuffling = false;
+    startTime = AppCtx::getTimestamp();
+    lastTime = lastTime;
 }
 
-void Sort::shuffle()
+void BaseSort::shuffle()
 {
     LOGINFO("Shuffling");
 
-    this->isShuffling = true;
-    this->wantStop = false;
-    this->swaps = 0;
-    this->comparisions = 0;
+    isShuffling = true;
+    wantStop = false;
+    swaps = 0;
+    comparisions = 0;
 
     std::vector<int> temp(elems.size());
 
@@ -83,11 +91,11 @@ void Sort::shuffle()
     isShuffling = false;
 
     std::this_thread::sleep_for(500ms);
-    this->startTime = AppCtx::getTimestamp();
-    this->lastTime = this->startTime;
+    startTime = AppCtx::getTimestamp();
+    lastTime = startTime;
 }
 
-void Sort::swap(std::vector<int>& array, size_t a, size_t b)
+void BaseSort::swap(std::vector<int>& array, size_t a, size_t b)
 {
     m_first = a;
     m_second = b;
@@ -101,12 +109,12 @@ void Sort::swap(std::vector<int>& array, size_t a, size_t b)
         std::swap(array[a], array[b]);
     }
     
-    HIGH_RES_WAIT(1.f / Sort::speed);
+    HIGH_RES_WAIT(1.f / BaseSort::s_speed);
 
     swaps++;
 }
 
-void Sort::setLength(unsigned int len)
+void BaseSort::setLength(unsigned int len)
 {
     LOGINFO("Resizing to " << len);
     elems.resize(len);

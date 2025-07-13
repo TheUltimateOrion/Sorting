@@ -1,19 +1,13 @@
 #pragma once
-#include "../core/App.h"
+
+#include <AL/al.h>
+#include <AL/alc.h>
 
 #ifndef AL_CHECK_ERR
 #define AL_CHECK_ERR(ret) \
     if (alGetError() != AL_NO_ERROR) {\
         this->m_err = alGetError();\
         return ret; \
-    }
-#endif
-
-#ifndef AL_HANDLE_ERROR
-#define AL_HANDLE_ERROR(str, ret)\
-    if (snd->alGetLastError() != AL_NO_ERROR) {\
-        std::cerr << str << " with code: " << snd->alErrorString(snd->alGetLastError()) << "(" << snd->alGetLastError() << ")" << std::endl;\
-        return ret;\
     }
 #endif
 

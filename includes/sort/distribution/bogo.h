@@ -1,11 +1,7 @@
 #pragma once
-#include "Sort.h"
+#include "sort/base.h"
 
-#ifndef TESTING
-#include "../renderer/Renderer.h"
-#endif
-
-class BogoSort : virtual public Sort
+class BogoSort : virtual public BaseSort
 {
 private:
     bool isSorted();

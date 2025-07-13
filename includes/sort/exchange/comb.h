@@ -1,11 +1,7 @@
 #pragma once
-#include "Sort.h"
+#include "sort/base.h"
 
-#ifndef TESTING
-#include "../renderer/Renderer.h"
-#endif
-
-class CombSort : virtual public Sort
+class CombSort : virtual public BaseSort
 {
 private:
     int getNextGap(int t_gap);

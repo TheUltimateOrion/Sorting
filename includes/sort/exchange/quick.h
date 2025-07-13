@@ -1,11 +1,7 @@
 #pragma once
-#include "Sort.h"
+#include "sort/base.h"
 
-#ifndef TESTING
-#include "../renderer/Renderer.h"
-#endif
-
-class QuickSort : virtual public Sort
+class QuickSort : virtual public BaseSort
 {
 private:
     int partition(int t_low, int t_high);

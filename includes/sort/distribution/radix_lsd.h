@@ -1,11 +1,7 @@
 #pragma once
-#include "Sort.h"
+#include "sort/base.h"
 
-#ifndef TESTING
-#include "../renderer/Renderer.h"
-#endif
-
-class RadixLSDSort : virtual public Sort
+class RadixLSDSort : virtual public BaseSort
 {
 private:
     int m_radix;

@@ -1,6 +1,12 @@
-#include "sort/BogoSort.h"
+#include "sort/distribution/bogo.h"
 
-BogoSort::BogoSort(std::vector<int>& t_arr) : Sort(t_arr) {}
+#include <random>
+
+#ifndef TESTING
+#include "renderer/sort_view.h"
+#endif
+
+BogoSort::BogoSort(std::vector<int>& t_arr) : BaseSort(t_arr) {}
 
 bool BogoSort::isSorted()
 {

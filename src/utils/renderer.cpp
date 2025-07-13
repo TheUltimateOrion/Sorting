@@ -1,6 +1,6 @@
-#include "utils/RenderUtils.h"
+#include "utils/renderer.h"
 
-namespace Utils {
+namespace utils {
     SDL_Color hsvToRgb(unsigned char t_hue, unsigned char t_saturation, unsigned char t_value) noexcept {
         SDL_Color rgb;
         unsigned char region, remainder, p, q, t;

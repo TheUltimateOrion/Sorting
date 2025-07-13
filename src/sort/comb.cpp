@@ -1,6 +1,10 @@
-#include "sort/CombSort.h"
+#include "sort/exchange/comb.h"
 
-CombSort::CombSort(std::vector<int>& t_arr) : Sort(t_arr) {}
+#ifndef TESTING
+#include "renderer/sort_view.h"
+#endif
+
+CombSort::CombSort(std::vector<int>& t_arr) : BaseSort(t_arr) {}
 
 int CombSort::getNextGap(int t_gap)
 {

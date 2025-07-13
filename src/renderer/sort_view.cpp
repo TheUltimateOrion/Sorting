@@ -1,25 +1,23 @@
-#include "core/App.h"
-#include "core/AppCtx.h"
-#include "core/logging/Logging.h"
-#include "renderer/DisplayType.h"
-#include "renderer/Renderer.h"
-#include "sort/BubbleSort.h"
-#include "sort/SelectionSort.h"
-#include "sort/GravitySort.h"
-#include "sort/PigeonHoleSort.h"
-#include "sort/InsertionSort.h"
-#include "sort/QuickSort.h"
-#include "sort/RadixLSDSort.h"
-#include "sort/CombSort.h"
-#include "sort/BogoSort.h"
-#include "sort/MergeSort.h"
-#include "sort/SortCategories.h"
-#include "utils/CommonUtils.h"
-#include "utils/RenderUtils.h"
 
-SortRenderer::SortRenderer() : m_isColored(false) {}
+#include "renderer/sort_view.h"
 
-void SortRenderer::renderText(const std::string& t_txt, float t_x, float t_y, SDL_Color t_col) const noexcept
+#include <imgui/backend/imgui_impl_sdl3.h>
+#include <imgui/backend/imgui_impl_sdlrenderer3.h>
+
+#include "core/app.h"
+#include "core/app_ctx.h"
+#include "core/logging/logging.h"
+#include "renderer/disp_type.h"
+#include "sort/category.h"
+#include "sort/sort.h"
+#include "utils/common.h"
+#include "utils/renderer.h"
+
+using namespace std::literals::chrono_literals;
+
+SortView::SortView() : m_isColored(false), m_radix(2), m_reversed(false) {}
+
+void SortView::renderText(const std::string& t_txt, float t_x, float t_y, SDL_Color t_col) const noexcept
 {
     
     SDL_Surface* textSurface = TTF_RenderText_Solid(AppCtx::g_app->font, t_txt.c_str(), 0, t_col); // SDL_Surface* textSurface = TTF_RenderText_Solid(AppCtx::g_app->font, txt.c_str(), color);
@@ -32,7 +30,7 @@ void SortRenderer::renderText(const std::string& t_txt, float t_x, float t_y, SD
     SDL_DestroyTexture(text);
 }
 
-void SortRenderer::renderInfo() const noexcept
+void SortView::renderInfo() const noexcept
 {
     Uint8 _r, _g, _b, _a; SDL_GetRenderDrawColor(AppCtx::g_app->renderer, &_r, &_g, &_b, &_a);
     SDL_FRect rect = {0.0f, 0.0f, 230.0f, 125.0f};
@@ -46,7 +44,7 @@ void SortRenderer::renderInfo() const noexcept
         textColor = { 0xFF, 0xFF, 0xFF, 0 };
     
     renderText("TIME: " + std::to_string(AppCtx::g_app->sorter->lastTime) + 's', 10.0f, 10.0f, textColor);
-    renderText(std::string("Sort: ") + AppCtx::g_app->sortTypes[AppCtx::g_app->currentCategory][AppCtx::g_app->current_item], 10, 30, { 0xFF, 0xFF, 0xFF, 0 });
+    renderText(std::string("Sort: ") + AppCtx::g_app->sortTypes[AppCtx::g_app->currentCategory][AppCtx::g_app->currentItemIndex], 10, 30, { 0xFF, 0xFF, 0xFF, 0 });
 
     renderText("Swaps: " + std::to_string(AppCtx::g_app->sorter->swaps), 10.0f, 50.0f, { 0xFF, 0xFF, 0xFF, 0 });
     renderText("Comparisions: " + std::to_string(AppCtx::g_app->sorter->comparisions), 10.0f, 70.0f, { 0xFF, 0xFF, 0xFF, 0 });
@@ -60,7 +58,7 @@ void SortRenderer::renderInfo() const noexcept
     SDL_SetRenderDrawColor(AppCtx::g_app->renderer, _r, _g, _b, _a);
 }
 
-void SortRenderer::drawElement(size_t k, const RenderParams& t_params) noexcept {
+void SortView::drawElement(size_t k, const RenderParams& t_params) noexcept {
     if (k >= m_elems.size()) return;
 
     switch (AppCtx::g_app->currentDisplayType) {
@@ -93,13 +91,13 @@ void SortRenderer::drawElement(size_t k, const RenderParams& t_params) noexcept 
             };
 
             vertices[1] = {
-                {0.5f * AppCtx::kWinWidth + t_params.circleRadius * cosf(t_params.degreesPerIndex * Utils::kRadiansPerDegree * k), 0.5f * AppCtx::kWinHeight + t_params.circleRadius * sinf(t_params.degreesPerIndex * Utils::kRadiansPerDegree * k)}, /* second point location */ 
+                {0.5f * AppCtx::kWinWidth + t_params.circleRadius * cosf(t_params.degreesPerIndex * utils::kRadiansPerDegree * k), 0.5f * AppCtx::kWinHeight + t_params.circleRadius * sinf(t_params.degreesPerIndex * utils::kRadiansPerDegree * k)}, /* second point location */ 
                 { r, g, b, 0xFF }, /* second color */
                 { 0.f, 0.f }
             };
 
             vertices[2] = {
-                {0.5f * AppCtx::kWinWidth + t_params.circleRadius * cosf(t_params.degreesPerIndex * Utils::kRadiansPerDegree * (k + 1)), 0.5f * AppCtx::kWinHeight + t_params.circleRadius * sinf(t_params.degreesPerIndex * Utils::kRadiansPerDegree * (k + 1))}, /* third point location */ 
+                {0.5f * AppCtx::kWinWidth + t_params.circleRadius * cosf(t_params.degreesPerIndex * utils::kRadiansPerDegree * (k + 1)), 0.5f * AppCtx::kWinHeight + t_params.circleRadius * sinf(t_params.degreesPerIndex * utils::kRadiansPerDegree * (k + 1))}, /* third point location */ 
                 { r, g, b, 0xFF }, /* third color */
                 { 0.f, 0.f }
             };
@@ -113,18 +111,18 @@ void SortRenderer::drawElement(size_t k, const RenderParams& t_params) noexcept 
         case DisplayType::CircleDot: {
             SDL_RenderPoint(
                 AppCtx::g_app->renderer, 
-                0.5f * AppCtx::kWinWidth + t_params.circleRadius * cosf(t_params.degreesPerIndex * Utils::kRadiansPerDegree * k), 
-                0.5f * AppCtx::kWinHeight + t_params.circleRadius * sinf(t_params.degreesPerIndex * Utils::kRadiansPerDegree * k)
+                0.5f * AppCtx::kWinWidth + t_params.circleRadius * cosf(t_params.degreesPerIndex * utils::kRadiansPerDegree * k), 
+                0.5f * AppCtx::kWinHeight + t_params.circleRadius * sinf(t_params.degreesPerIndex * utils::kRadiansPerDegree * k)
             );
         } break;
 
         case DisplayType::DisparityCircle: {
             SDL_RenderLine(
                 AppCtx::g_app->renderer, 
-                0.5f * AppCtx::kWinWidth + t_params.circleRadius * cosf(t_params.degreesPerIndex * Utils::kRadiansPerDegree * m_elems[k]), 
-                0.5f * AppCtx::kWinHeight + t_params.circleRadius * sinf(t_params.degreesPerIndex * Utils::kRadiansPerDegree * m_elems[k]), 
-                0.5f * AppCtx::kWinWidth + t_params.circleRadius * cosf(t_params.degreesPerIndex * Utils::kRadiansPerDegree * (k + 1)), 
-                0.5f * AppCtx::kWinHeight + t_params.circleRadius * sinf(t_params.degreesPerIndex * Utils::kRadiansPerDegree * (k + 1))
+                0.5f * AppCtx::kWinWidth + t_params.circleRadius * cosf(t_params.degreesPerIndex * utils::kRadiansPerDegree * m_elems[k]), 
+                0.5f * AppCtx::kWinHeight + t_params.circleRadius * sinf(t_params.degreesPerIndex * utils::kRadiansPerDegree * m_elems[k]), 
+                0.5f * AppCtx::kWinWidth + t_params.circleRadius * cosf(t_params.degreesPerIndex * utils::kRadiansPerDegree * (k + 1)), 
+                0.5f * AppCtx::kWinHeight + t_params.circleRadius * sinf(t_params.degreesPerIndex * utils::kRadiansPerDegree * (k + 1))
             );
         } break;
 
@@ -141,13 +139,13 @@ void SortRenderer::drawElement(size_t k, const RenderParams& t_params) noexcept 
             };
 
             vertices[1] = {
-                {0.5f * AppCtx::kWinWidth + t_params.spiralScale * m_elems[k] * cosf(t_params.degreesPerIndex * Utils::kRadiansPerDegree * k), 0.5f * AppCtx::kWinHeight + t_params.spiralScale * m_elems[k] * sinf(t_params.degreesPerIndex * Utils::kRadiansPerDegree * k)}, /* second point location */ 
+                {0.5f * AppCtx::kWinWidth + t_params.spiralScale * m_elems[k] * cosf(t_params.degreesPerIndex * utils::kRadiansPerDegree * k), 0.5f * AppCtx::kWinHeight + t_params.spiralScale * m_elems[k] * sinf(t_params.degreesPerIndex * utils::kRadiansPerDegree * k)}, /* second point location */ 
                 { r, g, b, 0xFF }, /* second color */
                 { 0.f, 0.f }
             };
 
             vertices[2] = {
-                {0.5f * AppCtx::kWinWidth + t_params.spiralScale * m_elems[k] * cosf(t_params.degreesPerIndex * Utils::kRadiansPerDegree * (k + 1)), 0.5f * AppCtx::kWinHeight + t_params.spiralScale * m_elems[k] * sinf(t_params.degreesPerIndex * Utils::kRadiansPerDegree * (k + 1))}, /* third point location */ 
+                {0.5f * AppCtx::kWinWidth + t_params.spiralScale * m_elems[k] * cosf(t_params.degreesPerIndex * utils::kRadiansPerDegree * (k + 1)), 0.5f * AppCtx::kWinHeight + t_params.spiralScale * m_elems[k] * sinf(t_params.degreesPerIndex * utils::kRadiansPerDegree * (k + 1))}, /* third point location */ 
                 { r, g, b, 0xFF }, /* third color */
                 { 0.f, 0.f }
             };
@@ -158,14 +156,14 @@ void SortRenderer::drawElement(size_t k, const RenderParams& t_params) noexcept 
         case DisplayType::SpiralDot: {
             SDL_RenderPoint(
                 AppCtx::g_app->renderer, 
-                0.5f * AppCtx::kWinWidth + t_params.spiralScale * m_elems[k] * cos(t_params.degreesPerIndex * Utils::kRadiansPerDegree * k), 
-                0.5f * AppCtx::kWinHeight + t_params.spiralScale * m_elems[k] * sin(t_params.degreesPerIndex * Utils::kRadiansPerDegree * k)
+                0.5f * AppCtx::kWinWidth + t_params.spiralScale * m_elems[k] * cos(t_params.degreesPerIndex * utils::kRadiansPerDegree * k), 
+                0.5f * AppCtx::kWinHeight + t_params.spiralScale * m_elems[k] * sin(t_params.degreesPerIndex * utils::kRadiansPerDegree * k)
             ); 
         } break;
     }
 }
 
-void SortRenderer::update() noexcept
+void SortView::update() noexcept
 {
     SDL_SetRenderDrawColor(AppCtx::g_app->renderer, 0x0, 0x0, 0x0, 0x0);
     SDL_RenderClear(AppCtx::g_app->renderer);
@@ -186,7 +184,7 @@ void SortRenderer::update() noexcept
 
     for (size_t k = 0; k < m_elems.size(); ++k)
     {
-        SDL_Color sortColor = Utils::hsvToRgb(m_elems[k] * 0xFF / m_elems.size(), 0xFF, 0xFF);
+        SDL_Color sortColor = utils::hsvToRgb(m_elems[k] * 0xFF / m_elems.size(), 0xFF, 0xFF);
 
         if (k == AppCtx::g_app->sorter->getFirst() || k == AppCtx::g_app->sorter->getSecond())
             SDL_SetRenderDrawColor(AppCtx::g_app->renderer, 0xFF, 0x0, 0x0, 0xFF);
@@ -227,7 +225,7 @@ void SortRenderer::update() noexcept
     
 }
 
-int SortRenderer::renderGUI() noexcept
+int SortView::renderGUI() noexcept
 {
     static bool s_open = true;
 
@@ -262,15 +260,15 @@ int SortRenderer::renderGUI() noexcept
             ImGui::EndCombo();
         }
 
-        if(AppCtx::g_app->current_item >= AppCtx::g_app->sortTypes[AppCtx::g_app->currentCategory].size()) AppCtx::g_app->current_item = 0;
+        if(AppCtx::g_app->currentItemIndex >= AppCtx::g_app->sortTypes[AppCtx::g_app->currentCategory].size()) AppCtx::g_app->currentItemIndex = 0;
 
-        if (ImGui::BeginCombo("##combo2", AppCtx::g_app->sortTypes[AppCtx::g_app->currentCategory][AppCtx::g_app->current_item])) // The second parameter is the label previewed before opening the combo.
+        if (ImGui::BeginCombo("##combo2", AppCtx::g_app->sortTypes[AppCtx::g_app->currentCategory][AppCtx::g_app->currentItemIndex])) // The second parameter is the label previewed before opening the combo.
         {
             for (size_t n = 0; n < AppCtx::g_app->sortTypes[AppCtx::g_app->currentCategory].size(); ++n)
             {
-                bool isSelected = (AppCtx::g_app->sortTypes[AppCtx::g_app->currentCategory][AppCtx::g_app->current_item] == AppCtx::g_app->sortTypes[AppCtx::g_app->currentCategory][n]); // You can store your selection however you want, outside or inside your objects
+                bool isSelected = (AppCtx::g_app->sortTypes[AppCtx::g_app->currentCategory][AppCtx::g_app->currentItemIndex] == AppCtx::g_app->sortTypes[AppCtx::g_app->currentCategory][n]); // You can store your selection however you want, outside or inside your objects
                 if (ImGui::Selectable(AppCtx::g_app->sortTypes[AppCtx::g_app->currentCategory][n], isSelected))
-                    AppCtx::g_app->current_item = n;
+                    AppCtx::g_app->currentItemIndex = n;
                 if (isSelected)
                     ImGui::SetItemDefaultFocus();   // You may set the initial focus when opening the combo (scrolling + for keyboard navigation support)
             }
@@ -301,14 +299,14 @@ int SortRenderer::renderGUI() noexcept
         ImGui::SeparatorText("Variables");
         ImGui::Spacing();
 
-        ImGui::InputFloat("Set Speed", &Sort::speed, 0.001f);
-        Sort::speed = std::clamp(Sort::speed, 0.001f, 1000.f);
+        ImGui::InputFloat("Set Speed", &BaseSort::s_speed, 0.001f);
+        BaseSort::s_speed = std::clamp(BaseSort::s_speed, 0.001f, 1000.f);
 
-        ImGui::InputInt("Set Array Length", &Sort::length, 2);
-        Sort::length = std::clamp(Sort::length, 2, 1024*10);
+        ImGui::InputInt("Set Array Length", &BaseSort::s_length, 2);
+        BaseSort::s_length = std::clamp(BaseSort::s_length, 2, 1024*10);
 
-        if (AppCtx::g_app->currentCategory == 1 && AppCtx::g_app->current_item == 0)
-            ImGui::SliderInt("Set Buckets/Radix", &AppCtx::g_app->setRadix, 2, 10, "%d");
+        if (AppCtx::g_app->currentCategory == 1 && AppCtx::g_app->currentItemIndex == 0)
+            ImGui::SliderInt("Set Buckets/Radix", &m_radix, 2, 10, "%d");
 
         ImGui::Spacing();
         if (!(AppCtx::g_app->sorter->isSorting) && !(AppCtx::g_app->sorter->isShuffling))
@@ -318,7 +316,7 @@ int SortRenderer::renderGUI() noexcept
                 switch(AppCtx::g_app->currentCategory)
                 {
                     case SortCategory::Exchange: {
-                        switch(AppCtx::g_app->current_item)
+                        switch(AppCtx::g_app->currentItemIndex)
                         {
                             SORTCASE(0, BubbleSort);
                             SORTCASE(1, QuickSort);
@@ -326,7 +324,7 @@ int SortRenderer::renderGUI() noexcept
                         }
                     } break;
                     case SortCategory::Distribution: {
-                        switch(AppCtx::g_app->current_item)
+                        switch(AppCtx::g_app->currentItemIndex)
                         {
                             SORTCASERADIX(0, RadixLSDSort);
                             SORTCASE(1, PigeonHoleSort);
@@ -336,17 +334,17 @@ int SortRenderer::renderGUI() noexcept
                     } break;
                     
                     case SortCategory::Insertion: {
-                        switch(AppCtx::g_app->current_item) {
+                        switch(AppCtx::g_app->currentItemIndex) {
                             SORTCASE(0, InsertionSort);
                         }
                     } break;
                     case SortCategory::Merge: {
-                        switch(AppCtx::g_app->current_item) {
+                        switch(AppCtx::g_app->currentItemIndex) {
                             SORTCASE(0, MergeSort);
                         }
                     } break;
                     case SortCategory::Select: {
-                        switch(AppCtx::g_app->current_item) {
+                        switch(AppCtx::g_app->currentItemIndex) {
                             SORTCASE(0, SelectionSort);
                         }
                     } break;   
@@ -366,7 +364,7 @@ int SortRenderer::renderGUI() noexcept
             }
         }
         ImGui::SameLine();
-        ImGui::Checkbox("Reverse instead of Shuffling", &AppCtx::g_app->reverse);
+        ImGui::Checkbox("Reverse instead of Shuffling", &m_reversed);
         ImGui::End();
     }
     
@@ -382,7 +380,7 @@ int SortRenderer::renderGUI() noexcept
 
         AppCtx::g_app->sortThread = std::make_optional<std::thread>([&]() {
             shouldSort = false;
-            if(!AppCtx::g_app->reverse)
+            if(!m_reversed)
                 AppCtx::g_app->sorter->shuffle();
             else
                 AppCtx::g_app->sorter->reverse();

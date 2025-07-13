@@ -1,7 +1,12 @@
-#include "sort/SelectionSort.h"
+#include "sort/selection/selection.h"
 
+#ifndef TESTING
+#include "renderer/sort_view.h"
+#endif
 
-SelectionSort::SelectionSort(std::vector<int>& t_arr) : Sort(t_arr) {}
+#include "utils/common.h"
+
+SelectionSort::SelectionSort(std::vector<int>& t_arr) : BaseSort(t_arr) {}
 
 void SelectionSort::sort()
 {
@@ -20,7 +25,7 @@ void SelectionSort::sort()
             if (elems[j] < elems[min])
                 min = j;
 
-            HIGH_RES_WAIT(1.f / Sort::speed);
+            HIGH_RES_WAIT(1.f / BaseSort::s_speed);
             if (wantClose || wantStop) return;
 
         }

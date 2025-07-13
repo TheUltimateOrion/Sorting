@@ -1,6 +1,12 @@
-#include "sort/InsertionSort.h"
+#include "sort/insertion/insertion.h"
 
-InsertionSort::InsertionSort(std::vector<int>& t_arr) : Sort(t_arr) {}
+#ifndef TESTING
+#include "renderer/sort_view.h"
+#endif
+
+#include "utils/common.h"
+
+InsertionSort::InsertionSort(std::vector<int>& t_arr) : BaseSort(t_arr) {}
 
 void InsertionSort::sort()
 {
@@ -15,7 +21,7 @@ void InsertionSort::sort()
             elems[j] = elems[j - 1];
             m_first = j;
             m_second = j - 1;
-            HIGH_RES_WAIT(1.f / Sort::speed);
+            HIGH_RES_WAIT(1.f / BaseSort::s_speed);
             if (wantClose || wantStop) return;
             --j;
         }
@@ -23,7 +29,7 @@ void InsertionSort::sort()
         elems[j] = temp;
         m_first = j;
         m_second = i;
-        HIGH_RES_WAIT(1.f / Sort::speed);
+        HIGH_RES_WAIT(1.f / BaseSort::s_speed);
         if (wantClose || wantStop) return;
     }
     isSorting = false;

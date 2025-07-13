@@ -1,6 +1,12 @@
-#include "sort/RadixLSDSort.h"
+#include "sort/distribution/radix_lsd.h"
 
-RadixLSDSort::RadixLSDSort(std::vector<int>& t_arr, int t_radix) : Sort(t_arr), m_radix(t_radix) {}
+#ifndef TESTING
+#include "renderer/sort_view.h"
+#endif
+
+#include "utils/common.h"
+
+RadixLSDSort::RadixLSDSort(std::vector<int>& t_arr, int t_radix) : BaseSort(t_arr, true), m_radix(t_radix) {}
 
 void RadixLSDSort::countSortByDigits(int exponent, int minValue)
 {
@@ -38,7 +44,7 @@ void RadixLSDSort::countSortByDigits(int exponent, int minValue)
 		m_first = i;
         m_second = ((output[i] - minValue) / exponent) % m_radix;
 		// m_second = bucketIndex;
-        HIGH_RES_WAIT(1.f / Sort::speed);
+        HIGH_RES_WAIT(1.f / BaseSort::s_speed);
 		if (wantClose || wantStop) return;
     }
 }

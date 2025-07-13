@@ -1,14 +1,6 @@
 #include <gtest/gtest.h>
-#include "sort/BogoSort.h"
-#include "sort/BubbleSort.h"
-#include "sort/CombSort.h"
-#include "sort/GravitySort.h"
-#include "sort/InsertionSort.h"
-#include "sort/MergeSort.h"
-#include "sort/PigeonHoleSort.h"
-#include "sort/QuickSort.h"
-#include "sort/RadixLSDSort.h"
-#include "sort/SelectionSort.h"
+
+#include "sort/sort.h"
 
 // --- Shared Test Fixture for All Sorts ---
 template <typename SortType>
