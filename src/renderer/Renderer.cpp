@@ -1,4 +1,7 @@
 #include "core/App.h"
+#include "core/AppCtx.h"
+#include "core/logging/Logging.h"
+#include "renderer/DisplayType.h"
 #include "renderer/Renderer.h"
 #include "sort/BubbleSort.h"
 #include "sort/SelectionSort.h"
@@ -11,43 +14,10 @@
 #include "sort/BogoSort.h"
 #include "sort/MergeSort.h"
 #include "sort/SortCategories.h"
-#include "renderer/DisplayType.h"
+#include "utils/CommonUtils.h"
+#include "utils/RenderUtils.h"
 
-SDL_Color SortRenderer::HSVToRGB(unsigned char t_hue, unsigned char t_saturation, unsigned char t_value) const noexcept
-{
-    SDL_Color rgb;
-    unsigned char region, remainder, p, q, t;
-    region = t_hue / 43;
-    remainder = (t_hue - (region * 43)) * 6; 
-    
-    p = (t_value * (0xFF - t_saturation)) >> 8;
-    q = (t_value * (0xFF - ((t_saturation * remainder) >> 8))) >> 8;
-    t = (t_value * (0xFF - ((t_saturation * (0xFF - remainder)) >> 8))) >> 8;
-    
-    switch (region)
-    {
-        case 0:
-            rgb.r = t_value; rgb.g = t; rgb.b = p;
-            break;
-        case 1:
-            rgb.r = q; rgb.g = t_value; rgb.b = p;
-            break;
-        case 2:
-            rgb.r = p; rgb.g = t_value; rgb.b = t;
-            break;
-        case 3:
-            rgb.r = p; rgb.g = q; rgb.b = t_value;
-            break;
-        case 4:
-            rgb.r = t; rgb.g = p; rgb.b = t_value;
-            break;
-        default:
-            rgb.r = t_value; rgb.g = p; rgb.b = q;
-            break;
-    }
-    
-    return rgb;
-}
+SortRenderer::SortRenderer() : m_isColored(false) {}
 
 void SortRenderer::renderText(const std::string& t_txt, float t_x, float t_y, SDL_Color t_col) const noexcept
 {
@@ -76,7 +46,7 @@ void SortRenderer::renderInfo() const noexcept
         textColor = { 0xFF, 0xFF, 0xFF, 0 };
     
     renderText("TIME: " + std::to_string(AppCtx::g_app->sorter->lastTime) + 's', 10.0f, 10.0f, textColor);
-    renderText(std::string("Sort: ") + AppCtx::g_app->items[AppCtx::g_app->currentCategory][AppCtx::g_app->current_item], 10, 30, { 0xFF, 0xFF, 0xFF, 0 });
+    renderText(std::string("Sort: ") + AppCtx::g_app->sortTypes[AppCtx::g_app->currentCategory][AppCtx::g_app->current_item], 10, 30, { 0xFF, 0xFF, 0xFF, 0 });
 
     renderText("Swaps: " + std::to_string(AppCtx::g_app->sorter->swaps), 10.0f, 50.0f, { 0xFF, 0xFF, 0xFF, 0 });
     renderText("Comparisions: " + std::to_string(AppCtx::g_app->sorter->comparisions), 10.0f, 70.0f, { 0xFF, 0xFF, 0xFF, 0 });
@@ -90,136 +60,145 @@ void SortRenderer::renderInfo() const noexcept
     SDL_SetRenderDrawColor(AppCtx::g_app->renderer, _r, _g, _b, _a);
 }
 
+void SortRenderer::drawElement(size_t k, const RenderParams& t_params) noexcept {
+    if (k >= m_elems.size()) return;
+
+    switch (AppCtx::g_app->currentDisplayType) {
+        case DisplayType::Bar: {
+            SDL_FRect rect = (SDL_FRect) {k * t_params.barSpacing, AppCtx::kWinHeight, t_params.barSpacing, -(m_elems[k] * t_params.barSpacing * AppCtx::kWinHeight / AppCtx::kWinWidth)};
+            SDL_RenderFillRect(AppCtx::g_app->renderer, &rect);
+        } break;
+
+        case DisplayType::Dot: {
+            SDL_RenderPoint(AppCtx::g_app->renderer, (k + 1) * t_params.barSpacing, (AppCtx::kWinHeight - m_elems[k] * t_params.barSpacing * AppCtx::kWinHeight / AppCtx::kWinWidth)); 
+        } break;
+
+        case DisplayType::RainbowRectangle: {
+            m_isColored = true;
+            SDL_FRect rect = (SDL_FRect){k * t_params.barSpacing, 0, t_params.barSpacing, AppCtx::kWinHeight};
+            SDL_RenderFillRect(AppCtx::g_app->renderer, &rect);
+        } break;
+
+        case DisplayType::Circle: {
+            m_isColored = true;
+            float r = 0.0f, g = 0.0f, b = 0.0f, a = 0.0f;
+            SDL_GetRenderDrawColorFloat(AppCtx::g_app->renderer, &r, &g, &b, &a);
+                
+            SDL_Vertex vertices[3];
+
+            vertices[0] = {
+                {0.5f * AppCtx::kWinWidth, 0.5f * AppCtx::kWinHeight}, /* first point location */ 
+                { r, g, b, 0xFF }, /* first color */ 
+                { 0.f, 0.f }
+            };
+
+            vertices[1] = {
+                {0.5f * AppCtx::kWinWidth + t_params.circleRadius * cosf(t_params.degreesPerIndex * Utils::kRadiansPerDegree * k), 0.5f * AppCtx::kWinHeight + t_params.circleRadius * sinf(t_params.degreesPerIndex * Utils::kRadiansPerDegree * k)}, /* second point location */ 
+                { r, g, b, 0xFF }, /* second color */
+                { 0.f, 0.f }
+            };
+
+            vertices[2] = {
+                {0.5f * AppCtx::kWinWidth + t_params.circleRadius * cosf(t_params.degreesPerIndex * Utils::kRadiansPerDegree * (k + 1)), 0.5f * AppCtx::kWinHeight + t_params.circleRadius * sinf(t_params.degreesPerIndex * Utils::kRadiansPerDegree * (k + 1))}, /* third point location */ 
+                { r, g, b, 0xFF }, /* third color */
+                { 0.f, 0.f }
+            };
+
+            if (!SDL_RenderGeometry(AppCtx::g_app->renderer, nullptr, vertices, 3, nullptr, 0))
+            {
+                LOGERR(SDL_GetError());
+            }
+        } break;
+
+        case DisplayType::CircleDot: {
+            SDL_RenderPoint(
+                AppCtx::g_app->renderer, 
+                0.5f * AppCtx::kWinWidth + t_params.circleRadius * cosf(t_params.degreesPerIndex * Utils::kRadiansPerDegree * k), 
+                0.5f * AppCtx::kWinHeight + t_params.circleRadius * sinf(t_params.degreesPerIndex * Utils::kRadiansPerDegree * k)
+            );
+        } break;
+
+        case DisplayType::DisparityCircle: {
+            SDL_RenderLine(
+                AppCtx::g_app->renderer, 
+                0.5f * AppCtx::kWinWidth + t_params.circleRadius * cosf(t_params.degreesPerIndex * Utils::kRadiansPerDegree * m_elems[k]), 
+                0.5f * AppCtx::kWinHeight + t_params.circleRadius * sinf(t_params.degreesPerIndex * Utils::kRadiansPerDegree * m_elems[k]), 
+                0.5f * AppCtx::kWinWidth + t_params.circleRadius * cosf(t_params.degreesPerIndex * Utils::kRadiansPerDegree * (k + 1)), 
+                0.5f * AppCtx::kWinHeight + t_params.circleRadius * sinf(t_params.degreesPerIndex * Utils::kRadiansPerDegree * (k + 1))
+            );
+        } break;
+
+        case DisplayType::Spiral: {
+            float r = 0, g = 0, b = 0, a = 0;
+            SDL_GetRenderDrawColorFloat(AppCtx::g_app->renderer, &r, &g, &b, &a);
+            
+            SDL_Vertex vertices[3];
+            
+            vertices[0] = {
+                {0.5f * AppCtx::kWinWidth, 0.5f * AppCtx::kWinHeight}, /* first point location */ 
+                { r, g, b, 0xFF }, /* first color */ 
+                { 0.f, 0.f }
+            };
+
+            vertices[1] = {
+                {0.5f * AppCtx::kWinWidth + t_params.spiralScale * m_elems[k] * cosf(t_params.degreesPerIndex * Utils::kRadiansPerDegree * k), 0.5f * AppCtx::kWinHeight + t_params.spiralScale * m_elems[k] * sinf(t_params.degreesPerIndex * Utils::kRadiansPerDegree * k)}, /* second point location */ 
+                { r, g, b, 0xFF }, /* second color */
+                { 0.f, 0.f }
+            };
+
+            vertices[2] = {
+                {0.5f * AppCtx::kWinWidth + t_params.spiralScale * m_elems[k] * cosf(t_params.degreesPerIndex * Utils::kRadiansPerDegree * (k + 1)), 0.5f * AppCtx::kWinHeight + t_params.spiralScale * m_elems[k] * sinf(t_params.degreesPerIndex * Utils::kRadiansPerDegree * (k + 1))}, /* third point location */ 
+                { r, g, b, 0xFF }, /* third color */
+                { 0.f, 0.f }
+            };
+
+            SDL_RenderGeometry(AppCtx::g_app->renderer, nullptr, vertices, 3, nullptr, 0);
+        } break;
+
+        case DisplayType::SpiralDot: {
+            SDL_RenderPoint(
+                AppCtx::g_app->renderer, 
+                0.5f * AppCtx::kWinWidth + t_params.spiralScale * m_elems[k] * cos(t_params.degreesPerIndex * Utils::kRadiansPerDegree * k), 
+                0.5f * AppCtx::kWinHeight + t_params.spiralScale * m_elems[k] * sin(t_params.degreesPerIndex * Utils::kRadiansPerDegree * k)
+            ); 
+        } break;
+    }
+}
+
 void SortRenderer::update() noexcept
 {
+    SDL_SetRenderDrawColor(AppCtx::g_app->renderer, 0x0, 0x0, 0x0, 0x0);
+    SDL_RenderClear(AppCtx::g_app->renderer);
+
+    RenderParams t_params {
+        .degreesPerIndex = 360.0f / static_cast<float>(m_elems.size()),
+        .barSpacing = AppCtx::kWinWidth / m_elems.size(),
+        .circleRadius = std::min(AppCtx::kWinHeight, AppCtx::kWinWidth) * 0.75 * 0.5,
+        .spiralScale = 0.5f * std::min(AppCtx::kWinHeight, AppCtx::kWinWidth) / static_cast<float>(m_elems.size())
+    };
+
     {
         LOCK_GUARD;
         m_elems = AppCtx::g_app->data;
     }
-    SDL_SetRenderDrawColor(AppCtx::g_app->renderer, 0x0, 0x0, 0x0, 0x0);
-    SDL_RenderClear(AppCtx::g_app->renderer);
 
     AppCtx::g_app->currentElement = AppCtx::g_app->sorter->getFirst();
 
-    SDL_Color sortColor; 
     for (size_t k = 0; k < m_elems.size(); ++k)
     {
-        sortColor = HSVToRGB(m_elems[k] * 0xFF / m_elems.size(), 0xFF, 0xFF);
+        SDL_Color sortColor = Utils::hsvToRgb(m_elems[k] * 0xFF / m_elems.size(), 0xFF, 0xFF);
 
         if (k == AppCtx::g_app->sorter->getFirst() || k == AppCtx::g_app->sorter->getSecond())
             SDL_SetRenderDrawColor(AppCtx::g_app->renderer, 0xFF, 0x0, 0x0, 0xFF);
         else {
-            SDL_SetRenderDrawColor(AppCtx::g_app->renderer, 0xFF, 0xFF, 0xFF, 0xFF);
-            if (AppCtx::g_app->isColored) {
-                //SDL_SetRenderDrawColor(renderer, m_elems[k] * 255 / (m_elems.size()), 0, 255-(m_elems[k] * 255 / (m_elems.size())), 255);
+            if (m_isColored) {
                 SDL_SetRenderDrawColor(AppCtx::g_app->renderer, sortColor.r, sortColor.g, sortColor.b, 0xFF);
+            } else {
+                SDL_SetRenderDrawColor(AppCtx::g_app->renderer, 0xFF, 0xFF, 0xFF, 0xFF);
             }
         }
 
-        const float spacing = AppCtx::kWinWidth / m_elems.size();
-        float degreesQuotient = 360.0f / static_cast<float>(m_elems.size());
-        float radiansQuotient = (M_PI / 180);
-        float size = 0.0f;
-        
-        switch (AppCtx::g_app->currentDisplayType) {
-            case DisplayType::Bar: {
-                // SDL_RenderDrawLine(renderer, k + 1, m_elems.size() , k + 1, m_elems.size()  - m_elems[k]);
-                // std::cout << -m_elems[k] * spacing << std::endl;
-                SDL_FRect rect = (SDL_FRect) {k * spacing, AppCtx::kWinHeight, spacing, -(m_elems[k] * spacing * AppCtx::kWinHeight / AppCtx::kWinWidth)};
-                SDL_RenderFillRect(AppCtx::g_app->renderer, &rect);
-            } break;
-
-            case DisplayType::Dot: {
-                // SDL_RenderDrawPoint(renderer, k + 1, m_elems.size()  - m_elems[k]);
-                SDL_RenderPoint(AppCtx::g_app->renderer, (k + 1) * spacing, (AppCtx::kWinHeight - m_elems[k] * spacing * AppCtx::kWinHeight / AppCtx::kWinWidth)); // SDL_RenderDrawPoint(AppCtx::g_app->renderer, (k + 1) * spacing, (m_elems.size() - m_elems[k]) * spacing);
-            } break;
-
-            case DisplayType::RainbowRectangle: {
-                AppCtx::g_app->isColored = true;
-                SDL_FRect rect = (SDL_FRect){k * spacing, 0, spacing, AppCtx::kWinHeight};
-                SDL_RenderFillRect(AppCtx::g_app->renderer, &rect);
-            } break;
-
-            case DisplayType::Circle: {
-                AppCtx::g_app->isColored = true;
-                float r = 0.0f, g = 0.0f, b = 0.0f, a = 0.0f;
-                SDL_GetRenderDrawColorFloat(AppCtx::g_app->renderer, &r, &g, &b, &a);
-
-                size = std::min(AppCtx::kWinHeight, AppCtx::kWinWidth) * 0.75 * 0.5;
-                
-                SDL_Vertex vertices[3];
-
-                vertices[0] = {
-                    {AppCtx::kWinWidth / 2, AppCtx::kWinHeight / 2}, /* first point location */ 
-                    { r, g, b, 0xFF }, /* first color */ 
-                    { 0.f, 0.f }
-                };
-
-                vertices[1] = {
-                    {AppCtx::kWinWidth / 2 + size * cosf(radiansQuotient * k * degreesQuotient), AppCtx::kWinHeight / 2 + size * sinf(radiansQuotient * k * degreesQuotient)}, /* second point location */ 
-                    { r, g, b, 0xFF }, /* second color */
-                    { 0.f, 0.f }
-                };
-
-                vertices[2] = {
-                    {AppCtx::kWinWidth / 2 + size * cosf(radiansQuotient * (k + 1) * degreesQuotient), AppCtx::kWinHeight / 2 + size * sinf(radiansQuotient * (k + 1) * degreesQuotient)}, /* third point location */ 
-                    { r, g, b, 0xFF }, /* third color */
-                    { 0.f, 0.f }
-                };
-
-                if (!SDL_RenderGeometry(AppCtx::g_app->renderer, nullptr, vertices, 3, nullptr, 0))
-                {
-                    LOGERR(SDL_GetError());
-                }
-            } break;
-
-            case DisplayType::CircleDot: {
-                //std::cout << m_elems[k] / (k + 1) << std::endl;
-                // size = 200.0f * ((float)m_elems[k] / (float)(k + 1));
-                size = std::min(AppCtx::kWinHeight, AppCtx::kWinWidth) * 0.75 * 0.5;
-                SDL_RenderPoint(AppCtx::g_app->renderer, AppCtx::kWinWidth / 2 + size * cosf(radiansQuotient * k * degreesQuotient), AppCtx::kWinHeight / 2 + size * sinf(radiansQuotient * k * degreesQuotient));
-            } break;
-
-            case DisplayType::DisparityCircle: {
-                size = std::min(AppCtx::kWinHeight, AppCtx::kWinWidth) * 0.75 * 0.5;
-                SDL_RenderLine(AppCtx::g_app->renderer, AppCtx::kWinWidth / 2 + size * cosf(radiansQuotient * m_elems[k] * degreesQuotient), AppCtx::kWinHeight / 2 + size * sinf(radiansQuotient * m_elems[k] * degreesQuotient), AppCtx::kWinWidth / 2 + size * cosf(radiansQuotient * (k + 1) * degreesQuotient), AppCtx::kWinHeight / 2 + size * sinf(radiansQuotient * (k + 1) * degreesQuotient));
-            } break;
-
-            case DisplayType::Spiral: {
-                float r = 0, g = 0, b = 0, a = 0;
-                SDL_GetRenderDrawColorFloat(AppCtx::g_app->renderer, &r, &g, &b, &a);
-                
-                size = 0.5f * std::min(AppCtx::kWinHeight, AppCtx::kWinWidth) / static_cast<float>(m_elems.size());
-                
-                SDL_Vertex vertices[3];
-                
-                vertices[0] = {
-                    {AppCtx::kWinWidth / 2, AppCtx::kWinHeight / 2}, /* first point location */ 
-                    { r, g, b, 0xFF }, /* first color */ 
-                    { 0.f, 0.f }
-                };
-
-                vertices[1] = {
-                    {AppCtx::kWinWidth / 2 + size * m_elems[k] * cosf(radiansQuotient * k * degreesQuotient), AppCtx::kWinHeight / 2 + size * m_elems[k] * sinf(radiansQuotient * k * degreesQuotient)}, /* second point location */ 
-                    { r, g, b, 0xFF }, /* second color */
-                    { 0.f, 0.f }
-                };
-
-                vertices[2] = {
-                    {AppCtx::kWinWidth / 2 + size * m_elems[k] * cosf(radiansQuotient * (k + 1) * degreesQuotient), AppCtx::kWinHeight / 2 + size * m_elems[k] * sinf(radiansQuotient * (k + 1) * degreesQuotient)}, /* third point location */ 
-                    { r, g, b, 0xFF }, /* third color */
-                    { 0.f, 0.f }
-                };
-
-                // SDL_RenderDrawPoint(renderer, AppCtx::kWinWidth / 2 + 50 * (k / m_elems[k]) * cos(radiansQuotient * (k + 1) * degreesQuotient), AppCtx::kWinWidth / 2 + 50 * (k / m_elems[k]) * sin(radiansQuotient * (k + 1) * degreesQuotient));
-                SDL_RenderGeometry(AppCtx::g_app->renderer, nullptr, vertices, 3, nullptr, 0);
-            } break;
-
-            case DisplayType::SpiralDot: {
-                size = 0.5f * std::min(AppCtx::kWinHeight, AppCtx::kWinWidth) / static_cast<float>(m_elems.size());
-                SDL_RenderPoint(AppCtx::g_app->renderer, AppCtx::kWinWidth / 2 + size * m_elems[k] * cos(radiansQuotient * k * degreesQuotient), AppCtx::kWinHeight / 2 + size * m_elems[k] * sin(radiansQuotient * k * degreesQuotient)); // SDL_RenderDrawPoint(AppCtx::g_app->renderer, AppCtx::kWinWidth / 2 + size * m_elems[k] * cos(radiansQuotient * k * degreesQuotient), AppCtx::kWinWidth / 2 + size * m_elems[k] * sin(radiansQuotient * k * degreesQuotient));
-            } break;
-        }
+        drawElement(k, t_params);
     }
 
     renderInfo();
@@ -248,8 +227,7 @@ void SortRenderer::update() noexcept
     
 }
 
-
-int SortRenderer::renderGUI() const noexcept
+int SortRenderer::renderGUI() noexcept
 {
     static bool s_open = true;
 
@@ -269,7 +247,7 @@ int SortRenderer::renderGUI() const noexcept
 
     {
         ImGui::Begin("Configure", &s_open);
-        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / AppCtx::g_app->io->Framerate, AppCtx::g_app->io->Framerate);
+        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / AppCtx::g_app->getFramerate(), AppCtx::g_app->getFramerate());
         
         if (ImGui::BeginCombo("##combo1", AppCtx::g_app->categories[AppCtx::g_app->currentCategory])) // The second parameter is the label previewed before opening the combo.
         {
@@ -284,14 +262,14 @@ int SortRenderer::renderGUI() const noexcept
             ImGui::EndCombo();
         }
 
-        if(AppCtx::g_app->current_item >= AppCtx::g_app->items[AppCtx::g_app->currentCategory].size()) AppCtx::g_app->current_item = 0;
+        if(AppCtx::g_app->current_item >= AppCtx::g_app->sortTypes[AppCtx::g_app->currentCategory].size()) AppCtx::g_app->current_item = 0;
 
-        if (ImGui::BeginCombo("##combo2", AppCtx::g_app->items[AppCtx::g_app->currentCategory][AppCtx::g_app->current_item])) // The second parameter is the label previewed before opening the combo.
+        if (ImGui::BeginCombo("##combo2", AppCtx::g_app->sortTypes[AppCtx::g_app->currentCategory][AppCtx::g_app->current_item])) // The second parameter is the label previewed before opening the combo.
         {
-            for (size_t n = 0; n < AppCtx::g_app->items[AppCtx::g_app->currentCategory].size(); ++n)
+            for (size_t n = 0; n < AppCtx::g_app->sortTypes[AppCtx::g_app->currentCategory].size(); ++n)
             {
-                bool isSelected = (AppCtx::g_app->items[AppCtx::g_app->currentCategory][AppCtx::g_app->current_item] == AppCtx::g_app->items[AppCtx::g_app->currentCategory][n]); // You can store your selection however you want, outside or inside your objects
-                if (ImGui::Selectable(AppCtx::g_app->items[AppCtx::g_app->currentCategory][n], isSelected))
+                bool isSelected = (AppCtx::g_app->sortTypes[AppCtx::g_app->currentCategory][AppCtx::g_app->current_item] == AppCtx::g_app->sortTypes[AppCtx::g_app->currentCategory][n]); // You can store your selection however you want, outside or inside your objects
+                if (ImGui::Selectable(AppCtx::g_app->sortTypes[AppCtx::g_app->currentCategory][n], isSelected))
                     AppCtx::g_app->current_item = n;
                 if (isSelected)
                     ImGui::SetItemDefaultFocus();   // You may set the initial focus when opening the combo (scrolling + for keyboard navigation support)
@@ -317,7 +295,7 @@ int SortRenderer::renderGUI() const noexcept
         }
 
         ImGui::SameLine();
-        ImGui::Checkbox("Color", &AppCtx::g_app->isColored);
+        ImGui::Checkbox("Color", &m_isColored);
 
         ImGui::Spacing();
         ImGui::SeparatorText("Variables");

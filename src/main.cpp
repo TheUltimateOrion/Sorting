@@ -1,5 +1,7 @@
 #define SDL_MAIN_HANDLED
 #include "core/App.h"
+#include "core/AppCtx.h"
+#include "core/logging/Logging.h"
 
 std::unique_ptr<App> AppCtx::g_app = nullptr; // Initialize the unique pointer
 

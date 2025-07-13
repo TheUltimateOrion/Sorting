@@ -21,6 +21,7 @@ src/core/*.cpp
 src/sort/*.cpp
 src/renderer/*.cpp 
 src/sound/*.cpp 
+src/utils/*.cpp 
 )
 
 add_executable(${PROJECT} ${SOURCE_FILES})

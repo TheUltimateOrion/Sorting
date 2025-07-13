@@ -3,7 +3,6 @@
 #include <iostream>
 #include <algorithm>
 #include <vector>
-#include <cmath>
 #include <thread>
 #include <random>
 #include <memory>
@@ -11,6 +10,8 @@
 #include <atomic>
 #include <optional>
 #include <array>
+
+#include <cmath>
 
 using namespace std::literals::chrono_literals;
 
@@ -26,19 +27,7 @@ using namespace std::literals::chrono_literals;
 
 #include "renderer/DisplayType.h"
 #include "sort/SortCategories.h"
-#include "core/logging/Logging.h"
-#include "core/AppCtx.h"
 
-#endif
-
-#ifndef TESTING
-#define LOCK_GUARD std::lock_guard<std::mutex> lock(AppCtx::g_app->m_mutex)
-#else
-#define LOCK_GUARD do {} while(0);
-#endif
-
-#ifndef STYLESET
-#define STYLESET(param) t_style.Colors[ImGuiCol_##param]
 #endif
 
 #ifndef TESTING
@@ -47,16 +36,19 @@ class SoundEngine;
 class SortRenderer;
 class Sort;
 
-
 class App
 {
 private:
     mutable std::mutex m_mutex;
+    ImGuiIO* m_io;
+
+    ImGuiIO& configureIO() noexcept;
+    [[nodiscard]] int initSDL();
+    [[nodiscard]] int initImGui();
+    [[nodiscard]] int initAudio();
 
     friend class Sort;
     friend class SortRenderer;
-private:
-    void _setupGUI();
 public:
     SDL_Renderer *renderer;
     SDL_Window *window;
@@ -64,23 +56,20 @@ public:
     TTF_Font *font;
 
     SoundEngine* snd;
+
     std::unique_ptr<SortRenderer> sortRenderer;
     std::shared_ptr<Sort> sorter;
 
-    ImGuiIO* io;
-
     std::atomic<size_t> currentElement;
 
-    bool isColored = false;
-
-    std::vector<std::vector<const char *>> items;
+    std::array<std::vector<const char *>, 5> sortTypes;
     size_t current_item = 0;
     
     std::array<const char *, 5> categories;
-    enum SortCategory currentCategory = SortCategory::Exchange;
+    enum SortCategory currentCategory;
 
     std::array<const char *, 8> displayTypes;
-    enum DisplayType currentDisplayType = DisplayType::Bar;
+    enum DisplayType currentDisplayType;
 
     bool isRadix = false;
     int setRadix = 2;
@@ -99,9 +88,10 @@ public:
 
     void startAudioThread();
 
-    ImGuiIO& configureIO() noexcept;
     [[nodiscard]] int loadFont();
     void setStyle(ImGuiStyle& t_style) const noexcept;
+
+    float getFramerate() const;
 };
 
 #endif

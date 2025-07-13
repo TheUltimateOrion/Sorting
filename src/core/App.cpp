@@ -1,18 +1,20 @@
 #include "core/App.h"
-#include "sound/Sound.h"
+#include "core/logging/Logging.h"
 #include "sort/Sort.h"
 #include "sort/BubbleSort.h"
+#include "sound/Sound.h"
+#include "utils/CommonUtils.h"
 
-App::App() noexcept : currentElement(0)
+App::App() noexcept : currentElement(0), currentCategory(SortCategory::Exchange), currentDisplayType(DisplayType::Bar)
 {
 	this->categories = {"Exchange", "Distribution", "Insertion", "Merge", "Select"};
-    this->items = {
-		{"BubbleSort", "QuickSort", "CombSort", },
-		{"RadixLSDSort", "PigeonHoleSort", "GravitySort", "BogoSort"},
-		{"InsertionSort"},
-		{"MergeSort"},
-		{"SelectionSort"}
-	};
+    this->sortTypes = std::array<std::vector<const char*>, 5> {{
+        { "BubbleSort", "QuickSort", "CombSort" },
+        { "RadixLSDSort", "PigeonHoleSort", "GravitySort", "BogoSort" },
+        { "InsertionSort" },
+        { "MergeSort" },
+        { "SelectionSort" }
+    }};
 
     this->displayTypes = {"Bar", "Dot", "Rainbow Rectangle", "Circle", "Circle Dot", "Disparity Circle", "Spiral", "Spiral Dot"};
 }
@@ -58,7 +60,7 @@ App::~App()
 
 }
 
-void App::_setupGUI()
+int App::initImGui()
 {
     LOGINFO("Setting up ImGui context");
     IMGUI_CHECKVERSION();
@@ -66,15 +68,18 @@ void App::_setupGUI()
     ImGui::SetCurrentContext(ctx);
 	
     LOGINFO("Configuring ImGui io");
-	this->io = &this->configureIO();
+	this->m_io = &configureIO();
 
     LOGINFO("Setting ImGui styling");
     ImGuiStyle& style = ImGui::GetStyle();
 	this->setStyle(style);
         
     LOGINFO("Setting up ImGui renderer");
-    ImGui_ImplSDL3_InitForSDLRenderer(this->window, this->renderer);
-    ImGui_ImplSDLRenderer3_Init(this->renderer);
+    if (!ImGui_ImplSDL3_InitForSDLRenderer(this->window, this->renderer)) return -1;
+
+    if (!ImGui_ImplSDLRenderer3_Init(this->renderer)) return -1;
+
+    return 0;
 }
 
 int App::init()
@@ -112,7 +117,12 @@ int App::init()
     }
     LOGINFO("Setting up GUI");
     this->sortRenderer = std::make_unique<SortRenderer>();
-	this->_setupGUI();
+
+	if (initImGui() < 0)
+    {
+        LOGERR("Could not initialize ImGui");
+        
+    }
 
     srand(time(NULL));
 	return 0;
@@ -250,9 +260,12 @@ void App::setStyle(ImGuiStyle& t_style) const noexcept
 ImGuiIO& App::configureIO() noexcept
 {
     ImGuiIO& io = ImGui::GetIO();
-    (void)io;
-    LOGINFO("Setting io flags");
+    LOGINFO("Setting ImGui IO flags");
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
     return io;
+}
+
+float App::getFramerate() const {
+    return this->m_io->Framerate;
 }

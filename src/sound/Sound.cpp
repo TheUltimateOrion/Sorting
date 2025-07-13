@@ -1,3 +1,4 @@
+#include "core/logging/Logging.h"
 #include "sound/Sound.h"
 
 SoundEngine::SoundEngine() : m_buf(0), m_src(0), m_samples(nullptr) {}

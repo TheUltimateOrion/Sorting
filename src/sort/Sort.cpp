@@ -1,5 +1,6 @@
 #include "sort/Sort.h"
 #include "core/logging/Logging.h"
+#include "utils/CommonUtils.h"
 
 #ifndef TESTING
 #include "renderer/Renderer.h"

@@ -1,5 +1,6 @@
 #pragma once
-#include "../sort/Sort.h"
+#include "sort/Sort.h"
+#include "renderer/RenderParams.h"
 
 #ifndef SORTCASE
 #define SORTCASE(num, typeSort)\
@@ -20,14 +21,17 @@
 class SortRenderer
 {
 private:
-    SDL_Color HSVToRGB(unsigned char t_hue, unsigned char t_saturation, unsigned char t_value) const noexcept;
     std::vector<int> m_elems;
+    bool m_isColored;
+
+    void drawElement(size_t k, const RenderParams& t_params) noexcept;
 public:
+    SortRenderer();
+
     void update() noexcept;
 
     void renderText(const std::string& t_txt, float t_x, float t_y, SDL_Color t_col) const noexcept;
     void renderInfo() const noexcept;
 
-
-    int renderGUI() const noexcept;
+    int renderGUI() noexcept;
 };
