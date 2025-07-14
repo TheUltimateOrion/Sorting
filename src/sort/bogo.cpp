@@ -32,6 +32,12 @@ void BogoSort::bogoShuffle()
 void BogoSort::sort()
 {
     isSorting = true;
+    
+    if (elems.empty()) {
+        isSorting = false;
+        sorted = true;
+        return;
+    }
 
     while(!isSorted()) {
         bogoShuffle();

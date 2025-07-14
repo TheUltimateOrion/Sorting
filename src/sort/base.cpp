@@ -2,6 +2,7 @@
 
 #include <thread>
 #include <random>
+#include <algorithm>
 
 #include "core/app.h"
 #include "core/app_ctx.h"
