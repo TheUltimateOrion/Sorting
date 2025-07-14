@@ -201,10 +201,23 @@ void App::run()
 
     while(1)
     {
+        auto start = std::chrono::high_resolution_clock::now();
         m_sortView->update();
+        std::chrono::duration<double, std::milli> elapsed = std::chrono::high_resolution_clock::now() - start;
         if (event.type == SDL_EVENT_QUIT || sorter->wantClose) {
             LOGINFO("Exit signal recieved");
             break;
+        }
+        
+        double delay = AppCtx::kFrameTime - elapsed.count();
+
+        if (delay > 1.5) {
+            SDL_Delay(static_cast<Uint32>(delay - 1.0));
+        }
+        
+        while (true) {
+            auto now = std::chrono::high_resolution_clock::now();
+            if (std::chrono::duration<double, std::milli>(now - start).count() >= AppCtx::kFrameTime) break;
         }
     }
 }

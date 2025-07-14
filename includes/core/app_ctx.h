@@ -10,6 +10,8 @@ namespace AppCtx {
     constexpr float kWinWidth = 1920.0f;
     constexpr float kWinHeight = 1080.0f;
     
+    constexpr double kFrameTime = 1000.0 / 120.0; // 120 FPS
+    
     inline double getTimestamp() {
         static auto start = std::chrono::high_resolution_clock::now();
         auto now = std::chrono::high_resolution_clock::now();

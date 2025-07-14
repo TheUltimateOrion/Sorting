@@ -220,9 +220,6 @@ void SortView::update() noexcept
             return;
         }
     }
-
-    std::this_thread::sleep_for(1ms);
-    
 }
 
 int SortView::renderGUI() noexcept
