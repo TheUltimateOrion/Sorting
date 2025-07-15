@@ -4,14 +4,15 @@
 #include <random>
 #include <algorithm>
 
+#ifndef TESTING
 #include "core/app.h"
+#include "renderer/sort_view.h"
+#endif
+
 #include "core/app_ctx.h"
 #include "core/logging/logging.h"
 #include "utils/common.h"
 
-#ifndef TESTING
-#include "renderer/sort_view.h"
-#endif
 
 using namespace std::literals::chrono_literals;
 
@@ -54,7 +55,7 @@ void BaseSort::reverse()
     sorted = false;
     isShuffling = false;
     startTime = AppCtx::getTimestamp();
-    lastTime = lastTime;
+    lastTime = startTime;
 }
 
 void BaseSort::shuffle()

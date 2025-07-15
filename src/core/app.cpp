@@ -5,7 +5,6 @@
 
 #include "core/logging/logging.h"
 #include "sort/exchange/bubble.h"
-#include "sound/sound_engine.h"
 #include "utils/common.h"
 
 using namespace std::literals::chrono_literals;
@@ -214,7 +213,7 @@ void App::run()
         if (delay > 1.5) {
             SDL_Delay(static_cast<Uint32>(delay - 1.0));
         }
-        
+
         while (true) {
             auto now = std::chrono::high_resolution_clock::now();
             if (std::chrono::duration<double, std::milli>(now - start).count() >= AppCtx::kFrameTime) break;
