@@ -12,7 +12,11 @@ void PigeonHoleSort::sort()
 {
     isSorting = true;
     int n = elems.size();
-    if (n == 0) return;
+    if (n == 0) {
+        isSorting = false;
+        sorted = true;
+        return;
+    }
 
     int min = elems[0], max = elems[0];
     for (int i = 1; i < n; i++)
