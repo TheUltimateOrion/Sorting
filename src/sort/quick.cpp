@@ -19,7 +19,7 @@ int QuickSort::partition(int t_low, int t_high)
             // AppCtx::g_app->SortView->update(i, j);
         }
         if (wantClose || wantStop) return 0;
-        comparisions++;
+        comparisons++;
     }
     m_first = i + 1;
     m_second = t_high;

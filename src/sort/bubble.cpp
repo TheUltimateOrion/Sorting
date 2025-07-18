@@ -13,12 +13,11 @@ void BubbleSort::sort()
                 if (elems[j] > elems[j + 1])
                 {
                     swap(elems, j, j + 1);
-                    // AppCtx::g_app->SortView->update(j, j + 1);
                     if (wantClose || wantStop)
                         return;
                 }
             }
-            comparisions++;
+            comparisons++;
         }
     }
     isSorting = false;

@@ -47,7 +47,7 @@ void SortView::renderInfo() const noexcept
     renderText(std::string("Sort: ") + AppCtx::g_app->sortTypes[AppCtx::g_app->currentCategory][AppCtx::g_app->currentItemIndex], 10, 30, { 0xFF, 0xFF, 0xFF, 0 });
 
     renderText("Swaps: " + std::to_string(AppCtx::g_app->sorter->swaps), 10.0f, 50.0f, { 0xFF, 0xFF, 0xFF, 0 });
-    renderText("Comparisions: " + std::to_string(AppCtx::g_app->sorter->comparisions), 10.0f, 70.0f, { 0xFF, 0xFF, 0xFF, 0 });
+    renderText("Comparisons: " + std::to_string(AppCtx::g_app->sorter->comparisons), 10.0f, 70.0f, { 0xFF, 0xFF, 0xFF, 0 });
 
     if (AppCtx::g_app->sorter->isSorting)
         renderText("Sorting...", 10.0f, 90.0f, { 0xFF, 0xFF, 0xFF, 0 });

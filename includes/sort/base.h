@@ -27,7 +27,7 @@ public:
     double lastTime = 0.0;
 
     unsigned int swaps; 
-    unsigned int comparisions; 
+    unsigned int comparisons; 
 
     size_t getFirst() noexcept { return m_first.load(); }
     size_t getSecond() noexcept { return m_second.load(); }

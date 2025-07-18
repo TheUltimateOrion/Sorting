@@ -42,7 +42,7 @@ void MergeSort::merge(int const left, int const mid, int const right)
         HIGH_RES_WAIT(1.f / BaseSort::s_speed);
         if (wantClose || wantStop) return;
 
-        comparisions++;
+        comparisons++;
         indexOfMergedArray++;
     }
  

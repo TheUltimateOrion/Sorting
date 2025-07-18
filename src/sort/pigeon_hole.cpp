@@ -28,7 +28,7 @@ void PigeonHoleSort::sort()
         HIGH_RES_WAIT(1.f / BaseSort::s_speed);
         if (wantClose || wantStop) return;
 
-        comparisions += 2;
+        comparisons += 2;
     }
 
     std::vector<std::vector<int>> holes(max - min + 1);

@@ -52,7 +52,7 @@ void CombSort::sort()
                 if (wantClose || wantStop) return;
                 swapped = true;
             }
-            comparisions++;
+            comparisons++;
         }
     }
     isSorting = false;

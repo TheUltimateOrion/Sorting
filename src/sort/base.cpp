@@ -28,7 +28,7 @@ void BaseSort::reverse()
     isShuffling = true;
     wantStop = false;
     swaps = 0;
-    comparisions = 0;
+    comparisons = 0;
 
     std::vector<int> temp(elems.size());
 
@@ -65,7 +65,7 @@ void BaseSort::shuffle()
     isShuffling = true;
     wantStop = false;
     swaps = 0;
-    comparisions = 0;
+    comparisons = 0;
 
     std::vector<int> temp(elems.size());
 
