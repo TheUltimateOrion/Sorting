@@ -10,11 +10,16 @@ BogoSort::BogoSort(std::vector<int>& t_arr) : BaseSort(t_arr) {}
 
 bool BogoSort::isSorted()
 {
-    size_t n = elems.size();
-    while (--n > 0) {
-        if (elems[n] < elems[n - 1])
-            return false;
+    if (elems.empty()) {
+        return true;
     }
+
+    for (size_t i = 1; i < elems.size(); ++i) {
+        if (elems[i] < elems[i - 1]) {
+            return false;
+        }
+    }
+
     return true;
 }
 
