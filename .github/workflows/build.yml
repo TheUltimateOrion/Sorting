@@ -39,12 +39,12 @@ jobs:
         update: true
         install: >-
           git
+          make
         pacboy: >-
-          make:x
-          toolchain:x
-          cmake:x
-          ninja:x
-          openal:x
+          toolchain:u
+          cmake:u
+          ninja:u
+          openal:u
 
     - name: Update Linux packages
       if: ${{ contains( matrix.platform.name, 'linux') }}
