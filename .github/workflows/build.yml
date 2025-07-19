@@ -80,8 +80,8 @@ jobs:
         -DCMAKE_BUILD_TYPE:STRING=Release
         -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE
         --no-warn-unused-cli
-        -S ${{ github.workspace }}
-        -B ${{ steps.strings.outputs.build-output-dir }}
+        -S '${{ github.workspace }}'
+        -B '${{ steps.strings.outputs.build-output-dir }}'
         -G Ninja
 
     - name: Build
