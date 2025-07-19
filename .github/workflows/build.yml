@@ -37,10 +37,9 @@ jobs:
       with:
         msystem: mingw64
         update: true
-        install: >-
-          git
-          make
         pacboy: >-
+          git:x
+          make:x
           toolchain:x
           cmake:x
           ninja:x
