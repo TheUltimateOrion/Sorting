@@ -39,4 +39,6 @@ jobs:
           openal:x
         
     - name: Test build system
+      env:
+        PATH: /mingw64/bin:/usr/bin:$PATH
       run: which make
