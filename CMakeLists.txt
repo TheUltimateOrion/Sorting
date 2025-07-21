@@ -74,6 +74,12 @@ elseif(APPLE OR LINUX)
     set(RPATH "$ORIGIN")
     if(APPLE)
         set(RPATH "@executable_path")
+
+        set(OPENAL_THREE_WAY_FIX_HEADER "${CMAKE_SOURCE_DIR}/cmake/lexico_fix.h")
+        set_source_files_properties(
+            external/openal-soft/common/alstring.cpp
+            PROPERTIES COMPILE_FLAGS "-include ${OPENAL_THREE_WAY_FIX_HEADER}"
+        )
     endif()
 
     set_target_properties(${PROJECT_NAME} PROPERTIES
