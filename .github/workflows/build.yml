@@ -24,7 +24,7 @@ jobs:
         platform:
         - { name: build-win,   os: windows-latest, shell: 'msys2 {0}'}
         - { name: build-linux, os: ubuntu-latest,  shell: sh }
-        - { name: build-mac,   os: macos-13,       shell: sh }
+        - { name: build-mac,   os: macos-latest,   shell: sh }
     
     steps:
     - uses: actions/checkout@v4
