@@ -44,6 +44,12 @@ jobs:
           cmake:u
           ninja:u
 
+    - name: Xcode Setup
+      if: ${{ contains( matrix.platform.name, 'mac') }}
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: latest-stable
+    
     - name: Update Linux packages
       if: ${{ contains( matrix.platform.name, 'linux') }}
       run: sudo apt-get update
