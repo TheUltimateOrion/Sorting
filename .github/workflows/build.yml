@@ -44,7 +44,6 @@ jobs:
           toolchain:u
           cmake:u
           ninja:u
-          openal:u
 
     - name: Update Linux packages
       if: ${{ contains( matrix.platform.name, 'linux') }}
