@@ -28,25 +28,44 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     includes/
     includes/imgui
     includes/imgui/backend
-    includes/openal
 )
 
-# Link SDL and OpenAL per platform
-if(WIN32 OR LINUX)
-    set(OPENAL_LIB openal)
-elseif(APPLE)
-    set(OPENAL_LIB "-framework OpenAL")
-endif()
 
-target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3 SDL3_ttf::SDL3_ttf ${OPENAL_LIB})
+target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3 SDL3_ttf::SDL3_ttf OpenAL::OpenAL)
 
 # Install rules per platform
 if(WIN32)
-    install(TARGETS ${PROJECT_NAME} SDL3-shared SDL3_ttf-shared RUNTIME DESTINATION .)
+    install(
+        TARGETS 
+        ${PROJECT_NAME} 
+        SDL3-shared 
+        SDL3_ttf-shared
+        RUNTIME_DEPENDENCY_SET runtime_set
+        RUNTIME DESTINATION .
+    )
+
+    install(RUNTIME_DEPENDENCY_SET runtime_set 
+    
+    DIRECTORIES
+            "C:/msys64/ucrt64/bin"  # Adjust path as needed
+            "C:/msys64/mingw64/bin"  # Adjust path as needed
+
+    PRE_INCLUDE_REGEXES "lib.*\\.dll"
+
+    # Exclude everything else (safe fallback)
+    PRE_EXCLUDE_REGEXES
+        ".*" DESTINATION .)
+
+    # install(FILES $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}> DESTINATION .)
+
+    
+
+   
 elseif(APPLE OR LINUX)
     install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION .)
     install(TARGETS SDL3-shared SDL3_ttf-shared LIBRARY DESTINATION .)
-
+    
+    
     # Set proper RPATH
     set(RPATH "$ORIGIN")
     if(APPLE)

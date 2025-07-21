@@ -20,6 +20,7 @@ void SelectionSort::sort()
         {
             m_first = j;
             m_second = min;
+
             comparisons++;
 
             if (elems[j] < elems[min])
