@@ -22,9 +22,9 @@ jobs:
       fail-fast: false
       matrix:
         platform:
-        - { name: build-win,  os: windows-latest, shell: 'msys2 {0}', msystem: mingw64, artifact: 'SortingVisualizer-Windows-x64' }
-        - { name: build-linux,    os: ubuntu-latest,  shell: sh,   artifact: 'SortingVisualizer-Linux-x64' }
-        - { name: build-osx,    os: macos-13,       shell: sh,   artifact: 'SortingVisualizer-MacOS' }
+        - { name: build-win,   os: windows-latest, shell: 'msys2 {0}'}
+        - { name: build-linux, os: ubuntu-latest,  shell: sh }
+        - { name: build-mac,   os: macos-13,       shell: sh }
     
     steps:
     - uses: actions/checkout@v4
@@ -32,19 +32,19 @@ jobs:
         submodules: recursive
         
     - name: 'Setup MSYS2'
-      if: ${{ matrix.platform.shell == 'msys2 {0}' }}
+      if: ${{ contains( matrix.platform.name, 'win') }}
       uses: msys2/setup-msys2@v2
       with:
-        msystem: ${{ matrix.platform.msystem }}
+        msystem: UCRT64
         update: true
         install: >-
           git
           make
         pacboy: >-
-          toolchain:p
-          cmake:p
-          ninja:p
-          openal:p
+          toolchain:u
+          cmake:u
+          ninja:u
+          openal:u
 
     - name: Update Linux packages
       if: ${{ contains( matrix.platform.name, 'linux') }}
@@ -64,31 +64,35 @@ jobs:
       id: strings
       run: |
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
-        
+
+    - name: Verify Ninja
+      run: |
+        which ninja
+        ninja --version
+          
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       run: >
-        cmake -B '${{ steps.strings.outputs.build-output-dir }}'
-        -DCMAKE_CXX_COMPILER=g++
-        -DCMAKE_C_COMPILER=gcc
-        -DCMAKE_BUILD_TYPE=RELEASE
+        cmake
+        -DCMAKE_BUILD_TYPE:STRING=Release
+        -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE
+        --no-warn-unused-cli
         -S '${{ github.workspace }}'
+        -B '${{ steps.strings.outputs.build-output-dir }}'
+        -G Ninja
 
     - name: Build
-      # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
-      run: cmake --build '${{ steps.strings.outputs.build-output-dir }}' --config RELEASE --target install
+      run: cmake --build '${{ steps.strings.outputs.build-output-dir }}' --config Release --target install --
 
     - name: Test
       working-directory: ${{ steps.strings.outputs.build-output-dir }}
-      # Execute tests defined by the CMake configuration. Note that --build-config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
-      # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: ctest -C RELEASE --output-on-failure
 
     - name: 'Store artifacts'
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ matrix.platform.name }}
+        name: orionsort-${{ matrix.platform.name }}
         path: '${{ github.workspace }}/dist'
 
 
