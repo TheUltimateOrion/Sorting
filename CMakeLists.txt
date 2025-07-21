@@ -44,11 +44,13 @@ if(WIN32)
         RUNTIME DESTINATION .
     )
 
+    message(STATUS "MSYSTEM PREFIX: ${MSYSTEM_PREFIX}")
     install(RUNTIME_DEPENDENCY_SET runtime_set 
     
     DIRECTORIES
             "C:/msys64/ucrt64/bin"  # Adjust path as needed
             "C:/msys64/mingw64/bin"  # Adjust path as needed
+            "${MSYSTEM_PREFIX}/bin"  # Adjust path as needed
 
     PRE_INCLUDE_REGEXES "lib.*\\.dll"
 
