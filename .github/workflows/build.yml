@@ -39,16 +39,15 @@ jobs:
         update: true
         install: >-
           git
-          make
         pacboy: >-
           toolchain:u
           cmake:u
           ninja:u
-          openal:u
 
     - name: Update Linux packages
       if: ${{ contains( matrix.platform.name, 'linux') }}
       run: sudo apt-get update
+      
     - name: Install Linux Prerequisites
       if: ${{ contains( matrix.platform.name, 'linux') }}
       run: > 
