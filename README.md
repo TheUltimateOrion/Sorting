@@ -42,7 +42,7 @@ The resulting binaries are placed in the `dist/` directory.
 
 Run the generated `Sorting` executable. The GUI lets you select algorithms, tweak parameters and view real-time statistics.
 
-### Note: *On MacOS, you might need to provide permissions in the System Preferences for the app to work*
+**Note**: On **MacOS**, you might need to provide _permissions_ in the **_System Preferences_** in order for the app to run.
 
 ## Tests
 
