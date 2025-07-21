@@ -40,6 +40,7 @@ if(WIN32)
         ${PROJECT_NAME} 
         SDL3-shared 
         SDL3_ttf-shared
+        OpenAL
         RUNTIME_DEPENDENCY_SET runtime_set
         RUNTIME DESTINATION .
     )
