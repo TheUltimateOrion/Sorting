@@ -44,19 +44,21 @@ if(WIN32)
         RUNTIME DESTINATION .
     )
 
-    message(STATUS "MSYSTEM PREFIX: ${MSYSTEM_PREFIX}")
+    message(STATUS "MSYSTEM PREFIX: $ENV{MSYSTEM_PREFIX}")
     install(RUNTIME_DEPENDENCY_SET runtime_set 
     
     DIRECTORIES
             "C:/msys64/ucrt64/bin"  # Adjust path as needed
             "C:/msys64/mingw64/bin"  # Adjust path as needed
-            "${MSYSTEM_PREFIX}/bin"  # Adjust path as needed
+            "$ENV{MSYSTEM_PREFIX}/bin"  # Adjust path as needed
 
     PRE_INCLUDE_REGEXES "lib.*\\.dll"
 
     # Exclude everything else (safe fallback)
     PRE_EXCLUDE_REGEXES
-        ".*" DESTINATION .)
+        ".*" 
+    
+    DESTINATION .)
 
     # install(FILES $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}> DESTINATION .)
 
