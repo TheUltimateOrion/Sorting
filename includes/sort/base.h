@@ -26,8 +26,8 @@ public:
     double startTime = 0.0;
     double lastTime = 0.0;
 
-    unsigned int swaps; 
-    unsigned int comparisons; 
+    unsigned int swaps = 0; 
+    unsigned int comparisons = 0; 
 
     size_t getFirst() noexcept { return m_first.load(); }
     size_t getSecond() noexcept { return m_second.load(); }

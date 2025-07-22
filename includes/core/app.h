@@ -55,7 +55,6 @@ public:
 
     std::atomic<size_t> currentElement;
 
-    std::array<std::vector<const char *>, 5> sortTypes;
     size_t currentItemIndex = 0;
     
     std::array<const char *, 5> categories;

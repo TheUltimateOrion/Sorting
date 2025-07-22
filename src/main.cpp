@@ -4,6 +4,7 @@
 #include "core/logging/logging.h"
 
 std::unique_ptr<App> AppCtx::g_app = nullptr; // Initialize the unique pointer
+SortRegistry AppCtx::g_sortRegistry; // Initialize the global sort registry
 
 int main()
 {

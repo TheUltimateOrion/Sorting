@@ -15,7 +15,7 @@
 
 using namespace std::literals::chrono_literals;
 
-SortView::SortView() : m_isColored(false), m_radix(2), m_reversed(false) {}
+SortView::SortView() : m_isColored(false), m_reversed(false) {}
 
 void SortView::renderText(const std::string& t_txt, float t_x, float t_y, SDL_Color t_col) const noexcept
 {
@@ -44,7 +44,18 @@ void SortView::renderInfo() const noexcept
         textColor = { 0xFF, 0xFF, 0xFF, 0 };
     
     renderText("TIME: " + std::to_string(AppCtx::g_app->sorter->lastTime) + 's', 10.0f, 10.0f, textColor);
-    renderText(std::string("Sort: ") + AppCtx::g_app->sortTypes[AppCtx::g_app->currentCategory][AppCtx::g_app->currentItemIndex], 10, 30, { 0xFF, 0xFF, 0xFF, 0 });
+    
+    {
+        auto& reg = AppCtx::g_sortRegistry;
+        auto ids = reg.idsByCategory(AppCtx::g_app->currentCategory);
+        std::string name;
+        if(AppCtx::g_app->currentItemIndex < ids.size()) {
+            if(auto* entry = reg.get(ids[AppCtx::g_app->currentItemIndex]))
+                name = entry->displayName;
+        }
+        renderText(std::string("Sort: ") + name, 10, 30, { 0xFF, 0xFF, 0xFF, 0 });
+    }
+
 
     renderText("Swaps: " + std::to_string(AppCtx::g_app->sorter->swaps), 10.0f, 50.0f, { 0xFF, 0xFF, 0xFF, 0 });
     renderText("Comparisons: " + std::to_string(AppCtx::g_app->sorter->comparisons), 10.0f, 70.0f, { 0xFF, 0xFF, 0xFF, 0 });
@@ -241,6 +252,12 @@ int SortView::renderGUI() noexcept
     std::atomic<bool> shouldSort = false;
 
     {
+        auto& registry = AppCtx::g_sortRegistry;
+        auto ids = registry.idsByCategory(AppCtx::g_app->currentCategory);
+        if(AppCtx::g_app->currentItemIndex >= ids.size()) AppCtx::g_app->currentItemIndex = 0;
+        const auto* currentEntry = registry.get(ids[AppCtx::g_app->currentItemIndex]);
+        std::string currentName = currentEntry ? currentEntry->displayName : "";
+
         ImGui::Begin("Configure", &s_open);
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / AppCtx::g_app->getFramerate(), AppCtx::g_app->getFramerate());
         
@@ -257,17 +274,17 @@ int SortView::renderGUI() noexcept
             ImGui::EndCombo();
         }
 
-        if(AppCtx::g_app->currentItemIndex >= AppCtx::g_app->sortTypes[AppCtx::g_app->currentCategory].size()) AppCtx::g_app->currentItemIndex = 0;
-
-        if (ImGui::BeginCombo("##combo2", AppCtx::g_app->sortTypes[AppCtx::g_app->currentCategory][AppCtx::g_app->currentItemIndex])) // The second parameter is the label previewed before opening the combo.
+        
+        if (ImGui::BeginCombo("##combo2", currentName.c_str())) // The second parameter is the label previewed before opening the combo.
         {
-            for (size_t n = 0; n < AppCtx::g_app->sortTypes[AppCtx::g_app->currentCategory].size(); ++n)
+            for (size_t n = 0; n < ids.size(); ++n)
             {
-                bool isSelected = (AppCtx::g_app->sortTypes[AppCtx::g_app->currentCategory][AppCtx::g_app->currentItemIndex] == AppCtx::g_app->sortTypes[AppCtx::g_app->currentCategory][n]); // You can store your selection however you want, outside or inside your objects
-                if (ImGui::Selectable(AppCtx::g_app->sortTypes[AppCtx::g_app->currentCategory][n], isSelected))
+                const auto* entry = registry.get(ids[n]);
+                bool isSelected = (n == AppCtx::g_app->currentItemIndex);
+                if (ImGui::Selectable(entry->displayName.c_str(), isSelected))
                     AppCtx::g_app->currentItemIndex = n;
-                if (isSelected)
-                    ImGui::SetItemDefaultFocus();   // You may set the initial focus when opening the combo (scrolling + for keyboard navigation support)
+                
+                if (isSelected) ImGui::SetItemDefaultFocus();
             }
             ImGui::EndCombo();
         }
@@ -288,7 +305,6 @@ int SortView::renderGUI() noexcept
             }
             ImGui::EndCombo();
         }
-
         ImGui::SameLine();
         ImGui::Checkbox("Color", &m_isColored);
 
@@ -302,50 +318,25 @@ int SortView::renderGUI() noexcept
         ImGui::InputInt("Set Array Length", &BaseSort::s_length, 2);
         BaseSort::s_length = std::clamp(BaseSort::s_length, 2, 1024*10);
 
-        if (AppCtx::g_app->currentCategory == 1 && AppCtx::g_app->currentItemIndex == 0)
-            ImGui::SliderInt("Set Buckets/Radix", &m_radix, 2, 10, "%d");
+        if (currentName == "Radix LSD") {
+            ImGui::SliderInt("Set Buckets/Radix", &AppCtx::g_sortRadix, 2, 10, "%d");
+        }
 
         ImGui::Spacing();
         if (!(AppCtx::g_app->sorter->isSorting) && !(AppCtx::g_app->sorter->isShuffling))
         {
             if(ImGui::Button("Sort")) {
                 LOGINFO("Starting sort");
-                switch(AppCtx::g_app->currentCategory)
-                {
-                    case SortCategory::Exchange: {
-                        switch(AppCtx::g_app->currentItemIndex)
-                        {
-                            SORTCASE(0, BubbleSort);
-                            SORTCASE(1, QuickSort);
-                            SORTCASE(2, CombSort);
-                        }
-                    } break;
-                    case SortCategory::Distribution: {
-                        switch(AppCtx::g_app->currentItemIndex)
-                        {
-                            SORTCASERADIX(0, RadixLSDSort);
-                            SORTCASE(1, PigeonHoleSort);
-                            SORTCASE(2, GravitySort);
-                            SORTCASE(3, BogoSort);
-                        }
-                    } break;
-                    
-                    case SortCategory::Insertion: {
-                        switch(AppCtx::g_app->currentItemIndex) {
-                            SORTCASE(0, InsertionSort);
-                        }
-                    } break;
-                    case SortCategory::Merge: {
-                        switch(AppCtx::g_app->currentItemIndex) {
-                            SORTCASE(0, MergeSort);
-                        }
-                    } break;
-                    case SortCategory::Select: {
-                        switch(AppCtx::g_app->currentItemIndex) {
-                            SORTCASE(0, SelectionSort);
-                        }
-                    } break;   
-                    default: LOGERR("Unknown sort category");
+                auto& registry = AppCtx::g_sortRegistry;
+                auto ids = registry.idsByCategory(AppCtx::g_app->currentCategory);
+                if(AppCtx::g_app->currentItemIndex < ids.size()) {
+                    auto* entry = registry.get(ids[AppCtx::g_app->currentItemIndex]);
+                    if(entry) {
+                        AppCtx::g_app->sorter = entry->factory(AppCtx::g_app->data);
+                        AppCtx::g_app->sorter->setLength(BaseSort::s_length);
+                    }
+                } else {
+                    LOGERR("Unknown sort category/index");
                 }
                 shouldSort = true;
             }

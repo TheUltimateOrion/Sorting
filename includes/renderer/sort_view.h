@@ -27,7 +27,6 @@ class SortView
 private:
     std::vector<int> m_elems;
     bool m_isColored;
-    int m_radix;
     bool m_reversed;
 
     void drawElement(size_t k, const RenderParams& t_params) noexcept;

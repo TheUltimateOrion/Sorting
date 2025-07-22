@@ -12,15 +12,9 @@ using namespace std::literals::chrono_literals;
 App::App() noexcept : currentElement(0), currentCategory(SortCategory::Exchange), currentDisplayType(DisplayType::Bar)
 {
 	categories = {"Exchange", "Distribution", "Insertion", "Merge", "Select"};
-    sortTypes = std::array<std::vector<const char*>, 5> {{
-        { "BubbleSort", "QuickSort", "CombSort" },
-        { "RadixLSDSort", "PigeonHoleSort", "GravitySort", "BogoSort" },
-        { "InsertionSort" },
-        { "MergeSort" },
-        { "SelectionSort" }
-    }};
-
     displayTypes = {"Bar", "Dot", "Rainbow Rectangle", "Circle", "Circle Dot", "Disparity Circle", "Spiral", "Spiral Dot"};
+
+    AppCtx::g_sortRegistry.registerAllSorts();
 }
 
 App::~App()
@@ -190,6 +184,10 @@ void App::run()
 
     LOGINFO("Initializing sorter");
     sorter = std::make_shared<BubbleSort>(data);
+    if (auto* entry = AppCtx::g_sortRegistry.get("BubbleSort")) {
+        sorter = entry->factory(data);
+        sorter->setLength(BaseSort::s_length);
+    }
 
     LOGINFO("Creating audio thread");
 
