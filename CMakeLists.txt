@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.28)
 
-project(Sorting VERSION 1.2.0)
+project(Sorting VERSION 1.2.1)
 
 # Project-wide settings
 set(CMAKE_CXX_STANDARD 20)

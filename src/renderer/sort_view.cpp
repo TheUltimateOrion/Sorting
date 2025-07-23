@@ -64,7 +64,9 @@ void SortView::renderInfo() const noexcept
         renderText("Sorting...", 10.0f, 90.0f, { 0xFF, 0xFF, 0xFF, 0 });
     if (AppCtx::g_app->sorter->isShuffling)
         renderText("Shuffling...", 10.0f, 90.0f, { 0xFF, 0xFF, 0xFF, 0 });
-    if (!(AppCtx::g_app->sorter->isShuffling) && !(AppCtx::g_app->sorter->isSorting) && AppCtx::g_app->sorter->sorted)
+    if (AppCtx::g_app->sorter->isChecking)
+        renderText("Checking...", 10.0f, 90.0f, { 0xFF, 0xFF, 0xFF, 0 });
+    if (!(AppCtx::g_app->sorter->isShuffling) && !(AppCtx::g_app->sorter->isSorting) && !(AppCtx::g_app->sorter->isChecking) && AppCtx::g_app->sorter->sorted)
         renderText("Sorted", 10.0f, 90.0f, { 0xFF, 0xFF, 0xFF, 0 });
     SDL_SetRenderDrawColor(AppCtx::g_app->renderer, _r, _g, _b, _a);
 }
@@ -102,13 +104,13 @@ void SortView::drawElement(size_t k, const RenderParams& t_params) noexcept {
             };
 
             vertices[1] = {
-                {0.5f * AppCtx::kWinWidth + t_params.circleRadius * cosf(t_params.degreesPerIndex * utils::kRadiansPerDegree * k), 0.5f * AppCtx::kWinHeight + t_params.circleRadius * sinf(t_params.degreesPerIndex * utils::kRadiansPerDegree * k)}, /* second point location */ 
+                {0.5f * AppCtx::kWinWidth + t_params.circleRadius * cosf(t_params.degreesPerIndex * Utils::kRadiansPerDegree * k), 0.5f * AppCtx::kWinHeight + t_params.circleRadius * sinf(t_params.degreesPerIndex * Utils::kRadiansPerDegree * k)}, /* second point location */ 
                 { r, g, b, 0xFF }, /* second color */
                 { 0.f, 0.f }
             };
 
             vertices[2] = {
-                {0.5f * AppCtx::kWinWidth + t_params.circleRadius * cosf(t_params.degreesPerIndex * utils::kRadiansPerDegree * (k + 1)), 0.5f * AppCtx::kWinHeight + t_params.circleRadius * sinf(t_params.degreesPerIndex * utils::kRadiansPerDegree * (k + 1))}, /* third point location */ 
+                {0.5f * AppCtx::kWinWidth + t_params.circleRadius * cosf(t_params.degreesPerIndex * Utils::kRadiansPerDegree * (k + 1)), 0.5f * AppCtx::kWinHeight + t_params.circleRadius * sinf(t_params.degreesPerIndex * Utils::kRadiansPerDegree * (k + 1))}, /* third point location */ 
                 { r, g, b, 0xFF }, /* third color */
                 { 0.f, 0.f }
             };
@@ -122,18 +124,18 @@ void SortView::drawElement(size_t k, const RenderParams& t_params) noexcept {
         case DisplayType::CircleDot: {
             SDL_RenderPoint(
                 AppCtx::g_app->renderer, 
-                0.5f * AppCtx::kWinWidth + t_params.circleRadius * cosf(t_params.degreesPerIndex * utils::kRadiansPerDegree * k), 
-                0.5f * AppCtx::kWinHeight + t_params.circleRadius * sinf(t_params.degreesPerIndex * utils::kRadiansPerDegree * k)
+                0.5f * AppCtx::kWinWidth + t_params.circleRadius * cosf(t_params.degreesPerIndex * Utils::kRadiansPerDegree * k), 
+                0.5f * AppCtx::kWinHeight + t_params.circleRadius * sinf(t_params.degreesPerIndex * Utils::kRadiansPerDegree * k)
             );
         } break;
 
         case DisplayType::DisparityCircle: {
             SDL_RenderLine(
                 AppCtx::g_app->renderer, 
-                0.5f * AppCtx::kWinWidth + t_params.circleRadius * cosf(t_params.degreesPerIndex * utils::kRadiansPerDegree * m_elems[k]), 
-                0.5f * AppCtx::kWinHeight + t_params.circleRadius * sinf(t_params.degreesPerIndex * utils::kRadiansPerDegree * m_elems[k]), 
-                0.5f * AppCtx::kWinWidth + t_params.circleRadius * cosf(t_params.degreesPerIndex * utils::kRadiansPerDegree * (k + 1)), 
-                0.5f * AppCtx::kWinHeight + t_params.circleRadius * sinf(t_params.degreesPerIndex * utils::kRadiansPerDegree * (k + 1))
+                0.5f * AppCtx::kWinWidth + t_params.circleRadius * cosf(t_params.degreesPerIndex * Utils::kRadiansPerDegree * m_elems[k]), 
+                0.5f * AppCtx::kWinHeight + t_params.circleRadius * sinf(t_params.degreesPerIndex * Utils::kRadiansPerDegree * m_elems[k]), 
+                0.5f * AppCtx::kWinWidth + t_params.circleRadius * cosf(t_params.degreesPerIndex * Utils::kRadiansPerDegree * (k + 1)), 
+                0.5f * AppCtx::kWinHeight + t_params.circleRadius * sinf(t_params.degreesPerIndex * Utils::kRadiansPerDegree * (k + 1))
             );
         } break;
 
@@ -150,13 +152,13 @@ void SortView::drawElement(size_t k, const RenderParams& t_params) noexcept {
             };
 
             vertices[1] = {
-                {0.5f * AppCtx::kWinWidth + t_params.spiralScale * m_elems[k] * cosf(t_params.degreesPerIndex * utils::kRadiansPerDegree * k), 0.5f * AppCtx::kWinHeight + t_params.spiralScale * m_elems[k] * sinf(t_params.degreesPerIndex * utils::kRadiansPerDegree * k)}, /* second point location */ 
+                {0.5f * AppCtx::kWinWidth + t_params.spiralScale * m_elems[k] * cosf(t_params.degreesPerIndex * Utils::kRadiansPerDegree * k), 0.5f * AppCtx::kWinHeight + t_params.spiralScale * m_elems[k] * sinf(t_params.degreesPerIndex * Utils::kRadiansPerDegree * k)}, /* second point location */ 
                 { r, g, b, 0xFF }, /* second color */
                 { 0.f, 0.f }
             };
 
             vertices[2] = {
-                {0.5f * AppCtx::kWinWidth + t_params.spiralScale * m_elems[k] * cosf(t_params.degreesPerIndex * utils::kRadiansPerDegree * (k + 1)), 0.5f * AppCtx::kWinHeight + t_params.spiralScale * m_elems[k] * sinf(t_params.degreesPerIndex * utils::kRadiansPerDegree * (k + 1))}, /* third point location */ 
+                {0.5f * AppCtx::kWinWidth + t_params.spiralScale * m_elems[k] * cosf(t_params.degreesPerIndex * Utils::kRadiansPerDegree * (k + 1)), 0.5f * AppCtx::kWinHeight + t_params.spiralScale * m_elems[k] * sinf(t_params.degreesPerIndex * Utils::kRadiansPerDegree * (k + 1))}, /* third point location */ 
                 { r, g, b, 0xFF }, /* third color */
                 { 0.f, 0.f }
             };
@@ -167,8 +169,8 @@ void SortView::drawElement(size_t k, const RenderParams& t_params) noexcept {
         case DisplayType::SpiralDot: {
             SDL_RenderPoint(
                 AppCtx::g_app->renderer, 
-                0.5f * AppCtx::kWinWidth + t_params.spiralScale * m_elems[k] * cos(t_params.degreesPerIndex * utils::kRadiansPerDegree * k), 
-                0.5f * AppCtx::kWinHeight + t_params.spiralScale * m_elems[k] * sin(t_params.degreesPerIndex * utils::kRadiansPerDegree * k)
+                0.5f * AppCtx::kWinWidth + t_params.spiralScale * m_elems[k] * cos(t_params.degreesPerIndex * Utils::kRadiansPerDegree * k), 
+                0.5f * AppCtx::kWinHeight + t_params.spiralScale * m_elems[k] * sin(t_params.degreesPerIndex * Utils::kRadiansPerDegree * k)
             ); 
         } break;
     }
@@ -176,6 +178,8 @@ void SortView::drawElement(size_t k, const RenderParams& t_params) noexcept {
 
 void SortView::update() noexcept
 {
+    auto& sorter = AppCtx::g_app->sorter;
+
     SDL_SetRenderDrawColor(AppCtx::g_app->renderer, 0x0, 0x0, 0x0, 0x0);
     SDL_RenderClear(AppCtx::g_app->renderer);
 
@@ -191,21 +195,27 @@ void SortView::update() noexcept
         m_elems = AppCtx::g_app->data;
     }
 
-    AppCtx::g_app->currentElement = AppCtx::g_app->sorter->getFirst();
+    AppCtx::g_app->currentElement = sorter->getFirst();
 
     for (size_t k = 0; k < m_elems.size(); ++k)
     {
-        SDL_Color sortColor = utils::hsvToRgb(m_elems[k] * 0xFF / m_elems.size(), 0xFF, 0xFF);
+        SDL_Color sortColor = Utils::hsvToRgb(m_elems[k] * 0xFF / m_elems.size(), 0xFF, 0xFF);
 
-        if (k == AppCtx::g_app->sorter->getFirst() || k == AppCtx::g_app->sorter->getSecond())
-            SDL_SetRenderDrawColor(AppCtx::g_app->renderer, 0xFF, 0x0, 0x0, 0xFF);
-        else {
-            if (m_isColored) {
-                SDL_SetRenderDrawColor(AppCtx::g_app->renderer, sortColor.r, sortColor.g, sortColor.b, 0xFF);
-            } else {
-                SDL_SetRenderDrawColor(AppCtx::g_app->renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+        Uint8 r = 0xFF, g = 0xFF, b = 0xFF;  // Default: white
+
+        if (k == sorter->getFirst() || k == sorter->getSecond()) {
+            r = 0xFF; g = 0x00; b = 0x00;  // Red
+        } else if (sorter->isChecking) {
+            if (k < sorter->getFirst()) {
+                r = 0x00; g = 0xFF; b = 0x00;  // Green
+            } else if (m_isColored) {
+                r = sortColor.r; g = sortColor.g; b = sortColor.b;
             }
+        } else if (m_isColored) {
+            r = sortColor.r; g = sortColor.g; b = sortColor.b;
         }
+
+        SDL_SetRenderDrawColor(AppCtx::g_app->renderer, r, g, b, 0xFF);
 
         drawElement(k, t_params);
     }
@@ -214,10 +224,10 @@ void SortView::update() noexcept
 
     int ret = renderGUI();
     if (ret == 1) {
-        AppCtx::g_app->sorter->isShuffling = false;
-        AppCtx::g_app->sorter->isSorting = false;
-        AppCtx::g_app->sorter->sorted = true;
-        AppCtx::g_app->sorter->wantStop = false;
+        sorter->isShuffling = false;
+        sorter->isSorting = false;
+        sorter->sorted = true;
+        sorter->wantStop = false;
         return;
     } else if (ret == 2) return;
         
@@ -227,7 +237,7 @@ void SortView::update() noexcept
         ImGui_ImplSDL3_ProcessEvent(&AppCtx::g_app->event);
         if (AppCtx::g_app->event.type == SDL_EVENT_QUIT)
         {
-            AppCtx::g_app->sorter->wantClose = true;
+            sorter->wantClose = true;
             return;
         }
     }
@@ -373,11 +383,14 @@ int SortView::renderGUI() noexcept
             else
                 AppCtx::g_app->sorter->reverse();
 
-            if (AppCtx::g_app->sorter->wantStop) return;
-
             if(!(AppCtx::g_app->sorter->wantStop)) {
                 LOGINFO("Sorting");
                 AppCtx::g_app->sorter->sort();
+            }
+
+            if(!(AppCtx::g_app->sorter->wantStop)) {
+                LOGINFO("Checking");
+                AppCtx::g_app->sorter->check();
             }
 
             if (AppCtx::g_app->sorter->wantStop) return;

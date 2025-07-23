@@ -27,57 +27,58 @@
 
 class BaseSort;
 
-class App
-{
-private:
-    mutable std::mutex m_mutex;
-    std::unique_ptr<SortView> m_sortView;
-    ImGuiIO* m_io;
-    SoundEngine* m_soundEngine;
-    SDL_Window *m_window;
-    std::optional<std::thread> m_audioThread;
+namespace Core {
+    class App
+    {
+    private:
+        mutable std::mutex m_mutex;
+        std::unique_ptr<SortView> m_sortView;
+        ImGuiIO* m_io;
+        SoundEngine* m_soundEngine;
+        SDL_Window *m_window;
+        std::optional<std::thread> m_audioThread;
 
-    [[nodiscard]] int initSDL();
-    [[nodiscard]] int initImGui();
-    [[nodiscard]] int initAudio();
-    [[nodiscard]] int initFont();
+        [[nodiscard]] int initSDL();
+        [[nodiscard]] int initImGui();
+        [[nodiscard]] int initAudio();
+        [[nodiscard]] int initFont();
 
-    ImGuiIO& configureIO() noexcept;
+        ImGuiIO& configureIO() noexcept;
 
-    friend class BaseSort;
-    friend class SortView;
-public:
-    SDL_Renderer *renderer;
-    SDL_Event event;
-    TTF_Font *font;
+        friend class ::BaseSort;
+        friend class ::SortView;
+    public:
+        SDL_Renderer *renderer;
+        SDL_Event event;
+        TTF_Font *font;
 
-    std::shared_ptr<BaseSort> sorter;
+        std::shared_ptr<BaseSort> sorter;
 
-    std::atomic<size_t> currentElement;
+        std::atomic<size_t> currentElement;
 
-    size_t currentItemIndex = 0;
-    
-    std::array<const char *, 5> categories;
-    enum SortCategory currentCategory;
+        size_t currentItemIndex = 0;
+        
+        std::array<const char *, 5> categories;
+        enum SortCategory currentCategory;
 
-    std::array<const char *, 8> displayTypes;
-    enum DisplayType currentDisplayType;
+        std::array<const char *, 8> displayTypes;
+        enum DisplayType currentDisplayType;
 
-    std::vector<int> data;
+        std::vector<int> data;
 
-    std::optional<std::thread> sortThread;
+        std::optional<std::thread> sortThread;
 
-    App() noexcept;
-    ~App();
-    
-    int init();
-    void run();
+        App() noexcept;
+        ~App();
+        
+        int init();
+        void run();
 
-    void startAudioThread();
+        void startAudioThread();
 
-    void setStyle(ImGuiStyle& t_style) const noexcept;
+        void setStyle(ImGuiStyle& t_style) const noexcept;
 
-    float getFramerate() const;
-};
-
+        float getFramerate() const;
+    };
+}
 #endif

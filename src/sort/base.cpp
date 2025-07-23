@@ -76,7 +76,7 @@ void BaseSort::shuffle()
 
     std::shuffle(std::begin(temp), std::end(temp), std::default_random_engine(0));
 
-    for (size_t i = 0; i < temp.capacity(); i++)
+    for (size_t i = 0; i < temp.capacity(); ++i)
     {
         {
             LOCK_GUARD;
@@ -95,6 +95,32 @@ void BaseSort::shuffle()
     std::this_thread::sleep_for(500ms);
     startTime = AppCtx::getTimestamp();
     lastTime = startTime;
+}
+
+void BaseSort::check()
+{   
+    wantStop = false;
+    isChecking = true;
+
+    std::vector<int> temp(elems.size());
+
+    {
+        LOCK_GUARD;
+        temp = elems; // Copy the original elements to temp
+    }
+
+    for (size_t i = 0; i < temp.capacity(); ++i)
+    {
+        if (temp[i] != i + 1) break;
+        m_first = i;
+        m_second = m_first.load();
+        
+        HIGH_RES_WAIT(500.0 / static_cast<double>(temp.size()))
+        if (wantClose || wantStop) return;
+    }
+
+    isChecking = false;
+    LOGINFO("Check completed");
 }
 
 void BaseSort::swap(std::vector<int>& array, size_t a, size_t b)

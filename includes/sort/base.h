@@ -17,6 +17,7 @@ public:
     std::atomic<bool> sorted;
     std::atomic<bool> isSorting;
     std::atomic<bool> isShuffling;
+    std::atomic<bool> isChecking;
     std::atomic<bool> wantClose;
     std::atomic<bool> wantStop;
 
@@ -40,6 +41,7 @@ public:
 
     void shuffle();
     void reverse();
+    void check();
     void setLength(unsigned int length);
     
     virtual void sort() = 0;

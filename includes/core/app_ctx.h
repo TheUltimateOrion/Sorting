@@ -4,11 +4,13 @@
 
 #include "registry/sort_registry.h"
 
-class App;
+namespace Core {
+    class App;
+}
 
 namespace AppCtx {
-    extern std::unique_ptr<App> g_app; // Declare app as a unique pointer
-    extern SortRegistry g_sortRegistry; // Global sort registry
+    extern std::unique_ptr<Core::App> g_app; // Declare app as a unique pointer
+    extern Core::SortRegistry g_sortRegistry; // Global sort registry
 
     constexpr float kWinWidth = 1920.0f;
     constexpr float kWinHeight = 1080.0f;
