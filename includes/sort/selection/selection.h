@@ -1,10 +1,13 @@
 #pragma once
 #include "sort/base.h"
 
-class SelectionSort : virtual public BaseSort
+namespace Sort 
 {
-public:
-    SelectionSort(std::vector<int>& t_arr);
+    class SelectionSort : virtual public BaseSort
+    {
+    public:
+        SelectionSort(std::vector<int>& t_arr);
 
-    void sort() override;
-};
+        void sort() override;
+    };
+}

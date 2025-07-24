@@ -6,36 +6,42 @@
 
 #include "utils/common.h"
 
-SelectionSort::SelectionSort(std::vector<int>& t_arr) : BaseSort(t_arr) {}
+namespace Sort {
+    SelectionSort::SelectionSort(std::vector<int>& t_arr) : BaseSort(t_arr) {}
 
-void SelectionSort::sort()
-{
-    isSorting = true;
-    int size = elems.size();
-
-    for (int i = 0; i < size - 1; i ++)
+    void SelectionSort::sort()
     {
-        int min = i;
-        for (int j = i + 1; j < size; j++)
+        isSorting = true;
+        int size = elems.size();
+
+        for (int i = 0; i < size - 1; i ++)
         {
-            m_first = j;
-            m_second = min;
+            int min = i;
+            for (int j = i + 1; j < size; j++)
+            {
+                m_first = j;
+                m_second = min;
 
-            comparisons++;
+                comparisons++;
 
-            if (elems[j] < elems[min])
-                min = j;
+                if (elems[j] < elems[min])
+                {
+                    min = j;
+                }
 
-            HIGH_RES_WAIT(1.f / BaseSort::s_speed);
+                HIGH_RES_WAIT(1.f / BaseSort::s_speed);
+                if (wantClose || wantStop) return;
+
+            }
+            if (min != i)
+            {
+                swap(elems, min, i);
+            }
+
             if (wantClose || wantStop) return;
-
         }
-        if (min != i)
-            swap(elems, min, i);
 
-        if (wantClose || wantStop) return;
+        isSorting = false;
+        sorted = true;
     }
-
-    isSorting = false;
-    sorted = true;
-}
+} // namespace Sort

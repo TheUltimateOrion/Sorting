@@ -1,75 +1,61 @@
 #include <gtest/gtest.h>
+#include "core/registry/sort_registry.h"
 
-#include "sort/sort.h"
+class SortRegistryTest : public ::testing::TestWithParam<const char*> {
+public:
+    Core::SortRegistry reg;
+};
 
-// --- Shared Test Fixture for All Sorts ---
-template <typename SortType>
-class SortTest : public ::testing::Test {};
+INSTANTIATE_TEST_SUITE_P(
+    AllSorts,
+    SortRegistryTest,
+    ::testing::Values(
+        "bubble", "quick", "merge", "insertion",
+        "selection", "comb", "gravity", "pigeon_hole",
+        "bogo", "radix_lsd"));
 
-using SortImplementations = ::testing::Types<
-    BubbleSort, QuickSort, MergeSort, InsertionSort,
-    SelectionSort, CombSort, GravitySort, PigeonHoleSort, BogoSort
->;
-
-TYPED_TEST_SUITE(SortTest, SortImplementations);
-
-TYPED_TEST(SortTest, HandlesRandomInput) {
-    std::vector<int> input = {5, 3, 8, 1, 9, 2, 4, 7, 6};
-    std::vector<int> expected = {1, 2, 3, 4, 5, 6, 7, 8, 9};
-    TypeParam sorter(input);
-    sorter.sort();
+TEST_P(SortRegistryTest, HandlesRandomInput) {
+    reg.registerAllSorts();
+    std::vector<int> input = {5,3,8,1,9,2,4,7,6};
+    std::vector<int> expected = {1,2,3,4,5,6,7,8,9};
+    const char* id = GetParam();
+    auto* entry = reg.get(id);
+    ASSERT_NE(entry, nullptr);
+    auto sorter = entry->factory(input);
+    sorter->sort();
     ASSERT_EQ(input, expected);
 }
 
-TYPED_TEST(SortTest, HandlesReversedInput) {
-    std::vector<int> input = {9, 8, 7, 6, 5, 4, 3, 2, 1};
-    std::vector<int> expected = {1, 2, 3, 4, 5, 6, 7, 8, 9};
-    TypeParam sorter(input);
-    sorter.sort();
+TEST_P(SortRegistryTest, HandlesReversedInput) {
+    reg.registerAllSorts();
+    std::vector<int> input = {9,8,7,6,5,4,3,2,1};
+    std::vector<int> expected = {1,2,3,4,5,6,7,8,9};
+    const char* id = GetParam();
+    auto* entry = reg.get(id);
+    ASSERT_NE(entry, nullptr);
+    auto sorter = entry->factory(input);
+    sorter->sort();
     ASSERT_EQ(input, expected);
 }
 
-TYPED_TEST(SortTest, HandlesEmptyInput) {
+TEST_P(SortRegistryTest, HandlesEmptyInput) {
+    reg.registerAllSorts();
     std::vector<int> input = {};
-    TypeParam sorter(input);
-    sorter.sort();
+    const char* id = GetParam();
+    auto* entry = reg.get(id);
+    ASSERT_NE(entry, nullptr);
+    auto sorter = entry->factory(input);
+    sorter->sort();
     ASSERT_TRUE(input.empty());
 }
 
-TYPED_TEST(SortTest, HandlesSingleElement) {
+TEST_P(SortRegistryTest, HandlesSingleElement) {
+    reg.registerAllSorts();
     std::vector<int> input = {42};
-    TypeParam sorter(input);
-    sorter.sort();
-    ASSERT_EQ(input, std::vector<int>({42}));
-}
-
-// --- RadixLSDSort Special Tests ---
-TEST(RadixSortTest, HandlesRandomInput) {
-    std::vector<int> input = {5, 3, 8, 1, 9, 2, 4, 7, 6};
-    std::vector<int> expected = {1, 2, 3, 4, 5, 6, 7, 8, 9};
-    RadixLSDSort sorter(input, 10);
-    sorter.sort();
-    ASSERT_EQ(input, expected);
-}
-
-TEST(RadixSortTest, HandlesReversedInput) {
-    std::vector<int> input = {9, 8, 7, 6, 5, 4, 3, 2, 1};
-    std::vector<int> expected = {1, 2, 3, 4, 5, 6, 7, 8, 9};
-    RadixLSDSort sorter(input, 10);
-    sorter.sort();
-    ASSERT_EQ(input, expected);
-}
-
-TEST(RadixSortTest, HandlesEmptyInput) {
-    std::vector<int> input = {};
-    RadixLSDSort sorter(input, 10);
-    sorter.sort();
-    ASSERT_TRUE(input.empty());
-}
-
-TEST(RadixSortTest, HandlesSingleElement) {
-    std::vector<int> input = {42};
-    RadixLSDSort sorter(input, 10);
-    sorter.sort();
+    const char* id = GetParam();
+    auto* entry = reg.get(id);
+    ASSERT_NE(entry, nullptr);
+    auto sorter = entry->factory(input);
+    sorter->sort();
     ASSERT_EQ(input, std::vector<int>({42}));
 }

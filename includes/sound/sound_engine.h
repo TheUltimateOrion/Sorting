@@ -5,7 +5,8 @@
 
 #ifndef AL_CHECK_ERR
 #define AL_CHECK_ERR(ret) \
-    if (alGetError() != AL_NO_ERROR) {\
+    if (alGetError() != AL_NO_ERROR)\
+    {\
         this->m_err = alGetError();\
         return ret; \
     }

@@ -1,4 +1,4 @@
-file(GLOB TEST_FILES ${PROJECT_SOURCE_DIR}/src/sort/*.cpp)
+file(GLOB TEST_FILES ${PROJECT_SOURCE_DIR}/src/sort/*.cpp ${PROJECT_SOURCE_DIR}/src/core/registry/sort_registry.cpp)
 
 add_executable(${PROJECT_NAME}_TEST main.test.cc ${TEST_FILES})
 

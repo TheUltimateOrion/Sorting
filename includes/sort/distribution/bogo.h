@@ -1,13 +1,16 @@
 #pragma once
 #include "sort/base.h"
 
-class BogoSort : virtual public BaseSort
+namespace Sort 
 {
-private:
-    bool isSorted();
-    void bogoShuffle();
-public:
-    BogoSort(std::vector<int>& t_arr);
+    class BogoSort : virtual public BaseSort
+    {
+    private:
+        bool isSorted();
+        void bogoShuffle();
+    public:
+        BogoSort(std::vector<int>& t_arr);
 
-    void sort() override;
-};
+        void sort() override;
+    };
+} // namespace Sort

@@ -10,17 +10,19 @@
 #include "sort/category.h"
 #include "sort/base.h"
 
-namespace Core {
-    class SortRegistry : public Registry<SortRegistryEntry> {
+namespace Core 
+{
+    class SortRegistry : public Registry<SortRegistryEntry> 
+    {
     public:
-        void registerSort(
+        void registerSort (
             const std::string& id,
-            SortCategory category,
+            Sort::Category category,
             const std::string& displayName,
-            std::function<std::shared_ptr<BaseSort>(std::vector<int>&)> factory
+            std::function<std::shared_ptr<Sort::BaseSort>(std::vector<int>&)> factory
         );
 
-        std::vector<std::string> idsByCategory(SortCategory category) const;
+        std::vector<std::string> idsByCategory(Sort::Category category) const;
 
         void registerAllSorts();
     };

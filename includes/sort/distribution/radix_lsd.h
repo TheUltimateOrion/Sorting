@@ -1,13 +1,16 @@
 #pragma once
 #include "sort/base.h"
 
-class RadixLSDSort : virtual public BaseSort
+namespace Sort 
 {
-private:
-    int m_radix;
-    void countSortByDigits(int t_exponent, int t_minValue);
-public:
-    RadixLSDSort(std::vector<int>& t_arr, int t_radix);
+    class RadixLSDSort : virtual public BaseSort
+    {
+    private:
+        int m_radix;
+        void countSortByDigits(int t_exponent, int t_minValue);
+    public:
+        RadixLSDSort(std::vector<int>& t_arr, int t_radix);
 
-    void sort() override;
-};
+        void sort() override;
+    };
+} // namespace Sort

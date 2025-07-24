@@ -25,14 +25,13 @@
 
 #ifndef TESTING
 
-class BaseSort;
-
-namespace Core {
-    class App
+namespace Core 
+{
+    class App 
     {
     private:
         mutable std::mutex m_mutex;
-        std::unique_ptr<SortView> m_sortView;
+        std::unique_ptr<Renderer::SortView> m_sortView;
         ImGuiIO* m_io;
         SoundEngine* m_soundEngine;
         SDL_Window *m_window;
@@ -45,24 +44,24 @@ namespace Core {
 
         ImGuiIO& configureIO() noexcept;
 
-        friend class ::BaseSort;
-        friend class ::SortView;
+        friend class Sort::BaseSort;
+        friend class Renderer::SortView;
     public:
         SDL_Renderer *renderer;
         SDL_Event event;
         TTF_Font *font;
 
-        std::shared_ptr<BaseSort> sorter;
+        std::shared_ptr<Sort::BaseSort> sorter;
 
         std::atomic<size_t> currentElement;
 
         size_t currentItemIndex = 0;
         
         std::array<const char *, 5> categories;
-        enum SortCategory currentCategory;
+        enum Sort::Category currentCategory;
 
         std::array<const char *, 8> displayTypes;
-        enum DisplayType currentDisplayType;
+        enum Renderer::DisplayType currentDisplayType;
 
         std::vector<int> data;
 

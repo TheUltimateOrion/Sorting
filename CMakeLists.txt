@@ -10,10 +10,10 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wall -Wextra")
 set(SDLTTF_VENDORED ON)  # SDL_ttf builds its own dependencies
 
 # Enable testing
-# include(CTest)
-# include(GoogleTest)
-# enable_testing()
-# add_subdirectory(test)
+include(CTest)
+include(GoogleTest)
+enable_testing()
+add_subdirectory(test)
 
 # External dependencies
 add_subdirectory(external)

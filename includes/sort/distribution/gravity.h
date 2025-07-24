@@ -1,10 +1,13 @@
 #pragma once
 #include "sort/base.h"
 
-class GravitySort : virtual public BaseSort
+namespace Sort 
 {
-public:
-    GravitySort(std::vector<int>& t_arr);
+    class GravitySort : virtual public BaseSort
+    {
+    public:
+        GravitySort(std::vector<int>& t_arr);
 
-    void sort() override;
-};
+        void sort() override;
+    };
+} // namespace Sort

@@ -9,8 +9,9 @@
 
 using namespace std::literals::chrono_literals;
 
-namespace Core {
-    App::App() noexcept : currentElement(0), currentCategory(SortCategory::Exchange), currentDisplayType(DisplayType::Bar)
+namespace Core 
+{
+    App::App() noexcept : currentElement(0), currentCategory(Sort::Category::Exchange), currentDisplayType(Renderer::DisplayType::Bar)
     {
         categories = {"Exchange", "Distribution", "Insertion", "Merge", "Select"};
         displayTypes = {"Bar", "Dot", "Rainbow Rectangle", "Circle", "Circle Dot", "Disparity Circle", "Spiral", "Spiral Dot"};
@@ -20,22 +21,31 @@ namespace Core {
 
     App::~App()
     {   
-        LOGINFO("Joining and Destroying Sorting Thread");
-        if (sortThread.has_value()) {
+        if (sortThread.has_value()) 
+        {
             if (sortThread->joinable())
+            {
+                LOGINFO("Joining and Destroying Sorting Thread");
                 sortThread->join();
+            }
             sortThread.reset();
         }
 
-        LOGINFO("Joining Audio Thread");
-        if (m_audioThread.has_value()) {
+        if (m_audioThread.has_value()) 
+        {
             if (m_audioThread->joinable())
+            {
+                LOGINFO("Joining Audio Thread");
                 m_audioThread->join();
+            }
             m_audioThread.reset();
         }
 
-        LOGINFO("Destroying font renderer");
-        if (font) TTF_CloseFont(font);
+        if (font) 
+        {
+            LOGINFO("Destroying font renderer");
+            TTF_CloseFont(font);
+        }
         TTF_Quit();
 
         LOGINFO("Shutting down ImGui renderer");
@@ -47,11 +57,17 @@ namespace Core {
         LOGINFO("Destroying ImGui context");
         ImGui::DestroyContext();
 
-        LOGINFO("Destroying SDL renderer");
-        if (renderer) SDL_DestroyRenderer(renderer);
+        if (renderer) 
+        {
+            LOGINFO("Destroying SDL renderer");
+            SDL_DestroyRenderer(renderer);
+        }
 
         LOGINFO("Destroying SDL window");
-        if(m_window) SDL_DestroyWindow(m_window);
+        if(m_window) 
+        {
+            SDL_DestroyWindow(m_window);
+        }
 
         LOGINFO("Quitting...");
         SDL_Quit();
@@ -85,12 +101,11 @@ namespace Core {
         if (initImGui() < 0)
         {
             LOGERR("Could not initialize ImGui");
-            
         }
 
         LOGINFO("Creating SortView");
         // Create the SortView instance
-        m_sortView = std::make_unique<SortView>();
+        m_sortView = std::make_unique<Renderer::SortView>();
         srand(time(NULL));
         return 0;
     }
@@ -141,7 +156,8 @@ namespace Core {
         if (m_soundEngine->init() < 0)
         {
             LOGERR("Sound could not be initialized");
-            if (m_soundEngine->alGetLastError() != AL_NO_ERROR) {
+            if (m_soundEngine->alGetLastError() != AL_NO_ERROR) 
+            {
                 LOGERR("Error playing audio with code: " << m_soundEngine->alErrorString(m_soundEngine->alGetLastError()) << "(" << m_soundEngine->alGetLastError() << ")");
                 return -1;
             }
@@ -181,13 +197,16 @@ namespace Core {
         constexpr int defaultSize = 512;
         data.resize(defaultSize);
         for (int index = 0; index < defaultSize; ++index)
+        {
             data[index] = index + 1;
+        }
 
         LOGINFO("Initializing sorter");
-        sorter = std::make_shared<BubbleSort>(data);
-        if (auto* entry = AppCtx::g_sortRegistry.get("BubbleSort")) {
+        sorter = std::make_shared<Sort::BubbleSort>(data);
+        if (auto* entry = AppCtx::g_sortRegistry.get("BubbleSort")) 
+        {
             sorter = entry->factory(data);
-            sorter->setLength(BaseSort::s_length);
+            sorter->setLength(Sort::BaseSort::s_length);
         }
 
         LOGINFO("Creating audio thread");
@@ -197,23 +216,26 @@ namespace Core {
         LOGINFO("Starting main loop");
         SDL_PollEvent(&event);
 
-        while(1)
+        while(true)
         {
             auto start = std::chrono::high_resolution_clock::now();
             m_sortView->update();
             std::chrono::duration<double, std::milli> elapsed = std::chrono::high_resolution_clock::now() - start;
-            if (event.type == SDL_EVENT_QUIT || sorter->wantClose) {
+            if (event.type == SDL_EVENT_QUIT || sorter->wantClose) 
+            {
                 LOGINFO("Exit signal recieved");
                 break;
             }
             
             double delay = AppCtx::kFrameTime - elapsed.count();
 
-            if (delay > 1.5) {
+            if (delay > 1.5) 
+            {
                 SDL_Delay(static_cast<Uint32>(delay - 1.0));
             }
 
-            while (true) {
+            while (true) 
+            {
                 auto now = std::chrono::high_resolution_clock::now();
                 if (std::chrono::duration<double, std::milli>(now - start).count() >= AppCtx::kFrameTime) break;
             }
@@ -224,33 +246,41 @@ namespace Core {
     {
         m_audioThread = std::make_optional<std::thread>([this]()
         {
-            while(!sorter->wantClose) {
+            while(!sorter->wantClose) 
+            {
                 constexpr float sec = 0.04f;
                 constexpr int base = 100;
                 constexpr int min = 100;
                 constexpr int max = 800;
 
                 int freq = 0;
+
                 {
                     std::lock_guard<std::mutex> lock(m_mutex);
 
-                    if (data.empty() || currentElement.load() >= data.size()) {
+                    if (data.empty() || currentElement.load() >= data.size()) 
+                    {
                         std::this_thread::sleep_for(100ms);
                         continue;  // skip this iteration;
                     }
 
                     freq = data[currentElement] * (AppCtx::kWinHeight / static_cast<float>(data.size())) + base;
                 }
+
                 freq = std::clamp(freq, min, max);
-                if (sorter->isSorting || sorter->isShuffling || sorter->isChecking) {
+
+                if (sorter->isSorting || sorter->isShuffling || sorter->isChecking) 
+                {
                     m_soundEngine->load(sec, freq);
-                    if (m_soundEngine->alGetLastError() != AL_NO_ERROR) {
+                    if (m_soundEngine->alGetLastError() != AL_NO_ERROR) 
+                    {
                         LOGERR("Error loading audio with code: " << m_soundEngine->alErrorString(m_soundEngine->alGetLastError()) << "(" << m_soundEngine->alGetLastError() << ")");
                         return;
                     }
 
                     m_soundEngine->play();
-                    if (m_soundEngine->alGetLastError() != AL_NO_ERROR) {
+                    if (m_soundEngine->alGetLastError() != AL_NO_ERROR) 
+                    {
                         LOGERR("Error playing audio with code: " << m_soundEngine->alErrorString(m_soundEngine->alGetLastError()) << "(" << m_soundEngine->alGetLastError() << ")");
                         return;
                     }
@@ -331,7 +361,8 @@ namespace Core {
         return io;
     }
 
-    float App::getFramerate() const {
+    float App::getFramerate() const 
+    {
         return m_io->Framerate;
     }
 } // namespace Core

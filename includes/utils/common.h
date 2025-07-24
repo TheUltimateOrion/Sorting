@@ -9,7 +9,8 @@
 
     #define HIGH_RES_WAIT(t)\
         auto start = std::chrono::high_resolution_clock::now();\
-        while (true) {\
+        while (true)\
+        {\
             auto now = std::chrono::high_resolution_clock::now();\
             double elapsed = std::chrono::duration<double, std::milli>(now - start).count();\
             if (elapsed >= (t)) break;\
@@ -21,6 +22,7 @@
 #endif
 
 
-namespace Utils {
+namespace Utils 
+{
     
 };

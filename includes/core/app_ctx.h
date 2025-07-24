@@ -4,11 +4,13 @@
 
 #include "registry/sort_registry.h"
 
-namespace Core {
+namespace Core 
+{
     class App;
 }
 
-namespace AppCtx {
+namespace AppCtx 
+{
     extern std::unique_ptr<Core::App> g_app; // Declare app as a unique pointer
     extern Core::SortRegistry g_sortRegistry; // Global sort registry
 
@@ -19,7 +21,8 @@ namespace AppCtx {
     
     inline int32_t g_sortRadix = 2;
 
-    inline double getTimestamp() {
+    inline double getTimestamp() 
+    {
         static auto start = std::chrono::high_resolution_clock::now();
         auto now = std::chrono::high_resolution_clock::now();
         return std::chrono::duration<double>(now - start).count();

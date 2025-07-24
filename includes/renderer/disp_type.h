@@ -1,13 +1,16 @@
 #pragma once
 
-enum DisplayType
+namespace Renderer 
 {
-    Bar,
-    Dot,
-    RainbowRectangle,
-    Circle,
-    CircleDot,
-    DisparityCircle,
-    Spiral,
-    SpiralDot
-};
+    enum DisplayType
+    {
+        Bar,
+        Dot,
+        RainbowRectangle,
+        Circle,
+        CircleDot,
+        DisparityCircle,
+        Spiral,
+        SpiralDot
+    };
+} // namespae Renderer

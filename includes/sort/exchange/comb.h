@@ -1,12 +1,15 @@
 #pragma once
 #include "sort/base.h"
 
-class CombSort : virtual public BaseSort
+namespace Sort 
 {
-private:
-    int getNextGap(int t_gap);
-public:
-    CombSort(std::vector<int>& t_arr);
+    class CombSort : virtual public BaseSort
+    {
+    private:
+        int getNextGap(int t_gap);
+    public:
+        CombSort(std::vector<int>& t_arr);
 
-    void sort() override;
-};
+        void sort() override;
+    };
+} // namespace Sort

@@ -4,50 +4,57 @@
 #include "core/app_ctx.h"
 #include "core/logging/logging.h"
 
-namespace Core {
+namespace Core 
+{
     void SortRegistry::registerSort(
         const std::string& id,
-        SortCategory category,
+        Sort::Category category,
         const std::string& displayName,
-        std::function<std::shared_ptr<BaseSort>(std::vector<int>&)> factory
-    ) {
+        std::function<std::shared_ptr<Sort::BaseSort>(std::vector<int>&)> factory
+    ) 
+    {
         LOGINFO("Registering sort: " + id + " in category: " + std::to_string(static_cast<int>(category)));
         registerFactory(id, SortRegistryEntry{category, displayName, std::move(factory)});
     }
 
-    std::vector<std::string> SortRegistry::idsByCategory(SortCategory category) const {
+    std::vector<std::string> SortRegistry::idsByCategory(Sort::Category category) const 
+    {
         std::vector<std::string> ids;
-        for (const auto& [id, entry] : m_regEntries) {
-            if (entry.category == category) ids.push_back(id);
+        for (const auto& [id, entry] : m_regEntries) 
+        {
+            if (entry.category == category) 
+            {
+                ids.push_back(id);
+            }
         }
         return ids;
     }
 
-    void SortRegistry::registerAllSorts() {
-        auto& reg = AppCtx::g_sortRegistry;
-        reg.registerSort("bubble", SortCategory::Exchange, "Bubble Sort",
-            [](std::vector<int>& arr){ return std::make_shared<BubbleSort>(arr); });
-        reg.registerSort("quick", SortCategory::Exchange, "Quick Sort",
-            [](std::vector<int>& arr){ return std::make_shared<QuickSort>(arr); });
-        reg.registerSort("comb", SortCategory::Exchange, "Comb Sort",
-            [](std::vector<int>& arr){ return std::make_shared<CombSort>(arr); });
+    void SortRegistry::registerAllSorts() 
+    {
+        registerSort("bubble", Sort::Category::Exchange, "Bubble Sort",
+            [](std::vector<int>& arr){ return std::make_shared<Sort::BubbleSort>(arr); });
+        registerSort("quick", Sort::Category::Exchange, "Quick Sort",
+            [](std::vector<int>& arr){ return std::make_shared<Sort::QuickSort>(arr); });
+        registerSort("comb", Sort::Category::Exchange, "Comb Sort",
+            [](std::vector<int>& arr){ return std::make_shared<Sort::CombSort>(arr); });
 
-        reg.registerSort("radix_lsd", SortCategory::Distribution, "Radix LSD Sort",
-            [](std::vector<int>& arr){ return std::make_shared<RadixLSDSort>(arr, AppCtx::g_sortRadix); });
-        reg.registerSort("pigeon_hole", SortCategory::Distribution, "Pigeon Hole Sort",
-            [](std::vector<int>& arr){ return std::make_shared<PigeonHoleSort>(arr); });
-        reg.registerSort("gravity", SortCategory::Distribution, "Gravity Sort",
-            [](std::vector<int>& arr){ return std::make_shared<GravitySort>(arr); });
-        reg.registerSort("bogo", SortCategory::Distribution, "Bogo Sort",
-            [](std::vector<int>& arr){ return std::make_shared<BogoSort>(arr); });
+        registerSort("radix_lsd", Sort::Category::Distribution, "Radix LSD Sort",
+            [](std::vector<int>& arr){ return std::make_shared<Sort::RadixLSDSort>(arr, AppCtx::g_sortRadix); });
+        registerSort("pigeon_hole", Sort::Category::Distribution, "Pigeon Hole Sort",
+            [](std::vector<int>& arr){ return std::make_shared<Sort::PigeonHoleSort>(arr); });
+        registerSort("gravity", Sort::Category::Distribution, "Gravity Sort",
+            [](std::vector<int>& arr){ return std::make_shared<Sort::GravitySort>(arr); });
+        registerSort("bogo", Sort::Category::Distribution, "Bogo Sort",
+            [](std::vector<int>& arr){ return std::make_shared<Sort::BogoSort>(arr); });
 
-        reg.registerSort("insertion", SortCategory::Insertion, "Insertion Sort",
-            [](std::vector<int>& arr){ return std::make_shared<InsertionSort>(arr); });
+        registerSort("insertion", Sort::Category::Insertion, "Insertion Sort",
+            [](std::vector<int>& arr){ return std::make_shared<Sort::InsertionSort>(arr); });
 
-        reg.registerSort("merge", SortCategory::Merge, "Merge Sort",
-            [](std::vector<int>& arr){ return std::make_shared<MergeSort>(arr); });
+        registerSort("merge", Sort::Category::Merge, "Merge Sort",
+            [](std::vector<int>& arr){ return std::make_shared<Sort::MergeSort>(arr); });
 
-        reg.registerSort("selection", SortCategory::Select, "Selection Sort",
-            [](std::vector<int>& arr){ return std::make_shared<SelectionSort>(arr); });
+        registerSort("selection", Sort::Category::Select, "Selection Sort",
+            [](std::vector<int>& arr){ return std::make_shared<Sort::SelectionSort>(arr); });
     }
 }
