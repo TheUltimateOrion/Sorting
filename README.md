@@ -60,7 +60,7 @@ This project is licensed under the terms of the GNU GPLv3. See the [LICENSE](LIC
 
 - [x] Full multithreading with thread safety
 - [x] FPS Stabilization
-- [ ] Finishing Animation
+- [x] Finishing Sort Animation
 - [ ] Fix obscure big involving freezing when starting a sort
 - [ ] Improve options and selection screen
 - [ ] Sort registry for easier addition of new algorithms

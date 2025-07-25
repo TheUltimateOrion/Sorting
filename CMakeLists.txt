@@ -35,37 +35,40 @@ target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3 SDL3_ttf::SDL3_ttf Open
 
 # Install rules per platform
 if(WIN32)
-    install(
-        TARGETS 
-        ${PROJECT_NAME} 
-        SDL3-shared 
-        SDL3_ttf-shared
-        OpenAL
-        RUNTIME_DEPENDENCY_SET runtime_set
-        RUNTIME DESTINATION .
-    )
+    install(TARGETS 
+                ${PROJECT_NAME} 
+                SDL3-shared 
+                SDL3_ttf-shared 
+                OpenAL
+            RUNTIME_DEPENDENCY_SET 
+                runtime_set
+            RUNTIME 
+                DESTINATION .
+            )
 
     message(STATUS "MSYSTEM PREFIX: $ENV{MSYSTEM_PREFIX}")
-    install(RUNTIME_DEPENDENCY_SET runtime_set 
+    install(RUNTIME_DEPENDENCY_SET 
+                runtime_set 
     
-    DIRECTORIES
-            "C:/msys64/ucrt64/bin"  # Adjust path as needed
-            "C:/msys64/mingw64/bin"  # Adjust path as needed
-            "$ENV{MSYSTEM_PREFIX}/bin"  # Adjust path as needed
+            DIRECTORIES
+                    "C:/msys64/ucrt64/bin"  # Adjust path as needed
+                    "C:/msys64/mingw64/bin"  # Adjust path as needed
+                    "$ENV{MSYSTEM_PREFIX}/bin"  # Adjust path as needed
 
-    PRE_INCLUDE_REGEXES "lib.*\\.dll"
+            PRE_INCLUDE_REGEXES "lib.*\\.dll"
 
-    # Exclude everything else (safe fallback)
-    PRE_EXCLUDE_REGEXES
-        ".*" 
-    
-    DESTINATION .)
+            # Exclude everything else (safe fallback)
+            PRE_EXCLUDE_REGEXES
+                ".*" 
+            
+            DESTINATION .
+            )
 
-    # install(FILES $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}> DESTINATION .)
-
-    
-
-   
+    install(DIRECTORY 
+                res/ 
+            DESTINATION 
+                res
+            )   
 elseif(APPLE)
     set_target_properties(${PROJECT_NAME} PROPERTIES
         BUNDLE TRUE
@@ -73,21 +76,42 @@ elseif(APPLE)
         MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/macos/Info.plist"
     )
 
-    install(TARGETS ${PROJECT_NAME}
-        BUNDLE DESTINATION .
-        RUNTIME DESTINATION "${PROJECT_NAME}.app/Contents/MacOS"
-    )
+    install(TARGETS 
+                ${PROJECT_NAME} 
+                SDL3-shared 
+                SDL3_ttf-shared 
+                OpenAL
+            BUNDLE 
+                DESTINATION .
+            LIBRARY 
+                DESTINATION "${PROJECT_NAME}.app/Contents/Frameworks"
+            RUNTIME 
+                DESTINATION "${PROJECT_NAME}.app/Contents/MacOS"
+            )
 
-    install(DIRECTORY res/ DESTINATION "${PROJECT_NAME}.app/Contents/Resources")
-
-    install(TARGETS SDL3-shared SDL3_ttf-shared OpenAL
-        LIBRARY DESTINATION "${PROJECT_NAME}.app/Contents/Frameworks"
-    )
-
+    install(DIRECTORY 
+                res/ 
+            DESTINATION 
+                "${PROJECT_NAME}.app/Contents/Resources/res"
+            )
 elseif(LINUX)
-    install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION .)
-    install(TARGETS SDL3-shared SDL3_ttf-shared OpenAL LIBRARY DESTINATION .)
-    
+    install(TARGETS 
+                ${PROJECT_NAME} 
+                SDL3-shared 
+                SDL3_ttf-shared 
+                OpenAL
+            LIBRARY 
+                DESTINATION .
+            RUNTIME 
+                DESTINATION .
+            )
+            
+    install(DIRECTORY 
+                res/ 
+            DESTINATION 
+                res
+            )
+
     # Set proper RPATH
     set(RPATH "$ORIGIN")
     set_target_properties(${PROJECT_NAME} PROPERTIES
@@ -95,9 +119,6 @@ elseif(LINUX)
         INSTALL_RPATH "${RPATH}"
     )
 endif()
-
-# Resource installation
-install(DIRECTORY res/ DESTINATION res)
 
 # Packaging metadata
 set(CPACK_PACKAGE_NAME ${PROJECT_NAME})
