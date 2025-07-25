@@ -22,7 +22,7 @@ add_subdirectory(external)
 file(GLOB_RECURSE SOURCE_FILES CONFIGURE_DEPENDS src/*.cpp)
 
 # Define executable
-add_executable(${PROJECT_NAME} ${SOURCE_FILES})
+add_executable(${PROJECT_NAME} MACOSX_BUNDLE ${SOURCE_FILES})
 
 target_include_directories(${PROJECT_NAME} PRIVATE 
     includes/
@@ -66,17 +66,31 @@ if(WIN32)
     
 
    
-elseif(APPLE OR LINUX)
+elseif(APPLE)
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+        BUNDLE TRUE
+        BUNDLE_EXTENSION "app"
+        MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/macos/Info.plist"
+    )
+
+    # Copy resource directory to app bundle
+    install(DIRECTORY res/ DESTINATION "${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}.app/Contents/Resources")
+
+    # Install dylibs to Frameworks
+    install(TARGETS SDL3-shared SDL3_ttf-shared OpenAL
+        LIBRARY DESTINATION "${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}.app/Contents/Frameworks"
+    )
+
+    # Copy executable to MacOS folder
+    install(TARGETS ${PROJECT_NAME}
+        RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}.app/Contents/MacOS"
+    )
+elseif(LINUX)
     install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION .)
     install(TARGETS SDL3-shared SDL3_ttf-shared OpenAL LIBRARY DESTINATION .)
     
-    
     # Set proper RPATH
     set(RPATH "$ORIGIN")
-    if(APPLE)
-        set(RPATH "@executable_path")
-    endif()
-
     set_target_properties(${PROJECT_NAME} PROPERTIES
         BUILD_RPATH "${RPATH}"
         INSTALL_RPATH "${RPATH}"
