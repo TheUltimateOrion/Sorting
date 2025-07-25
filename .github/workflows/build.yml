@@ -93,10 +93,6 @@ jobs:
     - name: Test
       working-directory: ${{ steps.strings.outputs.build-output-dir }}
       run: ctest -C RELEASE --output-on-failure
-    
-    - name: MacOS Sign Code
-      if: ${{ contains( matrix.platform.name, 'mac') }}
-      run: format(codesign --deep --force --options runtime --sign "Developer ID Application{0} TheUltimateOrion" dist/Sorting.app, ':')
 
     - name: 'Store artifacts'
       uses: actions/upload-artifact@v4
