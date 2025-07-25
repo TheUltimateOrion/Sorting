@@ -73,18 +73,17 @@ elseif(APPLE)
         MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/macos/Info.plist"
     )
 
-    # Copy resource directory to app bundle
-    install(DIRECTORY res/ DESTINATION "${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}.app/Contents/Resources")
-
-    # Install dylibs to Frameworks
-    install(TARGETS SDL3-shared SDL3_ttf-shared OpenAL
-        LIBRARY DESTINATION "${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}.app/Contents/Frameworks"
-    )
-
-    # Copy executable to MacOS folder
     install(TARGETS ${PROJECT_NAME}
-        RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}.app/Contents/MacOS"
+        BUNDLE DESTINATION .
+        RUNTIME DESTINATION "${PROJECT_NAME}.app/Contents/MacOS"
     )
+
+    install(DIRECTORY res/ DESTINATION "${PROJECT_NAME}.app/Contents/Resources")
+
+    install(TARGETS SDL3-shared SDL3_ttf-shared OpenAL
+        LIBRARY DESTINATION "${PROJECT_NAME}.app/Contents/Frameworks"
+    )
+
 elseif(LINUX)
     install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION .)
     install(TARGETS SDL3-shared SDL3_ttf-shared OpenAL LIBRARY DESTINATION .)
