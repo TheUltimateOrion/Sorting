@@ -68,7 +68,7 @@ if(WIN32)
    
 elseif(APPLE OR LINUX)
     install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION .)
-    install(TARGETS SDL3-shared SDL3_ttf-shared LIBRARY DESTINATION .)
+    install(TARGETS SDL3-shared SDL3_ttf-shared OpenAL LIBRARY DESTINATION .)
     
     
     # Set proper RPATH
