@@ -18,6 +18,7 @@
 
 #ifndef TESTING
 #include "renderer/sort_view.h"
+#include "renderer/ui.h"
 #endif
 
 #include "sort/category.h"
@@ -32,15 +33,16 @@ namespace Core
     private:
         mutable std::mutex m_mutex;
         std::unique_ptr<Renderer::SortView> m_sortView;
+        Renderer::UI m_UI;
         ImGuiIO* m_io;
         SoundEngine* m_soundEngine;
         SDL_Window *m_window;
         std::optional<std::thread> m_audioThread;
 
-        [[nodiscard]] int initSDL();
-        [[nodiscard]] int initImGui();
-        [[nodiscard]] int initAudio();
-        [[nodiscard]] int initFont();
+        [[nodiscard]] Utils::Signal initSDL();
+        [[nodiscard]] Utils::Signal initImGui();
+        [[nodiscard]] Utils::Signal initAudio();
+        [[nodiscard]] Utils::Signal initFont();
 
         ImGuiIO& configureIO() noexcept;
 
@@ -70,7 +72,7 @@ namespace Core
         App() noexcept;
         ~App();
         
-        int init();
+        Utils::Signal init();
         void run();
 
         void startAudioThread();

@@ -3,6 +3,8 @@
 #include <AL/al.h>
 #include <AL/alc.h>
 
+#include "utils/common.h"
+
 #ifndef AL_CHECK_ERR
 #define AL_CHECK_ERR(ret) \
     if (alGetError() != AL_NO_ERROR)\
@@ -29,7 +31,7 @@ public:
     ALenum alGetLastError() const noexcept;
     const char* alErrorString(ALenum t_err) const noexcept;
 
-    [[nodiscard]] int init();
-    void load(float t_ms, float t_freq) noexcept;
-    void play() noexcept;
+    [[nodiscard]] Utils::Signal init();
+    [[nodiscard]] Utils::Signal load(float t_ms, float t_freq);
+    [[nodiscard]] Utils::Signal play();
 };

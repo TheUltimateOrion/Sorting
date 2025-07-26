@@ -76,65 +76,68 @@ namespace Core
     }
 
 
-    int App::init()
+    Utils::Signal App::init()
     {
         LOGINFO("Initializing App");
         
-        if (initSDL() < 0)
+        if (initSDL() == Utils::Signal::Error)
         {
             LOGERR("SDL could not be initialized");
-            return -1;
+            return Utils::Signal::SDLInitError;
         }
         
-        if(initFont() < 0)
+        if(initFont() == Utils::Signal::Error)
         {   
             LOGERR("Font not found");
-            return -1;
+            return Utils::Signal::FontLoadError;
         }
 
-        if (initAudio() < 0)
+        if (initAudio() == Utils::Signal::Error)
         {
             LOGERR("Audio could not be initialized");
-            return -1;
+            return Utils::Signal::AudioInitError;
         }
 
-        if (initImGui() < 0)
+        if (initImGui() == Utils::Signal::Error)
         {
             LOGERR("Could not initialize ImGui");
+            return Utils::Signal::ImGuiInitError;
         }
 
         LOGINFO("Creating SortView");
-        // Create the SortView instance
         m_sortView = std::make_unique<Renderer::SortView>();
-        srand(time(NULL));
-        return 0;
+        
+        return Utils::Signal::Success;
     }
 
-    int App::initSDL()
+    Utils::Signal App::initSDL()
     {
         LOGINFO("Initializing SDL");
+
         if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS))
         {
             LOGERR("Could not initialize SDL");
-            return -1;
+            return Utils::Signal::Error;
         }
         LOGINFO("SDL initialized successfully");
 
         LOGINFO("Creating SDL Window");
-
         m_window = SDL_CreateWindow("Sorting Algorithms", AppCtx::kWinWidth, AppCtx::kWinHeight, SDL_WINDOW_HIGH_PIXEL_DENSITY);
+        
         LOGINFO("Creating SDL renderer");
         renderer = SDL_CreateRenderer(m_window, NULL);
+
         LOGINFO("Setting render parameters");
         SDL_SetRenderDrawColor(renderer, 0x0, 0x0, 0x0, 0x0);
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+
         LOGINFO("Clearing window");
         SDL_RenderClear(renderer);
 
-        return 0;
+        return Utils::Signal::Success;
     }
 
-    int App::initFont() 
+    Utils::Signal App::initFont() 
     {
         LOGINFO("Loading font");
         TTF_Init();
@@ -143,30 +146,33 @@ namespace Core
         font = TTF_OpenFont((basePath + relPath).c_str(), 12);
 
         if (font == NULL)
-            return -1;
-        
+        {
+            LOGINFO("Font failed to load: '" << (basePath + relPath) << "' is not a font or does not exist");
+            return Utils::Signal::Error;
+        }
         LOGINFO("Font loaded successfully from " << (basePath + relPath));
-        return 0;
+
+        return Utils::Signal::Success;
     }
 
-    int App::initAudio()
+    Utils::Signal App::initAudio()
     {
         LOGINFO("Initializing audio subsystem");
         m_soundEngine = SoundEngine::get();
-        if (m_soundEngine->init() < 0)
+        if (m_soundEngine->init() == Utils::Signal::Error)
         {
             LOGERR("Sound could not be initialized");
             if (m_soundEngine->alGetLastError() != AL_NO_ERROR) 
             {
                 LOGERR("Error playing audio with code: " << m_soundEngine->alErrorString(m_soundEngine->alGetLastError()) << "(" << m_soundEngine->alGetLastError() << ")");
-                return -1;
+                return Utils::Signal::Error;
             }
         }
         LOGINFO("Audio subsystem initialized successfully");
-        return 0;
+        return Utils::Signal::Success;
     }
 
-    int App::initImGui()
+    Utils::Signal App::initImGui()
     {
         LOGINFO("Setting up GUI");
 
@@ -183,11 +189,18 @@ namespace Core
         setStyle(style);
             
         LOGINFO("Setting up ImGui renderer");
-        if (!ImGui_ImplSDL3_InitForSDLRenderer(m_window, renderer)) return -1;
+        if (!ImGui_ImplSDL3_InitForSDLRenderer(m_window, renderer))
+        {
+            return Utils::Signal::Error;
+        }
 
-        if (!ImGui_ImplSDLRenderer3_Init(renderer)) return -1;
+        LOGINFO("Initializing ImGui SDL renderer");
+        if (!ImGui_ImplSDLRenderer3_Init(renderer)) 
+        {
+            return Utils::Signal::Error;
+        }
 
-        return 0;
+        return Utils::Signal::Success;
     }
 
     void App::run()
@@ -220,12 +233,36 @@ namespace Core
         {
             auto start = std::chrono::high_resolution_clock::now();
             m_sortView->update();
-            std::chrono::duration<double, std::milli> elapsed = std::chrono::high_resolution_clock::now() - start;
-            if (event.type == SDL_EVENT_QUIT || sorter->wantClose) 
+
+            switch (m_UI.renderUI()) 
             {
-                LOGINFO("Exit signal recieved");
-                break;
+                case Utils::Signal::StopSort:
+                {
+                    sorter->isShuffling = false;
+                    sorter->isSorting = false;
+                    sorter->sorted = true;
+                    sorter->wantStop = false;
+                    break;
+                }
+                case Utils::Signal::CloseApp:
+                    return;
+                case Utils::Signal::Success:
+                default: break;
             }
+
+            SDL_RenderPresent(renderer);
+            if(SDL_PollEvent(&event))
+            {
+                ImGui_ImplSDL3_ProcessEvent(&event);
+                if (event.type == SDL_EVENT_QUIT)
+                {
+                    sorter->wantClose = true;
+                    LOGINFO("Exit signal recieved");
+                    break;
+                }
+            }
+
+            std::chrono::duration<double, std::milli> elapsed = std::chrono::high_resolution_clock::now() - start;
             
             double delay = AppCtx::kFrameTime - elapsed.count();
 
@@ -237,7 +274,11 @@ namespace Core
             while (true) 
             {
                 auto now = std::chrono::high_resolution_clock::now();
-                if (std::chrono::duration<double, std::milli>(now - start).count() >= AppCtx::kFrameTime) break;
+
+                if (std::chrono::duration<double, std::milli>(now - start).count() >= AppCtx::kFrameTime) 
+                {
+                    break;
+                }
             }
         }
     }
@@ -271,18 +312,24 @@ namespace Core
 
                 if (sorter->isSorting || sorter->isShuffling || sorter->isChecking) 
                 {
-                    m_soundEngine->load(sec, freq);
-                    if (m_soundEngine->alGetLastError() != AL_NO_ERROR) 
+                    if (m_soundEngine->load(sec, freq) == Utils::Signal::Error)
                     {
-                        LOGERR("Error loading audio with code: " << m_soundEngine->alErrorString(m_soundEngine->alGetLastError()) << "(" << m_soundEngine->alGetLastError() << ")");
-                        return;
+                        LOGERR("Could not load audio buffer");
+                        if (m_soundEngine->alGetLastError() != AL_NO_ERROR) 
+                        {
+                            LOGERR("Error loading audio with code: " << m_soundEngine->alErrorString(m_soundEngine->alGetLastError()) << "(" << m_soundEngine->alGetLastError() << ")");
+                            return;
+                        }
                     }
 
-                    m_soundEngine->play();
-                    if (m_soundEngine->alGetLastError() != AL_NO_ERROR) 
+                    if (m_soundEngine->play() == Utils::Signal::Error)
                     {
-                        LOGERR("Error playing audio with code: " << m_soundEngine->alErrorString(m_soundEngine->alGetLastError()) << "(" << m_soundEngine->alGetLastError() << ")");
-                        return;
+                        LOGERR("Could not play audio buffer");
+                        if (m_soundEngine->alGetLastError() != AL_NO_ERROR) 
+                        {
+                            LOGERR("Error playing audio with code: " << m_soundEngine->alErrorString(m_soundEngine->alGetLastError()) << "(" << m_soundEngine->alGetLastError() << ")");
+                            return;
+                        }
                     }
 
                     std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(sec * 1000)));

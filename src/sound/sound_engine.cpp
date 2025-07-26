@@ -24,7 +24,7 @@ const char* SoundEngine::alErrorString(ALenum t_err) const noexcept {
     }
 }
 
-int SoundEngine::init()
+Utils::Signal SoundEngine::init()
 {
     ALCdevice *dev = nullptr;
     ALCcontext *ctx = nullptr;
@@ -45,14 +45,15 @@ int SoundEngine::init()
     LOGINFO("Generating OpenAL sources");
     alGenSources(1, &m_src);
 
-    AL_CHECK_ERR(-1);
-    return 0;
+    AL_CHECK_ERR(Utils::Signal::Error);
+
+    return Utils::Signal::Success;
 }
 
-void SoundEngine::load(float t_ms, float t_freq) noexcept
+Utils::Signal SoundEngine::load(float t_ms, float t_freq)
 {
     alGenBuffers(1, &m_buf);
-    AL_CHECK_ERR();
+    AL_CHECK_ERR(Utils::Signal::Error);
 
     /* Fill buffer with Sine-Wave */
     constexpr unsigned sample_rate = 22050;
@@ -67,22 +68,25 @@ void SoundEngine::load(float t_ms, float t_freq) noexcept
 
     /* Download buffer to OpenAL */
     alBufferData(m_buf, AL_FORMAT_MONO16, m_samples, buf_size, sample_rate);
-    AL_CHECK_ERR();
+    AL_CHECK_ERR(Utils::Signal::Error);
+    
+    return Utils::Signal::Success;
 }
 
-void SoundEngine::play() noexcept
+Utils::Signal SoundEngine::play()
 {
     alSourcei(m_src, AL_BUFFER, m_buf);
-    AL_CHECK_ERR();
+    AL_CHECK_ERR(Utils::Signal::Error);
 
     constexpr float gain = 0.1f;
 
     alSourcef(m_src, AL_GAIN, gain);
-    AL_CHECK_ERR();
+    AL_CHECK_ERR(Utils::Signal::Error);
 
     alSourcePlay(m_src);
-    AL_CHECK_ERR();
-    return;
+    AL_CHECK_ERR(Utils::Signal::Error);
+    
+    return Utils::Signal::Success;
 }
 
 SoundEngine::~SoundEngine()
