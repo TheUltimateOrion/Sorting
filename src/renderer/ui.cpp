@@ -9,14 +9,11 @@
 #include "core/app.h"
 #include "core/app_ctx.h"
 #include "core/logging/logging.h"
+#include "renderer/state.h"
 #include "utils/common.h"
 
 namespace Renderer 
 {
-    extern bool isColored;
-
-    inline bool reversed = false;
-
     void UI::renderText(const std::string& t_txt, float t_x, float t_y, SDL_Color t_col) const noexcept
     {
         SDL_Surface* textSurface = TTF_RenderText_Solid(AppCtx::g_app->font, t_txt.c_str(), 0, t_col); // SDL_Surface* textSurface = TTF_RenderText_Solid(AppCtx::g_app->font, txt.c_str(), color);
@@ -182,7 +179,7 @@ namespace Renderer
             }
 
             ImGui::SameLine();
-            ImGui::Checkbox("Color", &isColored);
+            ImGui::Checkbox("Color", &State::isColored);
 
             ImGui::Spacing();
             ImGui::SeparatorText("Variables");
@@ -244,7 +241,7 @@ namespace Renderer
             }
 
             ImGui::SameLine();
-            ImGui::Checkbox("Reverse instead of Shuffling", &reversed);
+            ImGui::Checkbox("Reverse instead of Shuffling", &State::reversed);
             ImGui::End();
         }
         
@@ -266,7 +263,7 @@ namespace Renderer
             AppCtx::g_app->sortThread = std::make_optional<std::thread>([&]() 
             {
                 shouldSort = false;
-                if(!reversed)
+                if(!State::reversed)
                 {
                     AppCtx::g_app->sorter->shuffle();
                 }

@@ -13,4 +13,4 @@ namespace Renderer
         Spiral,
         SpiralDot
     };
-} // namespae Renderer
+} // namespace Renderer

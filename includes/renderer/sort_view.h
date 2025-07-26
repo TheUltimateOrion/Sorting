@@ -6,8 +6,6 @@
 
 namespace Renderer
 {
-    inline bool isColored = false;
-
     class SortView
     {
     private:

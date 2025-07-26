@@ -10,4 +10,4 @@ namespace Sort
 
         void sort() override;
     };
-}
+} // namespace Sort

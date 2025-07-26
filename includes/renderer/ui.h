@@ -16,4 +16,4 @@ namespace Renderer
         void renderInfo() const noexcept;
         Utils::Signal renderUI();
     };
-}
+} // namespace Renderer

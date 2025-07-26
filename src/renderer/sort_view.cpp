@@ -8,6 +8,7 @@
 #include "core/app_ctx.h"
 #include "core/logging/logging.h"
 #include "renderer/disp_type.h"
+#include "renderer/state.h"
 #include "sort/category.h"
 #include "sort/sort.h"
 #include "utils/common.h"
@@ -39,14 +40,14 @@ namespace Renderer
 
             case DisplayType::RainbowRectangle: 
             {
-                isColored = true;
+                State::isColored = true;
                 SDL_FRect rect = (SDL_FRect){k * t_params.barSpacing, 0, t_params.barSpacing, AppCtx::kWinHeight};
                 SDL_RenderFillRect(AppCtx::g_app->renderer, &rect);
             } break;
 
             case DisplayType::Circle: 
             {
-                isColored = true;
+                State::isColored = true;
                 float r = 0.0f, g = 0.0f, b = 0.0f, a = 0.0f;
                 SDL_GetRenderDrawColorFloat(AppCtx::g_app->renderer, &r, &g, &b, &a);
                     
@@ -191,12 +192,12 @@ namespace Renderer
                 {
                     r = 0x00; g = 0xFF; b = 0x00;  // Green
                 } 
-                else if (isColored) 
+                else if (State::isColored) 
                 {
                     r = sortColor.r; g = sortColor.g; b = sortColor.b;
                 }
             } 
-            else if (isColored) 
+            else if (State::isColored) 
             {
                 r = sortColor.r; g = sortColor.g; b = sortColor.b;
             }
