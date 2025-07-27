@@ -13,8 +13,8 @@ namespace Renderer
 
         void drawElement(size_t k, const RenderParams& t_params) noexcept;
     public:
-        SortView() = default;
-        ~SortView() = default;
+        SortView() noexcept = default;
+        ~SortView() noexcept = default;
 
         void update() noexcept;
 

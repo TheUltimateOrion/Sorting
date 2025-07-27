@@ -9,8 +9,8 @@ namespace Renderer
     class UI 
     {
     public:
-        UI() = default;
-        ~UI() = default;
+        UI() noexcept = default;
+        ~UI() noexcept = default;
 
         void renderText(const std::string& t_txt, float t_x, float t_y, SDL_Color t_col) const noexcept;
         void renderInfo() const noexcept;

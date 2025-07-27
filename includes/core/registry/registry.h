@@ -9,8 +9,8 @@ class Registry
 protected:
     std::map<std::string, EntryType> m_regEntries;
 public:
-    Registry() = default;
-    ~Registry() = default;
+    Registry() noexcept = default;
+    ~Registry() noexcept = default;
     
     void registerFactory(const std::string& id, EntryType entry) 
     {

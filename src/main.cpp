@@ -10,7 +10,7 @@ int main()
 {
     AppCtx::g_app = std::make_unique<Core::App>(); // Create a unique pointer to App
 
-    if (AppCtx::g_app->init() < 0) return EXIT_FAILURE;
+    if (AppCtx::g_app->init() != Utils::Signal::Success) return EXIT_FAILURE;
     LOGINFO("App initialized successfully");
     AppCtx::g_app->run();
 

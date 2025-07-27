@@ -3,6 +3,8 @@
 #include <atomic>
 #include <vector>
 
+#include "core/timer.h"
+
 namespace Sort 
 {
     class BaseSort
@@ -26,8 +28,7 @@ namespace Sort
         static float s_speed;
         static int s_length;
 
-        double startTime = 0.0;
-        double lastTime = 0.0;
+        Core::Timer timer;
 
         unsigned int swaps = 0; 
         unsigned int comparisons = 0; 

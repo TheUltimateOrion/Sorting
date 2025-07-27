@@ -21,7 +21,7 @@ namespace Sort
     float BaseSort::s_speed = 1.0f;
     int BaseSort::s_length = 512;
 
-    BaseSort::BaseSort(std::vector<int>& t_arr, bool t_isRadix) : m_isRadix(t_isRadix), m_first(0), m_second(0), elems(t_arr), sorted(true), isSorting(false), isShuffling(false), wantClose(false), wantStop(false), startTime(0) {}
+    BaseSort::BaseSort(std::vector<int>& t_arr, bool t_isRadix) : m_isRadix(t_isRadix), m_first(0), m_second(0), elems(t_arr), sorted(true), isSorting(false), isShuffling(false), wantClose(false), wantStop(false) {}
 
     void BaseSort::reverse()
     {
@@ -56,8 +56,6 @@ namespace Sort
 
         sorted = false;
         isShuffling = false;
-        startTime = AppCtx::getTimestamp();
-        lastTime = startTime;
     }
 
     void BaseSort::shuffle()
@@ -96,8 +94,6 @@ namespace Sort
         isShuffling = false;
 
         std::this_thread::sleep_for(500ms);
-        startTime = AppCtx::getTimestamp();
-        lastTime = startTime;
     }
 
     void BaseSort::check()
@@ -114,7 +110,7 @@ namespace Sort
 
         for (size_t i = 0; i < temp.capacity(); ++i)
         {
-            if (temp[i] != i + 1) 
+            if (temp[i] != static_cast<int>(i) + 1) 
             {
                 break;
             }

@@ -34,17 +34,13 @@ namespace Renderer
         SDL_RenderFillRect(AppCtx::g_app->renderer, &rect);
 
         SDL_Color textColor = { 0, 0xFF, 0, 0 };
-        if (AppCtx::g_app->sorter->isSorting)
-        {
-            AppCtx::g_app->sorter->lastTime = AppCtx::getTimestamp() - AppCtx::g_app->sorter->startTime;
-        }
 
-        if (AppCtx::g_app->sorter->isSorting || (AppCtx::g_app->sorter->lastTime == 0.0f))
+        if (AppCtx::g_app->sorter->isSorting || (AppCtx::g_app->sorter->timer.getCurrentDuration() == 0.0f))
         {
             textColor = { 0xFF, 0xFF, 0xFF, 0 };
         }
 
-        renderText("TIME: " + std::to_string(AppCtx::g_app->sorter->lastTime) + 's', 10.0f, 10.0f, textColor);
+        renderText("TIME: " + std::to_string(AppCtx::g_app->sorter->timer.getCurrentDuration()) + 's', 10.0f, 10.0f, textColor);
         
         {
             auto& reg = AppCtx::g_sortRegistry;
@@ -271,10 +267,11 @@ namespace Renderer
                 {
                     AppCtx::g_app->sorter->reverse();
                 }
-
+                
                 if(!(AppCtx::g_app->sorter->wantStop)) 
                 {
                     LOGINFO("Sorting");
+                    AppCtx::g_app->sorter->timer.start();
                     AppCtx::g_app->sorter->sort();
                 }
 
@@ -282,6 +279,7 @@ namespace Renderer
                 {
                     LOGINFO("Checking");
                     AppCtx::g_app->sorter->check();
+                    AppCtx::g_app->sorter->timer.end();
                 }
 
                 if (AppCtx::g_app->sorter->wantStop) 
