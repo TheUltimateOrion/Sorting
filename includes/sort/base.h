@@ -24,14 +24,16 @@ namespace Sort
         std::atomic<bool> isChecking;
         std::atomic<bool> wantClose;
         std::atomic<bool> wantStop;
+        std::atomic<bool> running;
 
         static float s_speed;
         static int s_length;
 
         Core::Timer timer;
+        Core::Timer realTimer;
 
-        unsigned int swaps = 0; 
-        unsigned int comparisons = 0; 
+        uint64_t swaps{0}; 
+        uint64_t comparisons{0}; 
 
         size_t getFirst() noexcept { return m_first.load(); }
         size_t getSecond() noexcept { return m_second.load(); }

@@ -21,7 +21,7 @@ namespace Renderer
         float text_width = static_cast<float>(textSurface->w);
         float text_height = static_cast<float>(textSurface->h);
         SDL_DestroySurface(textSurface); // SDL_FreeSurface(textSurface);
-        SDL_FRect renderQuad = { t_x, t_y, text_width, text_height};
+        SDL_FRect renderQuad { t_x, t_y, text_width, text_height };
         SDL_RenderTexture(AppCtx::g_app->renderer, text, nullptr, &renderQuad); // SDL_RenderCopy(AppCtx::g_app->renderer, text, NULL, &renderQuad);
         SDL_DestroyTexture(text);
     }
@@ -29,18 +29,19 @@ namespace Renderer
     void UI::renderInfo() const noexcept
     {
         Uint8 _r, _g, _b, _a; SDL_GetRenderDrawColor(AppCtx::g_app->renderer, &_r, &_g, &_b, &_a);
-        SDL_FRect rect = {0.0f, 0.0f, 230.0f, 125.0f};
+        SDL_FRect rect { 0.0f, 0.0f, 300.0f, 160.0f };
         SDL_SetRenderDrawColor(AppCtx::g_app->renderer, 0x40, 0x40, 0x40, 0x80);
         SDL_RenderFillRect(AppCtx::g_app->renderer, &rect);
 
-        SDL_Color textColor = { 0, 0xFF, 0, 0 };
+        SDL_Color textColor { 0, 0xFF, 0, 0 };
 
-        if (AppCtx::g_app->sorter->isSorting || (AppCtx::g_app->sorter->timer.getCurrentDuration() == 0.0f))
+        if (AppCtx::g_app->sorter->isSorting || (AppCtx::g_app->sorter->timer.getDuration() == 0.0f))
         {
             textColor = { 0xFF, 0xFF, 0xFF, 0 };
         }
 
-        renderText("TIME: " + std::to_string(AppCtx::g_app->sorter->timer.getCurrentDuration()) + 's', 10.0f, 10.0f, textColor);
+        renderText("TIME: " + std::to_string(AppCtx::g_app->sorter->timer.getDuration()) + 's', 10.0f, 10.0f, textColor);
+        renderText("REAL TIME: " + std::to_string(AppCtx::g_app->sorter->realTimer.getDuration()) + 's', 10.0f, 30.0f, textColor);
         
         {
             auto& reg = AppCtx::g_sortRegistry;
@@ -53,32 +54,37 @@ namespace Renderer
                     name = entry->displayName;
                 }
             }
-            renderText(std::string("Sort: ") + name, 10, 30, { 0xFF, 0xFF, 0xFF, 0 });
+            renderText(std::string("SORT: ") + name, 10.0f, 50.0f, { 0xFF, 0xFF, 0xFF, 0 });
         }
 
 
-        renderText("Swaps: " + std::to_string(AppCtx::g_app->sorter->swaps), 10.0f, 50.0f, { 0xFF, 0xFF, 0xFF, 0 });
-        renderText("Comparisons: " + std::to_string(AppCtx::g_app->sorter->comparisons), 10.0f, 70.0f, { 0xFF, 0xFF, 0xFF, 0 });
+        renderText("SWAPS: " + std::to_string(AppCtx::g_app->sorter->swaps), 10.0f, 70.0f, { 0xFF, 0xFF, 0xFF, 0 });
+        renderText("COMPARISONS: " + std::to_string(AppCtx::g_app->sorter->comparisons), 10.0f, 90.0f, { 0xFF, 0xFF, 0xFF, 0 });
+
+
+        std::string statusText{"IDLE"};
 
         if (AppCtx::g_app->sorter->isSorting)
         {
-            renderText("Sorting...", 10.0f, 90.0f, { 0xFF, 0xFF, 0xFF, 0 });
+            statusText = "SORTING...";
         }
 
         if (AppCtx::g_app->sorter->isShuffling)
         {
-            renderText("Shuffling...", 10.0f, 90.0f, { 0xFF, 0xFF, 0xFF, 0 });
+            statusText = "SHUFFLING...";
         }
 
         if (AppCtx::g_app->sorter->isChecking)
         {
-            renderText("Checking...", 10.0f, 90.0f, { 0xFF, 0xFF, 0xFF, 0 });
+            statusText = "CHECKING...";
         }
 
         if (!(AppCtx::g_app->sorter->isShuffling) && !(AppCtx::g_app->sorter->isSorting) && !(AppCtx::g_app->sorter->isChecking) && AppCtx::g_app->sorter->sorted)
         {
-            renderText("Sorted", 10.0f, 90.0f, { 0xFF, 0xFF, 0xFF, 0 });
+            statusText = "SORTED!";
         }
+
+        renderText(statusText, 10.0f, 130.0f, { 0xFF, 0xFF, 0xFF, 0 });
 
         SDL_SetRenderDrawColor(AppCtx::g_app->renderer, _r, _g, _b, _a);
     }
@@ -193,7 +199,7 @@ namespace Renderer
             }
 
             ImGui::Spacing();
-            if (!(AppCtx::g_app->sorter->isSorting) && !(AppCtx::g_app->sorter->isShuffling))
+            if (!AppCtx::g_app->sorter->running)
             {
                 if(ImGui::Button("Sort")) 
                 {
@@ -216,13 +222,19 @@ namespace Renderer
                     }
 
                     shouldSort = true;
+                    AppCtx::g_app->sorter->running = true;
                 }
             } 
             else 
             {
                 if(ImGui::Button("Stop")) 
                 {
-                    LOGINFO("Stopping sort");    
+                    AppCtx::g_app->sorter->running = false;
+                    LOGINFO("Stopping sort");
+
+                    AppCtx::g_app->sorter->timer.end();
+                    AppCtx::g_app->sorter->realTimer.end();
+
                     AppCtx::g_app->sorter->wantStop = true;
                     if (AppCtx::g_app->sortThread.has_value()) 
                     {
@@ -272,20 +284,23 @@ namespace Renderer
                 {
                     LOGINFO("Sorting");
                     AppCtx::g_app->sorter->timer.start();
+                    AppCtx::g_app->sorter->realTimer.start();
                     AppCtx::g_app->sorter->sort();
+                    AppCtx::g_app->sorter->realTimer.pause();
                 }
-
+                
                 if(!(AppCtx::g_app->sorter->wantStop)) 
                 {
                     LOGINFO("Checking");
+                    AppCtx::g_app->sorter->realTimer.resume();
                     AppCtx::g_app->sorter->check();
-                    AppCtx::g_app->sorter->timer.end();
                 }
 
                 if (AppCtx::g_app->sorter->wantStop) 
                 {
                     return;
                 }
+                AppCtx::g_app->sorter->running = false;
             });
         }
 

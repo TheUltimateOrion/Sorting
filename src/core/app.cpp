@@ -242,11 +242,11 @@ namespace Core
                     sorter->isSorting = false;
                     sorter->sorted = true;
                     sorter->wantStop = false;
-                    sorter->timer.end();
                     break;
                 }
                 case Utils::Signal::CloseApp:
                     sorter->timer.end();
+                    sorter->realTimer.end();
                     return;
                 case Utils::Signal::Success:
                 default: break;

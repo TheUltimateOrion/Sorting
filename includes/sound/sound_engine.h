@@ -18,7 +18,7 @@ class SoundEngine
 {
 private:
     ALuint m_buf;
-    ALuint m_src = 0;
+    ALuint m_src{0};
     short *m_samples;
     ALenum m_err = AL_NO_ERROR;
 

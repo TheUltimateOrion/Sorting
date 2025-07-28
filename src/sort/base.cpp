@@ -21,7 +21,7 @@ namespace Sort
     float BaseSort::s_speed = 1.0f;
     int BaseSort::s_length = 512;
 
-    BaseSort::BaseSort(std::vector<int>& t_arr, bool t_isRadix) : m_isRadix(t_isRadix), m_first(0), m_second(0), elems(t_arr), sorted(true), isSorting(false), isShuffling(false), wantClose(false), wantStop(false) {}
+    BaseSort::BaseSort(std::vector<int>& t_arr, bool t_isRadix) : m_isRadix(t_isRadix), m_first(0), m_second(0), elems(t_arr), sorted(true), isSorting(false), isShuffling(false), isChecking(false), wantClose(false), wantStop(false), running(false) {}
 
     void BaseSort::reverse()
     {
@@ -52,10 +52,12 @@ namespace Sort
             if (wantClose || wantStop) return;
         }
 
-        std::this_thread::sleep_for(500ms);
-
         sorted = false;
         isShuffling = false;
+
+        realTimer.pause();
+        std::this_thread::sleep_for(500ms);
+        realTimer.resume();
     }
 
     void BaseSort::shuffle()
@@ -93,7 +95,9 @@ namespace Sort
         sorted = false;
         isShuffling = false;
 
+        realTimer.pause();
         std::this_thread::sleep_for(500ms);
+        realTimer.resume();
     }
 
     void BaseSort::check()
@@ -112,6 +116,8 @@ namespace Sort
         {
             if (temp[i] != static_cast<int>(i) + 1) 
             {
+                timer.end();
+                realTimer.end();
                 break;
             }
             
@@ -119,11 +125,11 @@ namespace Sort
             m_second = m_first.load();
             
             HIGH_RES_WAIT(500.0 / static_cast<double>(temp.size()))
-            if (wantClose || wantStop) 
-            {
-                return;
-            }
+            if (wantClose || wantStop) return;
         }
+        
+        timer.end();
+        realTimer.end();
 
         isChecking = false;
         LOGINFO("Check completed");

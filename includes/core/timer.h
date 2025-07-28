@@ -1,6 +1,7 @@
 #pragma once
 #include <chrono>
 #include <optional>
+#include <mutex>
 
 namespace Core
 {
@@ -9,9 +10,12 @@ namespace Core
     
     private:
         std::optional<std::chrono::high_resolution_clock::time_point> m_start, m_end;
-        std::chrono::duration<double> m_duration;
+        std::optional<std::chrono::high_resolution_clock::time_point> m_pauseStart;
+        std::chrono::duration<double> m_pauseDuration{0.0};
+        mutable std::mutex m_mutex;
 
-        bool m_ended = false;
+        bool m_ended{false};
+        bool m_paused{false};
     public:
         Timer() noexcept = default;
         ~Timer() noexcept = default;
@@ -19,6 +23,9 @@ namespace Core
         void start() noexcept;
         void end() noexcept;
 
-        double getCurrentDuration() const;
+        void pause() noexcept;
+        void resume() noexcept;
+
+        double getDuration() const;
     };
 } // namespace Core

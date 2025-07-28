@@ -8,13 +8,15 @@
     #define LOCK_GUARD std::lock_guard<std::mutex> lock(AppCtx::g_app->m_mutex)
 
     #define HIGH_RES_WAIT(t)\
+        realTimer.pause();\
         auto start = std::chrono::high_resolution_clock::now();\
         while (true)\
         {\
             auto now = std::chrono::high_resolution_clock::now();\
             double elapsed = std::chrono::duration<double, std::milli>(now - start).count();\
             if (elapsed >= (t)) break;\
-        }
+        }\
+        realTimer.resume();
 #endif
 
 #ifndef STYLESET
