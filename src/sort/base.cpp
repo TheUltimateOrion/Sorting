@@ -55,9 +55,7 @@ namespace Sort
         sorted = false;
         isShuffling = false;
 
-        realTimer.pause();
         std::this_thread::sleep_for(500ms);
-        realTimer.resume();
     }
 
     void BaseSort::shuffle()
@@ -95,9 +93,7 @@ namespace Sort
         sorted = false;
         isShuffling = false;
 
-        realTimer.pause();
         std::this_thread::sleep_for(500ms);
-        realTimer.resume();
     }
 
     void BaseSort::check()
@@ -112,12 +108,13 @@ namespace Sort
             temp = elems; // Copy the original elements to temp
         }
 
+        realTimer.end();
+        timer.end();
+
         for (size_t i = 0; i < temp.capacity(); ++i)
         {
             if (temp[i] != static_cast<int>(i) + 1) 
             {
-                timer.end();
-                realTimer.end();
                 break;
             }
             
@@ -128,8 +125,6 @@ namespace Sort
             if (wantClose || wantStop) return;
         }
         
-        timer.end();
-        realTimer.end();
 
         isChecking = false;
         LOGINFO("Check completed");

@@ -287,12 +287,12 @@ namespace Renderer
                     AppCtx::g_app->sorter->realTimer.start();
                     AppCtx::g_app->sorter->sort();
                     AppCtx::g_app->sorter->realTimer.pause();
+                    AppCtx::g_app->sorter->timer.pause();
                 }
                 
                 if(!(AppCtx::g_app->sorter->wantStop)) 
                 {
                     LOGINFO("Checking");
-                    AppCtx::g_app->sorter->realTimer.resume();
                     AppCtx::g_app->sorter->check();
                 }
 
