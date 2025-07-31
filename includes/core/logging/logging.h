@@ -1,7 +1,7 @@
 #pragma once
 #include <iostream>
 
-#include "core/app_ctx.h"
+#include "core/timer.h"
 
-#define LOGINFO(str) std::cout << "[INFO]"  << '[' << AppCtx::getTimestamp() << "s]: " << str << std::endl;
-#define LOGERR(str)  std::cerr << "[ERROR]" << '[' << AppCtx::getTimestamp() << "s]: " << str << std::endl;
+#define LOGINFO(str) std::cout << "[INFO]"  << '[' << Core::Timer::getTimestamp() << "s]: " << str << std::endl;
+#define LOGERR(str)  std::cerr << "[ERROR]" << '[' << Core::Timer::getTimestamp() << "s]: " << str << std::endl;

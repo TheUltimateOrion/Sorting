@@ -10,11 +10,18 @@
 #include "sort/category.h"
 #include "sort/base.h"
 
+
 namespace Core 
 {
+    class App;
+
     class SortRegistry : public Registry<SortRegistryEntry> 
     {
+    private:
+        std::weak_ptr<Core::App> m_app;
     public:
+        SortRegistry(std::shared_ptr<Core::App> app);
+
         void registerSort (
             const std::string& id,
             Sort::Category category,

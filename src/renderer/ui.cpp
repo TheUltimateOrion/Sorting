@@ -14,306 +14,323 @@
 
 namespace Renderer 
 {
+    UI::UI(std::shared_ptr<Core::App> app) noexcept : m_app(app) {};
+
     void UI::renderText(const std::string& t_txt, float t_x, float t_y, SDL_Color t_col) const noexcept
     {
-        SDL_Surface* textSurface = TTF_RenderText_Solid(AppCtx::g_app->font, t_txt.c_str(), 0, t_col); // SDL_Surface* textSurface = TTF_RenderText_Solid(AppCtx::g_app->font, txt.c_str(), color);
-        SDL_Texture* text = SDL_CreateTextureFromSurface(AppCtx::g_app->renderer, textSurface);
-        float text_width = static_cast<float>(textSurface->w);
-        float text_height = static_cast<float>(textSurface->h);
-        SDL_DestroySurface(textSurface); // SDL_FreeSurface(textSurface);
-        SDL_FRect renderQuad { t_x, t_y, text_width, text_height };
-        SDL_RenderTexture(AppCtx::g_app->renderer, text, nullptr, &renderQuad); // SDL_RenderCopy(AppCtx::g_app->renderer, text, NULL, &renderQuad);
-        SDL_DestroyTexture(text);
+        if (auto appShared = m_app.lock())
+        {
+            SDL_Surface* textSurface = TTF_RenderText_Solid(appShared->font, t_txt.c_str(), 0, t_col); 
+            SDL_Texture* text = SDL_CreateTextureFromSurface(appShared->ctx->renderer, textSurface);
+            float text_width = static_cast<float>(textSurface->w);
+            float text_height = static_cast<float>(textSurface->h);
+            SDL_DestroySurface(textSurface);
+            SDL_FRect renderQuad { t_x, t_y, text_width, text_height };
+            SDL_RenderTexture(appShared->ctx->renderer, text, nullptr, &renderQuad);
+            SDL_DestroyTexture(text);
+
+        }
     }
 
     void UI::renderInfo() const noexcept
     {
-        Uint8 _r, _g, _b, _a; SDL_GetRenderDrawColor(AppCtx::g_app->renderer, &_r, &_g, &_b, &_a);
-        SDL_FRect rect { 0.0f, 0.0f, 300.0f, 160.0f };
-        SDL_SetRenderDrawColor(AppCtx::g_app->renderer, 0x40, 0x40, 0x40, 0x80);
-        SDL_RenderFillRect(AppCtx::g_app->renderer, &rect);
-
-        SDL_Color textColor { 0, 0xFF, 0, 0 };
-
-        if (AppCtx::g_app->sorter->isSorting || (AppCtx::g_app->sorter->timer.getDuration() == 0.0f))
+        if (auto appShared = m_app.lock())
         {
-            textColor = { 0xFF, 0xFF, 0xFF, 0 };
-        }
+            Uint8 _r, _g, _b, _a; SDL_GetRenderDrawColor(appShared->ctx->renderer, &_r, &_g, &_b, &_a);
+            SDL_FRect rect { 0.0f, 0.0f, 300.0f, 160.0f };
+            SDL_SetRenderDrawColor(appShared->ctx->renderer, 0x40, 0x40, 0x40, 0x80);
+            SDL_RenderFillRect(appShared->ctx->renderer, &rect);
 
-        renderText("TIME: " + std::to_string(AppCtx::g_app->sorter->timer.getDuration()) + 's', 10.0f, 10.0f, textColor);
-        renderText("REAL TIME: " + std::to_string(AppCtx::g_app->sorter->realTimer.getDuration()) + 's', 10.0f, 30.0f, textColor);
-        
-        {
-            auto& reg = AppCtx::g_sortRegistry;
-            auto ids = reg.idsByCategory(AppCtx::g_app->currentCategory);
-            std::string name;
-            if(AppCtx::g_app->currentItemIndex < ids.size()) 
+            SDL_Color textColor { 0, 0xFF, 0, 0 };
+
+            if (appShared->sorter->isSorting || (appShared->sorter->timer.getDuration() == 0.0f))
             {
-                if(auto* entry = reg.get(ids[AppCtx::g_app->currentItemIndex]))
-                {
-                    name = entry->displayName;
-                }
+                textColor = { 0xFF, 0xFF, 0xFF, 0 };
             }
-            renderText(std::string("SORT: ") + name, 10.0f, 50.0f, { 0xFF, 0xFF, 0xFF, 0 });
+
+            renderText("TIME: " + std::to_string(appShared->sorter->timer.getDuration()) + 's', 10.0f, 10.0f, textColor);
+            renderText("REAL TIME: " + std::to_string(appShared->sorter->realTimer.getDuration()) + 's', 10.0f, 30.0f, textColor);
+
+            {
+                auto& reg = appShared->sortRegistry;
+                auto ids = reg.idsByCategory(appShared->currentCategory);
+                std::string name;
+                if(appShared->currentItemIndex < ids.size()) 
+                {
+                    if(auto* entry = reg.get(ids[appShared->currentItemIndex]))
+                    {
+                        name = entry->displayName;
+                    }
+                }
+                renderText(std::string("SORT: ") + name, 10.0f, 50.0f, { 0xFF, 0xFF, 0xFF, 0 });
+            }
+
+
+            renderText("SWAPS: " + std::to_string(appShared->sorter->swaps), 10.0f, 70.0f, { 0xFF, 0xFF, 0xFF, 0 });
+            renderText("COMPARISONS: " + std::to_string(appShared->sorter->comparisons), 10.0f, 90.0f, { 0xFF, 0xFF, 0xFF, 0 });
+
+            std::string statusText{"IDLE"};
+
+            if (appShared->sorter->isSorting)
+            {
+                statusText = "SORTING...";
+            }
+
+            if (appShared->sorter->isShuffling)
+            {
+                statusText = "SHUFFLING...";
+            }
+
+            if (appShared->sorter->isChecking)
+            {
+                statusText = "CHECKING...";
+            }
+
+            if (!(appShared->sorter->isShuffling) && !(appShared->sorter->isSorting) && !(appShared->sorter->isChecking) && appShared->sorter->sorted)
+            {
+                statusText = "SORTED!";
+            }
+
+            renderText(statusText, 10.0f, 110.0f, { 0xFF, 0xFF, 0xFF, 0 });
+
+            SDL_SetRenderDrawColor(appShared->ctx->renderer, _r, _g, _b, _a);
         }
-
-
-        renderText("SWAPS: " + std::to_string(AppCtx::g_app->sorter->swaps), 10.0f, 70.0f, { 0xFF, 0xFF, 0xFF, 0 });
-        renderText("COMPARISONS: " + std::to_string(AppCtx::g_app->sorter->comparisons), 10.0f, 90.0f, { 0xFF, 0xFF, 0xFF, 0 });
-
-
-        std::string statusText{"IDLE"};
-
-        if (AppCtx::g_app->sorter->isSorting)
-        {
-            statusText = "SORTING...";
-        }
-
-        if (AppCtx::g_app->sorter->isShuffling)
-        {
-            statusText = "SHUFFLING...";
-        }
-
-        if (AppCtx::g_app->sorter->isChecking)
-        {
-            statusText = "CHECKING...";
-        }
-
-        if (!(AppCtx::g_app->sorter->isShuffling) && !(AppCtx::g_app->sorter->isSorting) && !(AppCtx::g_app->sorter->isChecking) && AppCtx::g_app->sorter->sorted)
-        {
-            statusText = "SORTED!";
-        }
-
-        renderText(statusText, 10.0f, 130.0f, { 0xFF, 0xFF, 0xFF, 0 });
-
-        SDL_SetRenderDrawColor(AppCtx::g_app->renderer, _r, _g, _b, _a);
     }
 
     Utils::Signal UI::renderUI()
     {
-        static bool s_open = true;
-
-        renderInfo();
-
-        ImGui_ImplSDLRenderer3_NewFrame();
-        ImGui_ImplSDL3_NewFrame();
-        ImGui::NewFrame();
-
-        if(!s_open) 
+        if (auto appShared = m_app.lock())
         {
-            AppCtx::g_app->sorter->wantClose = true;
-            
-            ImGui::Render();
-            ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), AppCtx::g_app->renderer);
-            return Utils::Signal::CloseApp;
-        }
+            static bool s_open = true;
 
-        std::atomic<bool> shouldSort = false;
+            renderInfo();
 
-        {
-            auto& registry = AppCtx::g_sortRegistry;
-            auto ids = registry.idsByCategory(AppCtx::g_app->currentCategory);
-            if(AppCtx::g_app->currentItemIndex >= ids.size()) AppCtx::g_app->currentItemIndex = 0;
-            const auto* currentEntry = registry.get(ids[AppCtx::g_app->currentItemIndex]);
-            std::string currentName = currentEntry ? currentEntry->displayName : "";
+            ImGui_ImplSDLRenderer3_NewFrame();
+            ImGui_ImplSDL3_NewFrame();
+            ImGui::NewFrame();
 
-            ImGui::Begin("Configure", &s_open);
-            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / AppCtx::g_app->getFramerate(), AppCtx::g_app->getFramerate());
-            
-            if (ImGui::BeginCombo("##combo1", AppCtx::g_app->categories[AppCtx::g_app->currentCategory])) // The second parameter is the label previewed before opening the combo.
+            if(!s_open) 
             {
-                for (size_t n = 0; n < AppCtx::g_app->categories.size(); ++n)
-                {
-                    bool isSelected = (AppCtx::g_app->categories[AppCtx::g_app->currentCategory] == AppCtx::g_app->categories[n]); // You can store your selection however you want, outside or inside your objects
-                    if (ImGui::Selectable(AppCtx::g_app->categories[n], isSelected))
-                    {
-                        AppCtx::g_app->currentCategory = static_cast<Sort::Category>(n);
-                    }
-                    if (isSelected)
-                    {
-                        ImGui::SetItemDefaultFocus();   // You may set the initial focus when opening the combo (scrolling + for keyboard navigation support)
-                    }
-                }
-                ImGui::EndCombo();
+                appShared->sorter->wantClose = true;
+                
+                ImGui::Render();
+                ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), appShared->ctx->renderer);
+                return Utils::Signal::CloseApp;
             }
 
-            
-            if (ImGui::BeginCombo("##combo2", currentName.c_str())) // The second parameter is the label previewed before opening the combo.
+            std::atomic<bool> shouldSort = false;
+
             {
-                for (size_t n = 0; n < ids.size(); ++n)
+                if (auto appShared = m_app.lock())
                 {
-                    const auto* entry = registry.get(ids[n]);
-                    bool isSelected = (n == AppCtx::g_app->currentItemIndex);
+                    auto& registry = appShared->sortRegistry;
+                    auto ids = registry.idsByCategory(appShared->currentCategory);
+                    if(appShared->currentItemIndex >= ids.size()) appShared->currentItemIndex = 0;
+                    const auto* currentEntry = registry.get(ids[appShared->currentItemIndex]);
+                    std::string currentName = currentEntry ? currentEntry->displayName : "";
 
-                    if (ImGui::Selectable(entry->displayName.c_str(), isSelected))
-                    {
-                        AppCtx::g_app->currentItemIndex = n;
-                    }
-                    if (isSelected) 
-                    {
-                        ImGui::SetItemDefaultFocus();
-                    }
-                }
-                ImGui::EndCombo();
-            }
-
-            ImGui::Spacing();
-            ImGui::SeparatorText("Display Config");
-            ImGui::Spacing();
-
-            if (ImGui::BeginCombo("##combo3", AppCtx::g_app->displayTypes[AppCtx::g_app->currentDisplayType])) // The second parameter is the label previewed before opening the combo.
-            {
-                for (size_t n = 0; n < AppCtx::g_app->displayTypes.size(); ++n)
-                {
-                    bool isSelected = (AppCtx::g_app->displayTypes[AppCtx::g_app->currentDisplayType] == AppCtx::g_app->displayTypes[n]); // You can store your selection however you want, outside or inside your objects
+                    ImGui::Begin("Configure", &s_open);
+                    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / appShared->getFramerate(), appShared->getFramerate());
                     
-                    if (ImGui::Selectable(AppCtx::g_app->displayTypes[n], isSelected))
+                    if (ImGui::BeginCombo("##combo1", appShared->categories[appShared->currentCategory])) // The second parameter is the label previewed before opening the combo.
                     {
-                        AppCtx::g_app->currentDisplayType = static_cast<DisplayType>(n);
-                    }
-                    
-                    if (isSelected)
-                    {
-                        ImGui::SetItemDefaultFocus();   // You may set the initial focus when opening the combo (scrolling + for keyboard navigation support)
-                    }
-                }
-                ImGui::EndCombo();
-            }
-
-            ImGui::SameLine();
-            ImGui::Checkbox("Color", &State::isColored);
-
-            ImGui::Spacing();
-            ImGui::SeparatorText("Variables");
-            ImGui::Spacing();
-
-            ImGui::InputFloat("Set Speed", &Sort::BaseSort::s_speed, 0.001f);
-            Sort::BaseSort::s_speed = std::clamp(Sort::BaseSort::s_speed, 0.001f, 1000.f);
-
-            ImGui::InputInt("Set Array Length", &Sort::BaseSort::s_length, 2);
-            Sort::BaseSort::s_length = std::clamp(Sort::BaseSort::s_length, 2, 1024*10);
-
-            if (currentName == "Radix LSD") 
-            {
-                ImGui::SliderInt("Set Buckets/Radix", &AppCtx::g_sortRadix, 2, 10, "%d");
-            }
-
-            ImGui::Spacing();
-            if (!AppCtx::g_app->sorter->running)
-            {
-                if(ImGui::Button("Sort")) 
-                {
-                    LOGINFO("Starting sort");
-                    auto& registry = AppCtx::g_sortRegistry;
-                    auto ids = registry.idsByCategory(AppCtx::g_app->currentCategory);
-                    if(AppCtx::g_app->currentItemIndex < ids.size()) 
-                    {
-                        auto* entry = registry.get(ids[AppCtx::g_app->currentItemIndex]);
-
-                        if(entry)
+                        for (size_t n = 0; n < appShared->categories.size(); ++n)
                         {
-                            AppCtx::g_app->sorter = entry->factory(AppCtx::g_app->data);
-                            AppCtx::g_app->sorter->setLength(Sort::BaseSort::s_length);
+                            bool isSelected = (appShared->categories[appShared->currentCategory] == appShared->categories[n]); // You can store your selection however you want, outside or inside your objects
+                            if (ImGui::Selectable(appShared->categories[n], isSelected))
+                            {
+                                appShared->currentCategory = static_cast<Sort::Category>(n);
+                            }
+                            if (isSelected)
+                            {
+                                ImGui::SetItemDefaultFocus();   // You may set the initial focus when opening the combo (scrolling + for keyboard navigation support)
+                            }
+                        }
+                        ImGui::EndCombo();
+                    }
+
+                    
+                    if (ImGui::BeginCombo("##combo2", currentName.c_str())) // The second parameter is the label previewed before opening the combo.
+                    {
+                        for (size_t n = 0; n < ids.size(); ++n)
+                        {
+                            const auto* entry = registry.get(ids[n]);
+                            bool isSelected = (n == appShared->currentItemIndex);
+
+                            if (ImGui::Selectable(entry->displayName.c_str(), isSelected))
+                            {
+                                appShared->currentItemIndex = n;
+                            }
+                            if (isSelected) 
+                            {
+                                ImGui::SetItemDefaultFocus();
+                            }
+                        }
+                        ImGui::EndCombo();
+                    }
+
+                    ImGui::Spacing();
+                    ImGui::SeparatorText("Display Config");
+                    ImGui::Spacing();
+
+                    if (ImGui::BeginCombo("##combo3", appShared->displayTypes[appShared->currentDisplayType])) // The second parameter is the label previewed before opening the combo.
+                    {
+                        for (size_t n = 0; n < appShared->displayTypes.size(); ++n)
+                        {
+                            bool isSelected = (appShared->displayTypes[appShared->currentDisplayType] == appShared->displayTypes[n]); // You can store your selection however you want, outside or inside your objects
+                            
+                            if (ImGui::Selectable(appShared->displayTypes[n], isSelected))
+                            {
+                                appShared->currentDisplayType = static_cast<DisplayType>(n);
+                            }
+                            
+                            if (isSelected)
+                            {
+                                ImGui::SetItemDefaultFocus();   // You may set the initial focus when opening the combo (scrolling + for keyboard navigation support)
+                            }
+                        }
+                        ImGui::EndCombo();
+                    }
+
+                    ImGui::SameLine();
+                    ImGui::Checkbox("Color", &State::isColored);
+
+                    ImGui::Spacing();
+                    ImGui::SeparatorText("Variables");
+                    ImGui::Spacing();
+
+                    ImGui::InputFloat("Set Speed", &Sort::BaseSort::s_speed, 0.001f);
+                    Sort::BaseSort::s_speed = std::clamp(Sort::BaseSort::s_speed, 0.001f, 1000.f);
+
+                    ImGui::InputInt("Set Array Length", &Sort::BaseSort::s_length, 2);
+                    Sort::BaseSort::s_length = std::clamp(Sort::BaseSort::s_length, 2, 1024*10);
+
+                    if (currentName == "Radix LSD") 
+                    {
+                        ImGui::SliderInt("Set Buckets/Radix", &appShared->sortRadix, 2, 10, "%d");
+                    }
+
+                    ImGui::Spacing();
+                    if (!appShared->sorter->running)
+                    {
+                        if(ImGui::Button("Sort")) 
+                        {
+                            LOGINFO("Starting sort");
+                            auto& registry = appShared->sortRegistry;
+                            auto ids = registry.idsByCategory(appShared->currentCategory);
+                            if(appShared->currentItemIndex < ids.size()) 
+                            {
+                                auto* entry = registry.get(ids[appShared->currentItemIndex]);
+
+                                if(entry)
+                                {
+                                    appShared->sorter = entry->factory(appShared->data);
+                                    appShared->sorter->setLength(Sort::BaseSort::s_length);
+                                }
+                            } 
+                            else 
+                            {
+                                LOGERR("Unknown sort category/index");
+                            }
+
+                            shouldSort = true;
+                            appShared->sorter->running = true;
                         }
                     } 
                     else 
                     {
-                        LOGERR("Unknown sort category/index");
+                        if(ImGui::Button("Stop")) 
+                        {
+                            appShared->sorter->running = false;
+                            LOGINFO("Stopping sort");
+
+                            appShared->sorter->timer.end();
+                            appShared->sorter->realTimer.end();
+
+                            appShared->sorter->wantStop = true;
+                            if (appShared->sortThread.has_value()) 
+                            {
+                                if (appShared->sortThread->joinable())
+                                {
+                                    appShared->sortThread->join();
+                                }
+                                
+                                appShared->sortThread.reset();
+                            }
+                        }
                     }
 
-                    shouldSort = true;
-                    AppCtx::g_app->sorter->running = true;
+                    ImGui::SameLine();
+                    ImGui::Checkbox("Reverse instead of Shuffling", &State::reversed);
+                    ImGui::End();
                 }
-            } 
-            else 
-            {
-                if(ImGui::Button("Stop")) 
+                
+                ImGui::Render();
+
+                ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), appShared->ctx->renderer);
+                
+                if(shouldSort)
                 {
-                    AppCtx::g_app->sorter->running = false;
-                    LOGINFO("Stopping sort");
-
-                    AppCtx::g_app->sorter->timer.end();
-                    AppCtx::g_app->sorter->realTimer.end();
-
-                    AppCtx::g_app->sorter->wantStop = true;
-                    if (AppCtx::g_app->sortThread.has_value()) 
+                    if (appShared->sortThread.has_value()) 
                     {
-                        if (AppCtx::g_app->sortThread->joinable())
+                        if (appShared->sortThread->joinable())
                         {
-                            AppCtx::g_app->sortThread->join();
+                            appShared->sortThread->join();
+                        }
+
+                        appShared->sortThread.reset();
+                    }
+
+                    appShared->sortThread = std::make_optional<std::thread>([&]() 
+                    {
+                        shouldSort = false;
+                        if(!State::reversed)
+                        {
+                            appShared->sorter->shuffle();
+                        }
+                        else
+                        {
+                            appShared->sorter->reverse();
                         }
                         
-                        AppCtx::g_app->sortThread.reset();
-                    }
+                        if(!(appShared->sorter->wantStop)) 
+                        {
+                            LOGINFO("Sorting");
+                            appShared->sorter->timer.start();
+                            appShared->sorter->realTimer.start();
+                            appShared->sorter->sort();
+                            appShared->sorter->realTimer.pause();
+                            appShared->sorter->timer.pause();
+                        }
+                        
+                        if(!(appShared->sorter->wantStop)) 
+                        {
+                            LOGINFO("Checking");
+                            appShared->sorter->check();
+                        }
+
+                        if (appShared->sorter->wantStop) 
+                        {
+                            return;
+                        }
+                        appShared->sorter->running = false;
+                    });
                 }
-            }
 
-            ImGui::SameLine();
-            ImGui::Checkbox("Reverse instead of Shuffling", &State::reversed);
-            ImGui::End();
-        }
-        
-        ImGui::Render();
-        ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), AppCtx::g_app->renderer);
-
-        if(shouldSort)
-        {
-            if (AppCtx::g_app->sortThread.has_value()) 
-            {
-                if (AppCtx::g_app->sortThread->joinable())
+                if (appShared->sorter->wantClose) 
                 {
-                    AppCtx::g_app->sortThread->join();
+                    return Utils::Signal::CloseApp;
                 }
 
-                AppCtx::g_app->sortThread.reset();
-            }
-
-            AppCtx::g_app->sortThread = std::make_optional<std::thread>([&]() 
-            {
-                shouldSort = false;
-                if(!State::reversed)
+                if (appShared->sorter->wantStop) 
                 {
-                    AppCtx::g_app->sorter->shuffle();
-                }
-                else
-                {
-                    AppCtx::g_app->sorter->reverse();
+                    return Utils::Signal::StopSort;
                 }
                 
-                if(!(AppCtx::g_app->sorter->wantStop)) 
-                {
-                    LOGINFO("Sorting");
-                    AppCtx::g_app->sorter->timer.start();
-                    AppCtx::g_app->sorter->realTimer.start();
-                    AppCtx::g_app->sorter->sort();
-                    AppCtx::g_app->sorter->realTimer.pause();
-                    AppCtx::g_app->sorter->timer.pause();
-                }
-                
-                if(!(AppCtx::g_app->sorter->wantStop)) 
-                {
-                    LOGINFO("Checking");
-                    AppCtx::g_app->sorter->check();
-                }
-
-                if (AppCtx::g_app->sorter->wantStop) 
-                {
-                    return;
-                }
-                AppCtx::g_app->sorter->running = false;
-            });
+                return Utils::Signal::Success;
+            }
         }
 
-        if (AppCtx::g_app->sorter->wantClose) 
-        {
-            return Utils::Signal::CloseApp;
-        }
-
-        if (AppCtx::g_app->sorter->wantStop) 
-        {
-            return Utils::Signal::StopSort;
-        }
-        
         return Utils::Signal::Success;
     }
 }

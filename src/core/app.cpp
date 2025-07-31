@@ -6,17 +6,20 @@
 #include "core/logging/logging.h"
 #include "sort/exchange/bubble.h"
 #include "utils/common.h"
+#include "core/platform/dpi.h"
 
 using namespace std::literals::chrono_literals;
 
 namespace Core 
 {
-    App::App() noexcept : currentElement(0), currentCategory(Sort::Category::Exchange), currentDisplayType(Renderer::DisplayType::Bar)
+    App::App() noexcept :   m_UI(nullptr),
+                            currentElement(0), 
+                            currentCategory(Sort::Category::Exchange), 
+                            currentDisplayType(Renderer::DisplayType::Bar),
+                            sortRegistry(nullptr)
     {
         categories = {"Exchange", "Distribution", "Insertion", "Merge", "Select"};
         displayTypes = {"Bar", "Dot", "Rainbow Rectangle", "Circle", "Circle Dot", "Disparity Circle", "Spiral", "Spiral Dot"};
-
-        AppCtx::g_sortRegistry.registerAllSorts();
     }
 
     App::~App()
@@ -57,24 +60,13 @@ namespace Core
         LOGINFO("Destroying ImGui context");
         ImGui::DestroyContext();
 
-        if (renderer) 
-        {
-            LOGINFO("Destroying SDL renderer");
-            SDL_DestroyRenderer(renderer);
-        }
-
-        LOGINFO("Destroying SDL window");
-        if(m_window) 
-        {
-            SDL_DestroyWindow(m_window);
-        }
+        Ctx::destroyContext(ctx);
 
         LOGINFO("Quitting...");
         SDL_Quit();
 
 
     }
-
 
     Utils::Signal App::init()
     {
@@ -105,7 +97,18 @@ namespace Core
         }
 
         LOGINFO("Creating SortView");
-        m_sortView = std::make_unique<Renderer::SortView>();
+        m_sortView = std::make_unique<Renderer::SortView>(shared_from_this());
+        sortRegistry = Core::SortRegistry(shared_from_this());
+        sortRegistry.registerAllSorts();
+
+        LOGINFO("Generating array");
+
+        constexpr int defaultSize = 512;
+        data.resize(defaultSize);
+        for (int index = 0; index < defaultSize; ++index)
+        {
+            data[index] = index + 1;
+        }
         
         return Utils::Signal::Success;
     }
@@ -120,19 +123,15 @@ namespace Core
             return Utils::Signal::Error;
         }
         LOGINFO("SDL initialized successfully");
-
-        LOGINFO("Creating SDL Window");
-        m_window = SDL_CreateWindow("Sorting Algorithms", AppCtx::kWinWidth, AppCtx::kWinHeight, SDL_WINDOW_HIGH_PIXEL_DENSITY);
         
-        LOGINFO("Creating SDL renderer");
-        renderer = SDL_CreateRenderer(m_window, NULL);
+        ctx = Core::Ctx::createContext(1920.0f, 1080.0f, 240);
 
         LOGINFO("Setting render parameters");
-        SDL_SetRenderDrawColor(renderer, 0x0, 0x0, 0x0, 0x0);
-        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(ctx->renderer, 0x0, 0x0, 0x0, 0x0);
+        SDL_SetRenderDrawBlendMode(ctx->renderer, SDL_BLENDMODE_BLEND);
 
         LOGINFO("Clearing window");
-        SDL_RenderClear(renderer);
+        SDL_RenderClear(ctx->renderer);
 
         return Utils::Signal::Success;
     }
@@ -178,8 +177,8 @@ namespace Core
 
         LOGINFO("Setting up ImGui context");
         IMGUI_CHECKVERSION();
-        ImGuiContext* ctx = ImGui::CreateContext();
-        ImGui::SetCurrentContext(ctx);
+        ImGuiContext* imCtx = ImGui::CreateContext();
+        ImGui::SetCurrentContext(imCtx);
         
         LOGINFO("Configuring ImGui io");
         m_io = &configureIO();
@@ -187,36 +186,40 @@ namespace Core
         LOGINFO("Setting ImGui styling");
         ImGuiStyle& style = ImGui::GetStyle();
         setStyle(style);
-            
+
         LOGINFO("Setting up ImGui renderer");
-        if (!ImGui_ImplSDL3_InitForSDLRenderer(m_window, renderer))
+        if (!ImGui_ImplSDL3_InitForSDLRenderer(ctx->window, ctx->renderer))
         {
             return Utils::Signal::Error;
         }
 
         LOGINFO("Initializing ImGui SDL renderer");
-        if (!ImGui_ImplSDLRenderer3_Init(renderer)) 
+        if (!ImGui_ImplSDLRenderer3_Init(ctx->renderer)) 
         {
             return Utils::Signal::Error;
         }
+
+        m_UI = Renderer::UI(shared_from_this());
+
+        // std::string fontPath = std::string(SDL_GetBasePath()) + "res/font.ttf";
+        // float scale = ctx->dpi.scaleX > 0 ? ctx->dpi.scaleX : 2.0f;
+        // float fontSize = 12.0f * scale;
+
+        // ImFont* imguiFont = m_io->Fonts->AddFontFromFileTTF(fontPath.c_str(), fontSize);
+        // if (!imguiFont) {
+        //     LOGERR("Failed to load ImGui font");
+        //     return Utils::Signal::Error;
+        // }
+        // ImGui_ImplSDLRenderer3_CreateFontsTexture();
 
         return Utils::Signal::Success;
     }
 
     void App::run()
     {
-        LOGINFO("Generating array");
-
-        constexpr int defaultSize = 512;
-        data.resize(defaultSize);
-        for (int index = 0; index < defaultSize; ++index)
-        {
-            data[index] = index + 1;
-        }
-
         LOGINFO("Initializing sorter");
         sorter = std::make_shared<Sort::BubbleSort>(data);
-        if (auto* entry = AppCtx::g_sortRegistry.get("BubbleSort")) 
+        if (auto* entry = sortRegistry.get("BubbleSort")) 
         {
             sorter = entry->factory(data);
             sorter->setLength(Sort::BaseSort::s_length);
@@ -252,9 +255,11 @@ namespace Core
                 default: break;
             }
 
-            SDL_RenderPresent(renderer);
+            SDL_RenderPresent(ctx->renderer);
             if(SDL_PollEvent(&event))
             {
+                SDL_ConvertEventToRenderCoordinates(ctx->renderer, &event);
+
                 ImGui_ImplSDL3_ProcessEvent(&event);
                 if (event.type == SDL_EVENT_QUIT)
                 {
@@ -266,7 +271,7 @@ namespace Core
 
             std::chrono::duration<double, std::milli> elapsed = std::chrono::high_resolution_clock::now() - start;
             
-            double delay = AppCtx::kFrameTime - elapsed.count();
+            double delay = ctx->getFrameTime() - elapsed.count();
 
             if (delay > 1.5) 
             {
@@ -277,7 +282,7 @@ namespace Core
             {
                 auto now = std::chrono::high_resolution_clock::now();
 
-                if (std::chrono::duration<double, std::milli>(now - start).count() >= AppCtx::kFrameTime) 
+                if (std::chrono::duration<double, std::milli>(now - start).count() >= ctx->getFrameTime()) 
                 {
                     break;
                 }
@@ -299,7 +304,7 @@ namespace Core
                 int freq = 0;
 
                 {
-                    std::lock_guard<std::mutex> lock(m_mutex);
+                    std::lock_guard<std::mutex> lock(Sort::BaseSort::s_mutex);
 
                     if (data.empty() || currentElement.load() >= data.size()) 
                     {
@@ -307,7 +312,7 @@ namespace Core
                         continue;  // skip this iteration;
                     }
 
-                    freq = data[currentElement] * (AppCtx::kWinHeight / static_cast<float>(data.size())) + base;
+                    freq = data[currentElement] * (ctx->winHeight / static_cast<float>(data.size())) + base;
                 }
 
                 freq = std::clamp(freq, min, max);
@@ -405,8 +410,10 @@ namespace Core
     {
         ImGuiIO& io = ImGui::GetIO();
         LOGINFO("Setting ImGui IO flags");
+        
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
         return io;
     }
 

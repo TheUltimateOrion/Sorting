@@ -2,8 +2,14 @@
 
 #include <atomic>
 #include <vector>
+#include <memory>
 
 #include "core/timer.h"
+
+namespace Core
+{
+    class App;
+}
 
 namespace Sort 
 {
@@ -11,11 +17,14 @@ namespace Sort
     {
     private:
         bool m_isRadix = false;
+        std::weak_ptr<Core::App> m_app;
     protected:
         std::atomic<size_t> m_first;
         std::atomic<size_t> m_second;
 
     public:
+        virtual ~BaseSort() = default;
+        
         std::vector<int>& elems;
 
         std::atomic<bool> sorted;
@@ -28,6 +37,8 @@ namespace Sort
 
         static float s_speed;
         static int s_length;
+
+        static std::mutex s_mutex;
 
         Core::Timer timer;
         Core::Timer realTimer;

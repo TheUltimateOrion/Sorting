@@ -19,7 +19,7 @@ using namespace std::literals::chrono_literals;
 namespace Sort 
 {
     float BaseSort::s_speed = 1.0f;
-    int BaseSort::s_length = 512;
+    uint64_t BaseSort::ctx = 512;
 
     std::mutex BaseSort::s_mutex;
 

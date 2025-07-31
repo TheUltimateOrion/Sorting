@@ -6,6 +6,8 @@
 
 namespace Core 
 {
+    SortRegistry::SortRegistry(std::shared_ptr<Core::App> app) : m_app(app) {}
+
     void SortRegistry::registerSort(
         const std::string& id,
         Sort::Category category,
@@ -40,7 +42,7 @@ namespace Core
             [](std::vector<int>& arr){ return std::make_shared<Sort::CombSort>(arr); });
 
         registerSort("radix_lsd", Sort::Category::Distribution, "Radix LSD Sort",
-            [](std::vector<int>& arr){ return std::make_shared<Sort::RadixLSDSort>(arr, AppCtx::g_sortRadix); });
+            [](std::vector<int>& arr){ return std::make_shared<Sort::RadixLSDSort>(arr, 2); });
         registerSort("pigeon_hole", Sort::Category::Distribution, "Pigeon Hole Sort",
             [](std::vector<int>& arr){ return std::make_shared<Sort::PigeonHoleSort>(arr); });
         registerSort("gravity", Sort::Category::Distribution, "Gravity Sort",

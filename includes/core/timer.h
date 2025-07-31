@@ -27,5 +27,7 @@ namespace Core
         void resume() noexcept;
 
         double getDuration() const;
+
+        static double getTimestamp();
     };
 } // namespace Core

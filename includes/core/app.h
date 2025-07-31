@@ -12,15 +12,12 @@
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
 
-#endif
-
-#include "renderer/disp_type.h"
-
-#ifndef TESTING
 #include "renderer/sort_view.h"
 #include "renderer/ui.h"
 #endif
 
+#include "core/app_ctx.h"
+#include "renderer/disp_type.h"
 #include "sort/category.h"
 #include "sound/sound_engine.h"
 
@@ -28,15 +25,13 @@
 
 namespace Core 
 {
-    class App 
+    class App : public std::enable_shared_from_this<App>
     {
     private:
-        mutable std::mutex m_mutex;
         std::unique_ptr<Renderer::SortView> m_sortView;
         Renderer::UI m_UI;
         ImGuiIO* m_io;
         SoundEngine* m_soundEngine;
-        SDL_Window *m_window;
         std::optional<std::thread> m_audioThread;
 
         [[nodiscard]] Utils::Signal initSDL();
@@ -49,7 +44,6 @@ namespace Core
         friend class Sort::BaseSort;
         friend class Renderer::SortView;
     public:
-        SDL_Renderer *renderer;
         SDL_Event event;
         TTF_Font *font;
 
@@ -67,7 +61,13 @@ namespace Core
 
         std::vector<int> data;
 
+        int32_t sortRadix = 2;
+
         std::optional<std::thread> sortThread;
+
+        Core::SortRegistry sortRegistry; // Global sort registry
+
+        Core::Ctx* ctx;
 
         App() noexcept;
         ~App();

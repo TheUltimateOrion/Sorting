@@ -61,11 +61,11 @@ This project is licensed under the terms of the GNU GPLv3. See the [LICENSE](LIC
 - [x] Full multithreading with thread safety
 - [x] FPS stabilization
 - [x] Finishing sort animation
-- [ ] Real-time display along with apparent time.
+- [x] Real-time display along with apparent time.
 - [ ] Fix obscure big involving freezing when starting a sort
 - [ ] Improve options and selection screen
 - [ ] Sort registry for easier addition of new algorithms
 - [ ] Shorten GCC compile times (Linux & Windows) by atleast 25%
 - [ ] At least 25 sorting algorithms
 - [ ] Better audio output - less crackly, more satisfying
-- [ ] Other minor fixes
+- [x] Fully high DPI compliant
