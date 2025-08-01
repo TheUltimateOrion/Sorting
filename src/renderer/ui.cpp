@@ -14,7 +14,7 @@
 
 namespace Renderer 
 {
-    UI::UI(std::shared_ptr<Core::App> app) noexcept : m_app(app) {};
+    UI::UI(std::shared_ptr<Core::App> app) noexcept : m_app(app), m_arrayLength(512) {};
 
     void UI::renderText(const std::string& t_txt, float t_x, float t_y, SDL_Color t_col) const noexcept
     {
@@ -202,8 +202,9 @@ namespace Renderer
                     ImGui::InputFloat("Set Speed", &Sort::BaseSort::s_speed, 0.001f);
                     Sort::BaseSort::s_speed = std::clamp(Sort::BaseSort::s_speed, 0.001f, 1000.f);
 
-                    ImGui::InputInt("Set Array Length", &Sort::BaseSort::s_length, 2);
-                    Sort::BaseSort::s_length = std::clamp(Sort::BaseSort::s_length, 2, 1024*10);
+                    
+                    ImGui::InputInt("Set Array Length", &m_arrayLength, 2);
+                    m_arrayLength = std::clamp(m_arrayLength, 2, 1024*10);
 
                     if (currentName == "Radix LSD") 
                     {
@@ -224,8 +225,8 @@ namespace Renderer
 
                                 if(entry)
                                 {
-                                    appShared->sorter = entry->factory(appShared->data);
-                                    appShared->sorter->setLength(Sort::BaseSort::s_length);
+                                    appShared->sorter = entry->factory();
+                                    appShared->sorter->setLength(m_arrayLength);
                                 }
                             } 
                             else 

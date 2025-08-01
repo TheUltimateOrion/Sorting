@@ -19,11 +19,20 @@ using namespace std::literals::chrono_literals;
 namespace Sort 
 {
     float BaseSort::s_speed = 1.0f;
-    int BaseSort::s_length = 512;
 
     std::mutex BaseSort::s_mutex;
 
-    BaseSort::BaseSort(std::vector<int>& t_arr, bool t_isRadix) : m_isRadix(t_isRadix), m_first(0), m_second(0), elems(t_arr), sorted(true), isSorting(false), isShuffling(false), isChecking(false), wantClose(false), wantStop(false), running(false) {}
+    BaseSort::BaseSort() : m_first(0), m_second(0), sorted(true), isSorting(false), isShuffling(false), isChecking(false), wantClose(false), wantStop(false), running(false) 
+    {
+        LOGINFO("Generating array");
+
+        constexpr int defaultSize = 512;
+        elems.resize(defaultSize);
+        for (int index = 0; index < defaultSize; ++index)
+        {
+            elems[index] = index + 1;
+        }
+    }
 
     void BaseSort::reverse()
     {
@@ -42,7 +51,7 @@ namespace Sort
         }
 
         std::reverse(temp.begin(), temp.end());
-        for (size_t i = 0; i < temp.capacity(); i++)
+        for (size_t i = 0; i < temp.size(); i++)
         {
             {
                 LOCK_GUARD;
@@ -78,7 +87,7 @@ namespace Sort
 
         std::shuffle(std::begin(temp), std::end(temp), std::default_random_engine(0));
 
-        for (size_t i = 0; i < temp.capacity(); ++i)
+        for (size_t i = 0; i < temp.size(); ++i)
         {
             {
                 LOCK_GUARD;
@@ -113,7 +122,7 @@ namespace Sort
         realTimer.end();
         timer.end();
 
-        for (size_t i = 0; i < temp.capacity(); ++i)
+        for (size_t i = 0; i < temp.size(); ++i)
         {
             if (temp[i] != static_cast<int>(i) + 1) 
             {
@@ -155,9 +164,10 @@ namespace Sort
 
     void BaseSort::setLength(unsigned int len)
     {
+        LOGINFO(elems.size());
         LOGINFO("Resizing to " << len);
         elems.resize(len);
-        
+
         for (size_t i = 0; i < elems.size(); ++i)
         {
             elems[i] = i + 1;

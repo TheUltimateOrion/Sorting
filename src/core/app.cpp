@@ -100,15 +100,6 @@ namespace Core
         m_sortView = std::make_unique<Renderer::SortView>(shared_from_this());
         sortRegistry = Core::SortRegistry(shared_from_this());
         sortRegistry.registerAllSorts();
-
-        LOGINFO("Generating array");
-
-        constexpr int defaultSize = 512;
-        data.resize(defaultSize);
-        for (int index = 0; index < defaultSize; ++index)
-        {
-            data[index] = index + 1;
-        }
         
         return Utils::Signal::Success;
     }
@@ -221,8 +212,9 @@ namespace Core
         sorter = std::make_shared<Sort::BubbleSort>(data);
         if (auto* entry = sortRegistry.get("BubbleSort")) 
         {
+            constexpr uint64_t defaultSize = 512;
             sorter = entry->factory(data);
-            sorter->setLength(Sort::BaseSort::s_length);
+            sorter->setLength(defaultSize);
         }
 
         LOGINFO("Creating audio thread");

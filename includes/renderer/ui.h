@@ -17,6 +17,8 @@ namespace Renderer
     {
     private:
         std::weak_ptr<Core::App> m_app;
+
+        int m_arrayLength;
     public:
         UI(std::shared_ptr<Core::App> app) noexcept;
         ~UI() noexcept = default;

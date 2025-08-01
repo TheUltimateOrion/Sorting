@@ -6,10 +6,7 @@
     #define HIGH_RES_WAIT(t) do {} while(0);
 #else
     #define LOCK_GUARD\
-        if (auto appShared = m_app.lock())\
-        {\
-            std::lock_guard<std::mutex> lock(Sort::BaseSort::s_mutex);\
-        }
+        std::lock_guard<std::mutex> lock(Sort::BaseSort::s_mutex);
 
     #define HIGH_RES_WAIT(t)\
         auto start = std::chrono::high_resolution_clock::now();\
