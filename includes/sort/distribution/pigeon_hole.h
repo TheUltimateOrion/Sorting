@@ -6,7 +6,7 @@ namespace Sort
     class PigeonHoleSort : virtual public BaseSort
     {
     public:
-        PigeonHoleSort(std::vector<int>& t_arr);
+        PigeonHoleSort();
 
         void sort() override;
     };

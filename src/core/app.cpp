@@ -209,11 +209,10 @@ namespace Core
     void App::run()
     {
         LOGINFO("Initializing sorter");
-        sorter = std::make_shared<Sort::BubbleSort>(data);
         if (auto* entry = sortRegistry.get("BubbleSort")) 
         {
             constexpr uint64_t defaultSize = 512;
-            sorter = entry->factory(data);
+            sorter = entry->factory();
             sorter->setLength(defaultSize);
         }
 
@@ -298,13 +297,13 @@ namespace Core
                 {
                     std::lock_guard<std::mutex> lock(Sort::BaseSort::s_mutex);
 
-                    if (data.empty() || currentElement.load() >= data.size()) 
+                    if (sorter->elems.empty() || currentElement.load() >= sorter->elems.size()) 
                     {
                         std::this_thread::sleep_for(100ms);
                         continue;  // skip this iteration;
                     }
 
-                    freq = data[currentElement] * (ctx->winHeight / static_cast<float>(data.size())) + base;
+                    freq = sorter->elems[currentElement] * (ctx->winHeight / static_cast<float>(sorter->elems.size())) + base;
                 }
 
                 freq = std::clamp(freq, min, max);

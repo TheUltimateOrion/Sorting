@@ -8,7 +8,7 @@ namespace Sort
     private:
         int getNextGap(int t_gap);
     public:
-        CombSort(std::vector<int>& t_arr);
+        CombSort();
 
         void sort() override;
     };

@@ -26,7 +26,7 @@ namespace Core
             const std::string& id,
             Sort::Category category,
             const std::string& displayName,
-            std::function<std::shared_ptr<Sort::BaseSort>(std::vector<int>&)> factory
+            std::function<std::shared_ptr<Sort::BaseSort>()> factory
         );
 
         std::vector<std::string> idsByCategory(Sort::Category category) const;

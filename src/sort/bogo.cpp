@@ -7,7 +7,7 @@
 #endif
 
 namespace Sort {
-    BogoSort::BogoSort(std::vector<int>& t_arr) : BaseSort(t_arr) {}
+    BogoSort::BogoSort() : BaseSort() {}
 
     bool BogoSort::isSorted()
     {

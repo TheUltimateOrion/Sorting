@@ -7,7 +7,7 @@
 #include "utils/common.h"
 
 namespace Sort {
-    MergeSort::MergeSort(std::vector<int>& t_arr) : BaseSort(t_arr) {}
+    MergeSort::MergeSort() : BaseSort() {}
 
     void MergeSort::merge(int const left, int const mid, int const right)
     {

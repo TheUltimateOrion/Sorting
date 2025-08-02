@@ -7,7 +7,7 @@
 #include "utils/common.h"
 
 namespace Sort {
-    InsertionSort::InsertionSort(std::vector<int>& t_arr) : BaseSort(t_arr) {}
+    InsertionSort::InsertionSort() : BaseSort() {}
 
     void InsertionSort::sort()
     {

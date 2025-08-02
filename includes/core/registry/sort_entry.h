@@ -12,5 +12,5 @@ struct SortRegistryEntry
 {
     Sort::Category category;
     std::string displayName;
-    std::function<std::shared_ptr<Sort::BaseSort>(std::vector<int>&)> factory;
+    std::function<std::shared_ptr<Sort::BaseSort>()> factory;
 };

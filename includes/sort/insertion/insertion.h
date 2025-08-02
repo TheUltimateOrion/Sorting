@@ -6,7 +6,7 @@ namespace Sort
     class InsertionSort : virtual public BaseSort
     {
     public:
-        InsertionSort(std::vector<int>& t_arr);
+        InsertionSort();
 
         void sort() override;
     };

@@ -15,14 +15,15 @@ namespace Sort
 {
     class BaseSort
     {
+    private:
+        void generateArray(uint64_t t_size);
     protected:
         std::atomic<size_t> m_first;
         std::atomic<size_t> m_second;
-
     public:
         virtual ~BaseSort() = default;
         
-        std::vector<int>& elems;
+        std::vector<int> elems;
 
         std::atomic<bool> sorted;
         std::atomic<bool> isSorting;
@@ -42,12 +43,12 @@ namespace Sort
         uint64_t swaps{0}; 
         uint64_t comparisons{0}; 
 
-        size_t getFirst() noexcept { return m_first.load(); }
-        size_t getSecond() noexcept { return m_second.load(); }
+        uint64_t getFirst() noexcept { return m_first.load(); }
+        uint64_t getSecond() noexcept { return m_second.load(); }
 
         BaseSort();
 
-        void swap(std::vector<int>& array, size_t a, size_t b);
+        void swap(std::vector<int>& array, uint64_t a, uint64_t b);
 
         void shuffle();
         void reverse();

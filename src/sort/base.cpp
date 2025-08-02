@@ -22,16 +22,22 @@ namespace Sort
 
     std::mutex BaseSort::s_mutex;
 
-    BaseSort::BaseSort() : m_first(0), m_second(0), sorted(true), isSorting(false), isShuffling(false), isChecking(false), wantClose(false), wantStop(false), running(false) 
+    void BaseSort::generateArray(uint64_t t_size)
     {
         LOGINFO("Generating array");
-
-        constexpr int defaultSize = 512;
-        elems.resize(defaultSize);
-        for (int index = 0; index < defaultSize; ++index)
+        elems.resize(t_size);
+        for (size_t i = 0; i < t_size; ++i)
         {
-            elems[index] = index + 1;
+            elems[i] = static_cast<int>(i) + 1;
         }
+    }
+
+    BaseSort::BaseSort() : m_first(0), m_second(0), sorted(true), isSorting(false), isShuffling(false), isChecking(false), wantClose(false), wantStop(false), running(false) 
+    {
+        
+        constexpr int defaultSize = 512;
+        generateArray(defaultSize);
+        
     }
 
     void BaseSort::reverse()
@@ -164,13 +170,7 @@ namespace Sort
 
     void BaseSort::setLength(unsigned int len)
     {
-        LOGINFO(elems.size());
         LOGINFO("Resizing to " << len);
-        elems.resize(len);
-
-        for (size_t i = 0; i < elems.size(); ++i)
-        {
-            elems[i] = i + 1;
-        }
+        generateArray(len);
     }
 } // namespace Sort

@@ -7,7 +7,7 @@
 #include "utils/common.h"
 
 namespace Sort {
-    SelectionSort::SelectionSort(std::vector<int>& t_arr) : BaseSort(t_arr) {}
+    SelectionSort::SelectionSort() : BaseSort() {}
 
     void SelectionSort::sort()
     {

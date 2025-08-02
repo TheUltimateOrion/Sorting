@@ -6,7 +6,7 @@
 #include "utils/common.h"
 
 namespace Sort {
-    GravitySort::GravitySort(std::vector<int>& t_arr) : BaseSort(t_arr) {}
+    GravitySort::GravitySort() : BaseSort() {}
 
     void GravitySort::sort()
     {

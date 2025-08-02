@@ -9,7 +9,7 @@ namespace Sort
         void merge(int const t_left, int const t_mid, int const t_right);
         void mergeSort(int const t_begin, int const t_end);
     public:
-        MergeSort(std::vector<int>& t_arr);
+        MergeSort();
 
         void sort() override;
     };

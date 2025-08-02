@@ -6,7 +6,7 @@ namespace Sort
     class GravitySort : virtual public BaseSort
     {
     public:
-        GravitySort(std::vector<int>& t_arr);
+        GravitySort();
 
         void sort() override;
     };

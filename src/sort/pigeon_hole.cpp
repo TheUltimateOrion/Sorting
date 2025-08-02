@@ -7,7 +7,7 @@
 #include "utils/common.h"
 
 namespace Sort {
-    PigeonHoleSort::PigeonHoleSort(std::vector<int>& t_arr) : BaseSort(t_arr) {}
+    PigeonHoleSort::PigeonHoleSort() : BaseSort() {}
 
     void PigeonHoleSort::sort()
     {

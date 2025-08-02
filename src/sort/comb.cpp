@@ -5,7 +5,7 @@
 #endif
 
 namespace Sort {
-    CombSort::CombSort(std::vector<int>& t_arr) : BaseSort(t_arr) {}
+    CombSort::CombSort() : BaseSort() {}
 
     int CombSort::getNextGap(int t_gap)
     {

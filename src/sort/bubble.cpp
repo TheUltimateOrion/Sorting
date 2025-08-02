@@ -1,7 +1,7 @@
 #include "sort/exchange/bubble.h"
 
 namespace Sort {
-    BubbleSort::BubbleSort(std::vector<int>& t_arr) : BaseSort(t_arr) {}
+    BubbleSort::BubbleSort() : BaseSort() {}
 
     void BubbleSort::sort()
     {

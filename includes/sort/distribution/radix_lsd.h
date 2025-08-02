@@ -9,7 +9,7 @@ namespace Sort
         int m_radix;
         void countSortByDigits(int t_exponent, int t_minValue);
     public:
-        RadixLSDSort(std::vector<int>& t_arr, int t_radix);
+        RadixLSDSort(int t_radix);
 
         void sort() override;
     };

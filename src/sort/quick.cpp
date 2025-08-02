@@ -5,7 +5,7 @@
 #endif
 
 namespace Sort {
-    QuickSort::QuickSort(std::vector<int>& t_arr) : BaseSort(t_arr) {}
+    QuickSort::QuickSort() : BaseSort() {}
 
     int QuickSort::partition(int t_low, int t_high)
     {

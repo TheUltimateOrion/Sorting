@@ -9,7 +9,7 @@ namespace Sort
         bool isSorted();
         void bogoShuffle();
     public:
-        BogoSort(std::vector<int>& t_arr);
+        BogoSort();
 
         void sort() override;
     };

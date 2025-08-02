@@ -178,7 +178,7 @@ namespace Renderer
 
             {
                 LOCK_GUARD;
-                m_elems = appShared->data;
+                m_elems = sorter->elems;
             }
 
             appShared->currentElement = sorter->getFirst();

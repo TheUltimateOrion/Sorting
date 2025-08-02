@@ -7,7 +7,7 @@
 #include "utils/common.h"
 
 namespace Sort {
-    RadixLSDSort::RadixLSDSort(std::vector<int>& t_arr, int t_radix) : BaseSort(t_arr, true), m_radix(t_radix) {}
+    RadixLSDSort::RadixLSDSort(int t_radix) : BaseSort(), m_radix(t_radix) {}
 
     void RadixLSDSort::countSortByDigits(int exponent, int minValue)
     {

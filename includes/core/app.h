@@ -59,8 +59,6 @@ namespace Core
         std::array<const char *, 8> displayTypes;
         enum Renderer::DisplayType currentDisplayType;
 
-        std::vector<int> data;
-
         int32_t sortRadix = 2;
 
         std::optional<std::thread> sortThread;

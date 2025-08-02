@@ -6,7 +6,7 @@ namespace Sort
     class BubbleSort : virtual public BaseSort
     {
     public:
-        BubbleSort(std::vector<int>& t_arr);
+        BubbleSort();
 
         void sort() override;
     };
