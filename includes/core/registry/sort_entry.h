@@ -8,7 +8,7 @@
 #include "sort/category.h"
 #include "sort/base.h"
 
-struct SortRegistryEntry 
+struct SortRegistryEntry
 {
     Sort::Category category;
     std::string displayName;

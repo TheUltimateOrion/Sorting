@@ -10,10 +10,15 @@
 #include "sort/category.h"
 #include "sort/base.h"
 
-
 namespace Core 
 {
     class App;
+
+    template<class Factory>
+    concept SortFactory =   std::invocable<Factory> 
+                        &&  std::same_as<std::invoke_result_t<Factory>, 
+                                         std::shared_ptr<typename std::invoke_result_t<Factory>::element_type>> 
+                        &&  std::derived_from<typename std::invoke_result_t<Factory>::element_type, Sort::BaseSort>;
 
     class SortRegistry : public Registry<SortRegistryEntry> 
     {
@@ -22,12 +27,13 @@ namespace Core
     public:
         SortRegistry(std::shared_ptr<Core::App> app);
 
+        template<class Factory>
         void registerSort (
             const std::string& id,
             Sort::Category category,
             const std::string& displayName,
-            std::function<std::shared_ptr<Sort::BaseSort>()> factory
-        );
+            Factory factory
+        ) requires SortFactory<Factory>;
 
         std::vector<std::string> idsByCategory(Sort::Category category) const;
 

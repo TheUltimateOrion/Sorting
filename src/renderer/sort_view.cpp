@@ -168,6 +168,11 @@ namespace Renderer
             SDL_SetRenderDrawColor(appShared->ctx->renderer, 0x0, 0x0, 0x0, 0x0);
             SDL_RenderClear(appShared->ctx->renderer);
 
+            {
+                LOCK_GUARD;
+                m_elems = sorter->elems;
+            }
+            
             RenderParams t_params 
             {
                 .degreesPerIndex = 360.0f / static_cast<float>(m_elems.size()),
@@ -176,10 +181,7 @@ namespace Renderer
                 .spiralScale = 0.5f * std::min(appShared->ctx->winHeight, appShared->ctx->winWidth) / static_cast<float>(m_elems.size())
             };
 
-            {
-                LOCK_GUARD;
-                m_elems = sorter->elems;
-            }
+            
 
             appShared->currentElement = sorter->getFirst();
 

@@ -209,7 +209,7 @@ namespace Core
     void App::run()
     {
         LOGINFO("Initializing sorter");
-        if (auto* entry = sortRegistry.get("BubbleSort")) 
+        if (auto* entry = sortRegistry.get("bubble"))
         {
             constexpr uint64_t defaultSize = 512;
             sorter = entry->factory();

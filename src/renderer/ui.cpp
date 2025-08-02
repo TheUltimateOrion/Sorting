@@ -282,7 +282,7 @@ namespace Renderer
                         appShared->sortThread.reset();
                     }
 
-                    appShared->sortThread = std::make_optional<std::thread>([&]() 
+                    appShared->sortThread = std::make_optional<std::thread>([appShared, &shouldSort]() 
                     {
                         shouldSort = false;
                         if(!State::reversed)
@@ -299,7 +299,9 @@ namespace Renderer
                             LOGINFO("Sorting");
                             appShared->sorter->timer.start();
                             appShared->sorter->realTimer.start();
+                            
                             appShared->sorter->sort();
+                            
                             appShared->sorter->realTimer.pause();
                             appShared->sorter->timer.pause();
                         }

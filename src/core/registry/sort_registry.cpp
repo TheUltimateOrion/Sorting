@@ -8,12 +8,13 @@ namespace Core
 {
     SortRegistry::SortRegistry(std::shared_ptr<Core::App> app) : m_app(app) {}
 
+    template<class Factory>
     void SortRegistry::registerSort(
         const std::string& id,
         Sort::Category category,
         const std::string& displayName,
-        std::function<std::shared_ptr<Sort::BaseSort>()> factory
-    ) 
+        Factory factory
+    ) requires SortFactory<Factory>
     {
         LOGINFO("Registering sort: " + id + " in category: " + std::to_string(static_cast<int>(category)));
         registerFactory(id, SortRegistryEntry{category, displayName, std::move(factory)});

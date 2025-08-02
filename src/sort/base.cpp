@@ -83,9 +83,9 @@ namespace Sort
         wantStop = false;
         swaps = 0;
         comparisons = 0;
-
+        
         std::vector<int> temp(elems.size());
-
+        
         {
             LOCK_GUARD;
             temp = elems; // Copy the original elements to temp
@@ -110,6 +110,7 @@ namespace Sort
         sorted = false;
         isShuffling = false;
 
+        LOGINFO("Shuffling Done");
         std::this_thread::sleep_for(500ms);
     }
 
