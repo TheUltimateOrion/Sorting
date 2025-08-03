@@ -295,7 +295,7 @@ namespace Core
                 int freq = 0;
 
                 {
-                    std::lock_guard<std::mutex> lock(Sort::BaseSort::s_mutex);
+                    std::scoped_lock<std::mutex> lock{sorter->mutex};
 
                     if (sorter->elems.empty() || currentElement.load() >= sorter->elems.size()) 
                     {

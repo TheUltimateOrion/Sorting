@@ -20,11 +20,9 @@ namespace Sort
 {
     float BaseSort::s_speed = 1.0f;
 
-    std::mutex BaseSort::s_mutex;
-
     void BaseSort::generateArray(uint64_t t_size)
     {
-        LOCK_GUARD;
+        std::scoped_lock<std::mutex> lock{mutex};
 
         LOGINFO("Generating array");
         elems.resize(t_size);
@@ -52,7 +50,7 @@ namespace Sort
         std::vector<int> temp(elems.size());
 
         {
-            LOCK_GUARD;
+            std::scoped_lock<std::mutex> lock{mutex};
             temp = elems; // Copy the original elements to temp
         }
 
@@ -60,7 +58,7 @@ namespace Sort
         for (size_t i = 0; i < temp.size(); i++)
         {
             {
-                LOCK_GUARD;
+                std::scoped_lock<std::mutex> lock{mutex};
                 elems[i] = temp[i];
             }
 
@@ -87,7 +85,7 @@ namespace Sort
         std::vector<int> temp(elems.size());
         
         {
-            LOCK_GUARD;
+            std::scoped_lock<std::mutex> lock{mutex};
             temp = elems; // Copy the original elements to temp
         }
 
@@ -96,7 +94,7 @@ namespace Sort
         for (size_t i = 0; i < temp.size(); ++i)
         {
             {
-                LOCK_GUARD;
+                std::scoped_lock<std::mutex> lock{mutex};
                 elems[i] = temp[i];
             }
 
@@ -122,7 +120,7 @@ namespace Sort
         std::vector<int> temp(elems.size());
 
         {
-            LOCK_GUARD;
+            std::scoped_lock<std::mutex> lock{mutex};
             temp = elems; // Copy the original elements to temp
         }
 
@@ -154,7 +152,7 @@ namespace Sort
         m_second = b;
 
         {
-            LOCK_GUARD;
+            std::scoped_lock<std::mutex> lock{mutex};
             if (a >= array.size() || b >= array.size()) 
             {
                 LOGERR("Swap indices out of bounds: " << a << ", " << b);

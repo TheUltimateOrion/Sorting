@@ -169,7 +169,7 @@ namespace Renderer
             SDL_RenderClear(appShared->ctx->renderer);
 
             {
-                LOCK_GUARD;
+                std::scoped_lock<std::mutex> lock(sorter->mutex);
                 m_elems = sorter->elems;
             }
             

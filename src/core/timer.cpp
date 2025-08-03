@@ -8,7 +8,7 @@ namespace Core
 {
     void Timer::start() noexcept
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        std::scoped_lock<std::mutex> lock{m_mutex};
         m_start = std::chrono::high_resolution_clock::now();
         m_end.reset();
         m_pauseStart.reset();
@@ -19,7 +19,7 @@ namespace Core
 
     void Timer::end() noexcept
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        std::scoped_lock<std::mutex> lock{m_mutex};
 
         if (!m_start.has_value()) 
         {
@@ -42,7 +42,7 @@ namespace Core
 
     void Timer::pause() noexcept
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        std::scoped_lock<std::mutex> lock{m_mutex};
 
         if (!m_start.has_value() || m_paused || m_end.has_value())
         {
@@ -55,7 +55,7 @@ namespace Core
 
     void Timer::resume() noexcept
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        std::scoped_lock<std::mutex> lock{m_mutex};
 
         if (!m_start.has_value() || !m_paused || m_end.has_value())
         {
@@ -71,7 +71,7 @@ namespace Core
 
     double Timer::getDuration() const
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        std::scoped_lock<std::mutex> lock{m_mutex};
         if (!m_start.has_value())
         {
             return 0.0;

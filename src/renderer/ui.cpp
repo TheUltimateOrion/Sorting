@@ -282,9 +282,9 @@ namespace Renderer
                         appShared->sortThread.reset();
                     }
 
-                    appShared->sortThread = std::make_optional<std::thread>([appShared, &shouldSort]() 
+                    shouldSort = false;
+                    appShared->sortThread = std::make_optional<std::thread>([appShared]() 
                     {
-                        shouldSort = false;
                         if(!State::reversed)
                         {
                             appShared->sorter->shuffle();

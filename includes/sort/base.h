@@ -35,7 +35,7 @@ namespace Sort
 
         static float s_speed;
 
-        static std::mutex s_mutex;
+        std::mutex mutex;
 
         Core::Timer timer;
         Core::Timer realTimer;
