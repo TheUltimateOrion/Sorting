@@ -181,10 +181,6 @@ namespace Renderer
                 .spiralScale = 0.5f * std::min(appShared->ctx->winHeight, appShared->ctx->winWidth) / static_cast<float>(m_elems.size())
             };
 
-            
-
-            appShared->currentElement = sorter->getFirst();
-
             for (size_t k = 0; k < m_elems.size(); ++k)
             {
                 SDL_Color sortColor = Utils::hsvToRgb(m_elems[k] * 0xFF / m_elems.size(), 0xFF, 0xFF);

@@ -48,10 +48,6 @@ namespace Core
         TTF_Font *font;
 
         std::shared_ptr<Sort::BaseSort> sorter;
-
-        std::atomic<size_t> currentElement;
-
-        size_t currentItemIndex = 0;
         
         std::array<const char *, 5> categories;
         enum Sort::Category currentCategory;

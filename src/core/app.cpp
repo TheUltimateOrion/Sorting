@@ -13,7 +13,6 @@ using namespace std::literals::chrono_literals;
 namespace Core 
 {
     App::App() noexcept :   m_UI(nullptr),
-                            currentElement(0), 
                             currentCategory(Sort::Category::Exchange), 
                             currentDisplayType(Renderer::DisplayType::Bar),
                             sortRegistry(nullptr)
@@ -297,13 +296,13 @@ namespace Core
                 {
                     std::scoped_lock<std::mutex> lock{sorter->mutex};
 
-                    if (sorter->elems.empty() || currentElement.load() >= sorter->elems.size()) 
+                    if (sorter->elems.empty() || sorter->getFirst() >= sorter->elems.size()) 
                     {
                         std::this_thread::sleep_for(100ms);
                         continue;  // skip this iteration;
                     }
 
-                    freq = sorter->elems[currentElement] * (ctx->winHeight / static_cast<float>(sorter->elems.size())) + base;
+                    freq = sorter->elems[sorter->getFirst()] * (ctx->winHeight / static_cast<float>(sorter->elems.size())) + base;
                 }
 
                 freq = std::clamp(freq, min, max);

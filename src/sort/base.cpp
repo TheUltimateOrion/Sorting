@@ -20,7 +20,7 @@ namespace Sort
 {
     float BaseSort::s_speed = 1.0f;
 
-    void BaseSort::generateArray(uint64_t t_size)
+    void BaseSort::generateArray(size_t t_size)
     {
         std::scoped_lock<std::mutex> lock{mutex};
 
@@ -28,7 +28,7 @@ namespace Sort
         elems.resize(t_size);
         for (size_t i = 0; i < t_size; ++i)
         {
-            elems[i] = static_cast<int>(i) + 1;
+            elems[i] = static_cast<decltype(elems)::value_type>(i + 1);
         }
     }
 
@@ -47,12 +47,13 @@ namespace Sort
         swaps = 0;
         comparisons = 0;
 
-        std::vector<int> temp(elems.size());
+        std::vector temp {
+            [&]() {
+                std::scoped_lock lock{mutex};
+                return elems;
+            }()
+        };
 
-        {
-            std::scoped_lock<std::mutex> lock{mutex};
-            temp = elems; // Copy the original elements to temp
-        }
 
         std::reverse(temp.begin(), temp.end());
         for (size_t i = 0; i < temp.size(); i++)
@@ -82,12 +83,12 @@ namespace Sort
         swaps = 0;
         comparisons = 0;
         
-        std::vector<int> temp(elems.size());
-        
-        {
-            std::scoped_lock<std::mutex> lock{mutex};
-            temp = elems; // Copy the original elements to temp
-        }
+        std::vector temp {
+            [&]() {
+                std::scoped_lock lock{mutex};
+                return elems;
+            }()
+        };
 
         std::shuffle(temp.begin(), temp.end(), std::random_device{});
 
@@ -117,19 +118,19 @@ namespace Sort
         wantStop = false;
         isChecking = true;
 
-        std::vector<int> temp(elems.size());
-
-        {
-            std::scoped_lock<std::mutex> lock{mutex};
-            temp = elems; // Copy the original elements to temp
-        }
+        std::vector temp {
+            [&]() {
+                std::scoped_lock lock{mutex};
+                return elems;
+            }()
+        };
 
         realTimer.end();
         timer.end();
 
         for (size_t i = 0; i < temp.size(); ++i)
         {
-            if (temp[i] != static_cast<int>(i) + 1) 
+            if (temp[i] != static_cast<decltype(elems)::value_type>(i + 1)) 
             {
                 break;
             }
@@ -141,12 +142,12 @@ namespace Sort
             if (wantClose || wantStop) return;
         }
         
-
         isChecking = false;
+        
         LOGINFO("Check completed");
     }
 
-    void BaseSort::swap(std::vector<int>& array, size_t a, size_t b)
+    void BaseSort::swap(std::vector<decltype(elems)::value_type>& array, size_t a, size_t b)
     {
         m_first = a;
         m_second = b;
@@ -167,7 +168,7 @@ namespace Sort
         swaps++;
     }
 
-    void BaseSort::setLength(unsigned int len)
+    void BaseSort::setLength(size_t len)
     {
         LOGINFO("Resizing to " << len);
         generateArray(len);

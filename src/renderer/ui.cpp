@@ -55,9 +55,9 @@ namespace Renderer
                 auto& reg = appShared->sortRegistry;
                 auto ids = reg.idsByCategory(appShared->currentCategory);
                 std::string name;
-                if(appShared->currentItemIndex < ids.size()) 
+                if(m_currentSortIndex < ids.size()) 
                 {
-                    if(auto* entry = reg.get(ids[appShared->currentItemIndex]))
+                    if(auto* entry = reg.get(ids[m_currentSortIndex]))
                     {
                         name = entry->displayName;
                     }
@@ -125,8 +125,8 @@ namespace Renderer
                 {
                     auto& registry = appShared->sortRegistry;
                     auto ids = registry.idsByCategory(appShared->currentCategory);
-                    if(appShared->currentItemIndex >= ids.size()) appShared->currentItemIndex = 0;
-                    const auto* currentEntry = registry.get(ids[appShared->currentItemIndex]);
+                    if(m_currentSortIndex >= ids.size()) m_currentSortIndex = 0;
+                    const auto* currentEntry = registry.get(ids[m_currentSortIndex]);
                     std::string currentName = currentEntry ? currentEntry->displayName : "";
 
                     ImGui::Begin("Configure", &s_open);
@@ -155,11 +155,11 @@ namespace Renderer
                         for (size_t n = 0; n < ids.size(); ++n)
                         {
                             const auto* entry = registry.get(ids[n]);
-                            bool isSelected = (n == appShared->currentItemIndex);
+                            bool isSelected = (n == m_currentSortIndex);
 
                             if (ImGui::Selectable(entry->displayName.c_str(), isSelected))
                             {
-                                appShared->currentItemIndex = n;
+                                m_currentSortIndex = n;
                             }
                             if (isSelected) 
                             {
@@ -219,9 +219,9 @@ namespace Renderer
                             LOGINFO("Starting sort");
                             auto& registry = appShared->sortRegistry;
                             auto ids = registry.idsByCategory(appShared->currentCategory);
-                            if(appShared->currentItemIndex < ids.size()) 
+                            if(m_currentSortIndex < ids.size()) 
                             {
-                                auto* entry = registry.get(ids[appShared->currentItemIndex]);
+                                auto* entry = registry.get(ids[m_currentSortIndex]);
 
                                 if(entry)
                                 {

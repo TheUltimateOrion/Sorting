@@ -19,6 +19,7 @@ namespace Renderer
         std::weak_ptr<Core::App> m_app;
 
         int m_arrayLength;
+        uint32_t m_currentSortIndex;
     public:
         UI(std::shared_ptr<Core::App> app) noexcept;
         ~UI() noexcept = default;

@@ -16,7 +16,7 @@ namespace Sort
     class BaseSort
     {
     private:
-        void generateArray(uint64_t t_size);
+        void generateArray(size_t t_size);
     protected:
         std::atomic<size_t> m_first;
         std::atomic<size_t> m_second;
@@ -48,12 +48,12 @@ namespace Sort
 
         BaseSort();
 
-        void swap(std::vector<int>& array, uint64_t a, uint64_t b);
+        void swap(std::vector<decltype(elems)::value_type>& array, uint64_t a, uint64_t b);
 
         void shuffle();
         void reverse();
         void check();
-        void setLength(unsigned int length);
+        void setLength(size_t length);
         
         virtual void sort() = 0;
     };

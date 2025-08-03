@@ -62,7 +62,8 @@ This project is licensed under the terms of the GNU GPLv3. See the [LICENSE](LIC
 - [x] FPS stabilization
 - [x] Finishing sort animation
 - [x] Real-time display along with apparent time.
-- [ ] Fix obscure big involving freezing when starting a sort
+- [x] Fix obscure big involving freezing when starting a sort
+- [ ] Streamline counting accesses, comparisions, swaps, etc...
 - [ ] Improve options and selection screen
 - [x] Sort registry for easier addition of new algorithms
 - [ ] Shorten GCC compile times (Linux & Windows) by atleast 25%
