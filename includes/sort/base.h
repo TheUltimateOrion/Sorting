@@ -25,6 +25,8 @@ namespace Sort
         
         std::vector<int> elems;
 
+        using elems_t = decltype(elems)::value_type;
+
         std::atomic<bool> sorted;
         std::atomic<bool> isSorting;
         std::atomic<bool> isShuffling;
@@ -48,7 +50,7 @@ namespace Sort
 
         BaseSort();
 
-        void swap(std::vector<decltype(elems)::value_type>& array, uint64_t a, uint64_t b);
+        void swap(std::vector<elems_t>& array, uint64_t a, uint64_t b);
 
         void shuffle();
         void reverse();

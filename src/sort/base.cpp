@@ -28,7 +28,7 @@ namespace Sort
         elems.resize(t_size);
         for (size_t i = 0; i < t_size; ++i)
         {
-            elems[i] = static_cast<decltype(elems)::value_type>(i + 1);
+            elems[i] = static_cast<elems_t>(i + 1);
         }
     }
 
@@ -130,7 +130,7 @@ namespace Sort
 
         for (size_t i = 0; i < temp.size(); ++i)
         {
-            if (temp[i] != static_cast<decltype(elems)::value_type>(i + 1)) 
+            if (temp[i] != static_cast<elems_t>(i + 1)) 
             {
                 break;
             }
@@ -147,7 +147,7 @@ namespace Sort
         LOGINFO("Check completed");
     }
 
-    void BaseSort::swap(std::vector<decltype(elems)::value_type>& array, size_t a, size_t b)
+    void BaseSort::swap(std::vector<elems_t>& array, size_t a, size_t b)
     {
         m_first = a;
         m_second = b;
