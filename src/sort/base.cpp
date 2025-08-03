@@ -24,6 +24,8 @@ namespace Sort
 
     void BaseSort::generateArray(uint64_t t_size)
     {
+        LOCK_GUARD;
+
         LOGINFO("Generating array");
         elems.resize(t_size);
         for (size_t i = 0; i < t_size; ++i)
@@ -34,10 +36,8 @@ namespace Sort
 
     BaseSort::BaseSort() : m_first(0), m_second(0), sorted(true), isSorting(false), isShuffling(false), isChecking(false), wantClose(false), wantStop(false), running(false) 
     {
-        
         constexpr int defaultSize = 512;
         generateArray(defaultSize);
-        
     }
 
     void BaseSort::reverse()
@@ -91,7 +91,7 @@ namespace Sort
             temp = elems; // Copy the original elements to temp
         }
 
-        std::shuffle(std::begin(temp), std::end(temp), std::default_random_engine(0));
+        std::shuffle(temp.begin(), temp.end(), std::random_device{});
 
         for (size_t i = 0; i < temp.size(); ++i)
         {
