@@ -38,23 +38,23 @@ namespace Sort
 
     void BaseSort::reverse()
     {
-        LOGINFO("Reversing");
-
         isShuffling = true;
         wantStop = false;
 
         elems.resetCounters();
 
-        SortArray temp {elems};
+        auxillary = elems;
+        auxillary.resetCounters();
 
-
-        std::reverse(temp.begin(), temp.end());
-        for (size_t i = 0; i < temp.size(); i++)
+        std::reverse(auxillary.begin(), auxillary.end());
+        for (size_t i = 0; i < auxillary.size(); ++i)
         {
-            elems[i] = temp[i];
+            elems[i] = auxillary[i];
 
             m_first = i;
             m_second = m_first.load();
+            
+            Core::Timer::sleep(1000.0 / static_cast<double>(elems.size()), realTimer);
             if (wantClose || wantStop) return;
         }
 
@@ -66,24 +66,22 @@ namespace Sort
 
     void BaseSort::shuffle()
     {
-        LOGINFO("Shuffling");
-
         isShuffling = true;
         wantStop = false;
         
         elems.resetCounters();
-        
-        SortArray temp {elems};
 
-        std::shuffle(temp.begin(), temp.end(), std::random_device{});
+        auxillary = elems;
+        auxillary.resetCounters();
 
-        for (size_t i = 0; i < temp.size(); ++i)
+        std::shuffle(auxillary.begin(), auxillary.end(), std::random_device{});
+
+        for (size_t i = 0; i < auxillary.size(); ++i)
         {
-            elems[i] = temp[i];
+            elems[i] = auxillary[i];
 
             m_first = i;
             m_second = m_first.load();
-            
             
             Core::Timer::sleep(1000.0 / static_cast<double>(elems.size()), realTimer);
             if (wantClose || wantStop) return;
@@ -101,14 +99,17 @@ namespace Sort
         wantStop = false;
         isChecking = true;
 
-        SortArray temp {elems};
+        elems.resetCounters();
+
+        auxillary = elems;
+        auxillary.resetCounters();
 
         realTimer.end();
         timer.end();
 
-        for (size_t i = 0; i < temp.size(); ++i)
+        for (size_t i = 0; i < auxillary.size(); ++i)
         {
-            if (temp[i] != static_cast<item_t>(i + 1)) 
+            if (auxillary[i] != static_cast<item_t>(i + 1)) 
             {
                 break;
             }
@@ -116,7 +117,7 @@ namespace Sort
             m_first = i;
             m_second = m_first.load();
             
-            Core::Timer::sleep(500.0 / static_cast<double>(temp.size()), realTimer);
+            Core::Timer::sleep(500.0 / static_cast<double>(auxillary.size()), realTimer);
             if (wantClose || wantStop) return;
         }
         

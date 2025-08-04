@@ -1,16 +1,16 @@
 #pragma once
 
-#include <vector>
-#include <thread>
+#include <array>
 #include <memory>
 #include <optional>
-#include <array>
+#include <thread>
+#include <vector>
 
 #ifndef TESTING
 
-#include <imgui/imgui.h>
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
+#include <imgui/imgui.h>
 
 #include "renderer/sort_view.h"
 #include "renderer/ui.h"
@@ -23,16 +23,16 @@
 
 #ifndef TESTING
 
-namespace Core 
+namespace Core
 {
     class App : public std::enable_shared_from_this<App>
     {
     private:
         std::unique_ptr<Renderer::SortView> m_sortView;
-        Renderer::UI m_UI;
-        ImGuiIO* m_io;
-        SoundEngine* m_soundEngine;
-        std::optional<std::thread> m_audioThread;
+        Renderer::UI                        m_UI;
+        ImGuiIO*                            m_io;
+        SoundEngine*                        m_soundEngine;
+        std::optional<std::thread>          m_audioThread;
 
         [[nodiscard]] Utils::Signal initSDL();
         [[nodiscard]] Utils::Signal initImGui();
@@ -43,37 +43,27 @@ namespace Core
 
         friend class Sort::BaseSort;
         friend class Renderer::SortView;
+
     public:
-        SDL_Event event;
-        TTF_Font *font;
-
         std::shared_ptr<Sort::BaseSort> sorter;
-        
-        std::array<const char *, 5> categories;
-        enum Sort::Category currentCategory;
-
-        std::array<const char *, 8> displayTypes;
-        enum Renderer::DisplayType currentDisplayType;
-
-        int32_t sortRadix = 2;
-
-        std::optional<std::thread> sortThread;
-
-        Core::SortRegistry sortRegistry; // Global sort registry
-
-        Core::Ctx* ctx;
+        SDL_Event                       event;
+        TTF_Font*                       font;
+        enum Sort::Category             currentCategory;
+        enum Renderer::DisplayType      currentDisplayType;
+        std::array<const char*, 5>      categories;
+        std::array<const char*, 8>      displayTypes;
+        int                             sortRadix = 2;
+        std::optional<std::thread>      sortThread;
+        Core::SortRegistry              sortRegistry;
+        Core::Ctx*                      ctx;
 
         App() noexcept;
         ~App();
-        
+
         Utils::Signal init();
-        void run();
-
-        void startAudioThread();
-
-        void setStyle(ImGuiStyle& t_style) const noexcept;
-
-        float getFramerate() const;
+        void          run();
+        void          startAudioThread();
+        void          setStyle(ImGuiStyle& t_style) const noexcept;
     };
-}
+} // namespace Core
 #endif

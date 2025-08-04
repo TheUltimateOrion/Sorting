@@ -49,6 +49,12 @@ namespace Sort
             data.emplace_back(v);
         }
 
+        std::vector<T> toVec()
+        {
+            std::scoped_lock<std::mutex> lock{mutex};
+            return data;
+        }
+
         SortArray<T>& operator=(const SortArray<T>& other)
         {
             if (this != &other) 
@@ -78,8 +84,6 @@ namespace Sort
 
         void swap(size_t a, size_t b)
         {
-            std::scoped_lock<std::mutex> lock{mutex};
-            
             if (a >= size() || b >= size()) 
             {
                 LOGERR("Swap indices out of bounds: " << a << ", " << b);

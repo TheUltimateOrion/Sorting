@@ -1,14 +1,15 @@
 #include "core/platform/display.h"
 
+#include <imgui/imgui.h>
+
 namespace Core::Platform::Display
 {
-    SDL_DisplayID getCurrentDisplayID()
-    {
-        return SDL_GetPrimaryDisplay();
-    }
+    SDL_DisplayID getCurrentDisplayID() { return SDL_GetPrimaryDisplay(); }
 
-    SDL_DisplayMode const *getDisplayMode(SDL_DisplayID id)
+    SDL_DisplayMode const* getDisplayMode(SDL_DisplayID id)
     {
         return SDL_GetCurrentDisplayMode(id);
     }
-}
+
+    float getFramerate() { return ImGui::GetIO().Framerate; }
+} // namespace Core::Platform::Display

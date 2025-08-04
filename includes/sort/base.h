@@ -24,6 +24,7 @@ namespace Sort
         virtual ~BaseSort() = default;
         
         SortArray<int> elems;
+        SortArray<int> auxillary;
 
         using item_t = typename decltype(elems)::value_type;
 

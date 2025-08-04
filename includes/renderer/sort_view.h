@@ -2,7 +2,6 @@
 
 #include <vector>
 
-#include "sort/array.h"
 #include "sort/base.h"
 #include "render_params.h"
 

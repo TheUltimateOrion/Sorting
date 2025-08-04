@@ -1,6 +1,8 @@
 {
     "debug.inlineValues": "on",
     "debug.allowBreakpointsEverywhere": true,
+    "editor.formatOnSave": false,
+    "clang-format.executable": "C:/msys64/ucrt64/bin/clang-format",
     "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
     "files.associations": {
         "*.COBOL*": "cobol",

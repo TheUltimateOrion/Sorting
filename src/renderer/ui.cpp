@@ -9,6 +9,7 @@
 #include "core/app.h"
 #include "core/app_ctx.h"
 #include "core/logging/logging.h"
+#include "core/platform/display.h"
 #include "renderer/state.h"
 #include "utils/common.h"
 
@@ -99,10 +100,10 @@ namespace Renderer
 
     Utils::Signal UI::renderUI()
     {
+        static bool s_open = true;
+
         if (auto appShared = m_app.lock())
         {
-            static bool s_open = true;
-
             renderInfo();
 
             ImGui_ImplSDLRenderer3_NewFrame();
@@ -130,7 +131,7 @@ namespace Renderer
                     std::string currentName = currentEntry ? currentEntry->displayName : "";
 
                     ImGui::Begin("Configure", &s_open);
-                    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / appShared->getFramerate(), appShared->getFramerate());
+                    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / Core::Platform::Display::getFramerate(), Core::Platform::Display::getFramerate());
                     
                     if (ImGui::BeginCombo("##combo1", appShared->categories[appShared->currentCategory])) // The second parameter is the label previewed before opening the combo.
                     {
@@ -249,15 +250,8 @@ namespace Renderer
                             appShared->sorter->realTimer.end();
 
                             appShared->sorter->wantStop = true;
-                            if (appShared->sortThread.has_value()) 
-                            {
-                                if (appShared->sortThread->joinable())
-                                {
-                                    appShared->sortThread->join();
-                                }
-                                
-                                appShared->sortThread.reset();
-                            }
+                            
+                            Utils::terminateThread(appShared->sortThread);
                         }
                     }
 
@@ -272,31 +266,28 @@ namespace Renderer
                 
                 if(shouldSort)
                 {
-                    if (appShared->sortThread.has_value()) 
-                    {
-                        if (appShared->sortThread->joinable())
-                        {
-                            appShared->sortThread->join();
-                        }
-
-                        appShared->sortThread.reset();
-                    }
+                    Utils::terminateThread(appShared->sortThread);
 
                     shouldSort = false;
                     appShared->sortThread = std::make_optional<std::thread>([appShared]() 
                     {
                         if(!State::reversed)
                         {
+                            LOGINFO("Shuffling");
+
                             appShared->sorter->shuffle();
                         }
                         else
                         {
+                            LOGINFO("Reversing");
+
                             appShared->sorter->reverse();
                         }
                         
                         if(!(appShared->sorter->wantStop)) 
                         {
                             LOGINFO("Sorting");
+
                             appShared->sorter->timer.start();
                             appShared->sorter->realTimer.start();
                             
