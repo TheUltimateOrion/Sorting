@@ -22,7 +22,7 @@ namespace Sort {
             }
 
             if (wantClose || wantStop) return 0;
-            comparisons++;
+            elems.getComparisons()++;
         }
         m_first = i + 1;
         m_second = t_high;

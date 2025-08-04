@@ -66,8 +66,8 @@ namespace Renderer
             }
 
 
-            renderText("SWAPS: " + std::to_string(appShared->sorter->swaps), 10.0f, 70.0f, { 0xFF, 0xFF, 0xFF, 0 });
-            renderText("COMPARISONS: " + std::to_string(appShared->sorter->comparisons), 10.0f, 90.0f, { 0xFF, 0xFF, 0xFF, 0 });
+            renderText("SWAPS: " + std::to_string(appShared->sorter->elems.getSwaps()), 10.0f, 70.0f, { 0xFF, 0xFF, 0xFF, 0 });
+            renderText("COMPARISONS: " + std::to_string(appShared->sorter->elems.getComparisons()), 10.0f, 90.0f, { 0xFF, 0xFF, 0xFF, 0 });
 
             std::string statusText{"IDLE"};
 
@@ -316,6 +316,7 @@ namespace Renderer
                         {
                             return;
                         }
+                        
                         appShared->sorter->running = false;
                     });
                 }

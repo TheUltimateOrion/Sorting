@@ -57,7 +57,7 @@ namespace Sort {
                     if (wantClose || wantStop) return;
                     swapped = true;
                 }
-                comparisons++;
+                elems.getComparisons()++;
             }
         }
         isSorting = false;

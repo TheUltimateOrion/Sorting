@@ -22,7 +22,7 @@ namespace Sort {
                 m_first = j;
                 m_second = min;
 
-                comparisons++;
+                elems.getComparisons()++;
 
                 if (elems[j] < elems[min])
                 {

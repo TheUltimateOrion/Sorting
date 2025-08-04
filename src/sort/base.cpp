@@ -42,8 +42,8 @@ namespace Sort
 
         isShuffling = true;
         wantStop = false;
-        swaps = 0;
-        comparisons = 0;
+
+        elems.resetCounters();
 
         SortArray temp {elems};
 
@@ -70,8 +70,8 @@ namespace Sort
 
         isShuffling = true;
         wantStop = false;
-        swaps = 0;
-        comparisons = 0;
+        
+        elems.resetCounters();
         
         SortArray temp {elems};
 
@@ -130,12 +130,9 @@ namespace Sort
         m_first = a;
         m_second = b;
 
-
-            std::swap(array[a], array[b]);
+        array.swap(a, b);
         
         Core::Timer::sleep(1.f / BaseSort::s_speed, realTimer);
-
-        swaps++;
     }
 
     void BaseSort::setLength(size_t len)

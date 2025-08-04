@@ -47,7 +47,7 @@ namespace Sort {
             Core::Timer::sleep(1.f / BaseSort::s_speed, realTimer);
             if (wantClose || wantStop) return;
 
-            comparisons++;
+            elems.getComparisons()++;
             indexOfMergedArray++;
         }
     

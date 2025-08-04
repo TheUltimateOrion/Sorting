@@ -40,9 +40,6 @@ namespace Sort
         Core::Timer timer;
         Core::Timer realTimer;
 
-        uint64_t swaps{0}; 
-        uint64_t comparisons{0}; 
-
         size_t getFirst() noexcept { return m_first.load(); }
         size_t getSecond() noexcept { return m_second.load(); }
 

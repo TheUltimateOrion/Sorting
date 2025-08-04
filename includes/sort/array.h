@@ -15,9 +15,9 @@ namespace Sort
     {
     private:
         std::vector<T> data;
-        mutable std::atomic<std::size_t> accessCount = 0;
-        mutable std::atomic<std::size_t> swapCount = 0;
-        mutable std::atomic<std::size_t> compCount  = 0;
+        mutable std::atomic<std::size_t> accessCount {0};
+        mutable std::atomic<std::size_t> swapCount {0};
+        mutable std::atomic<std::size_t> compCount {0};
         mutable std::mutex mutex;
     public:
         using value_type = T;
@@ -31,11 +31,15 @@ namespace Sort
             }
         }
 
-        SortArray(const SortArray& array)
+        SortArray(const SortArray<T>& other)
         {
-            for (const auto& v : array)
+            if (this != &other) 
             {
-                add(v);
+                std::scoped_lock lock(mutex, other.mutex);
+                data = other.data;
+                accessCount= other.accessCount.load();
+                swapCount = other.swapCount.load();
+                compCount = other.compCount.load();
             }
         }
 
@@ -43,6 +47,19 @@ namespace Sort
         {
             std::scoped_lock<std::mutex> lock{mutex};
             data.emplace_back(v);
+        }
+
+        SortArray<T>& operator=(const SortArray<T>& other)
+        {
+            if (this != &other) 
+            {
+                std::scoped_lock lock(mutex, other.mutex);
+                data = other.data;
+                accessCount= other.accessCount.load();
+                swapCount = other.swapCount.load();
+                compCount = other.compCount.load();
+            }
+            return *this;
         }
 
         T& operator[](size_t i)
@@ -73,17 +90,17 @@ namespace Sort
             std::swap(data[a], data[b]);
         }
 
-        std::size_t getAccesses() const noexcept
+        std::atomic<std::size_t>& getAccesses() const noexcept
         {
             return accessCount;
         }
 
-        std::size_t getSwaps() const noexcept
+        std::atomic<std::size_t>& getSwaps() const noexcept
         { 
             return swapCount;
         }
 
-        std::size_t getComparisons() const noexcept
+        std::atomic<std::size_t>& getComparisons() const noexcept
         { 
             return compCount;
         }

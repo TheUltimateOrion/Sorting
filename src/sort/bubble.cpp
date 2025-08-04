@@ -11,15 +11,13 @@ namespace Sort {
         {
             for (int j = 0; j < i; j++)
             {
+                if (elems[j] > elems[j + 1])
                 {
-                    if (elems[j] > elems[j + 1])
-                    {
-                        swap(elems, j, j + 1);
-                        if (wantClose || wantStop) return;
-                    }
+                    swap(elems, j, j + 1);
+                    if (wantClose || wantStop) return;
                 }
 
-                comparisons++;
+                elems.getComparisons()++;
             }
         }
 
