@@ -22,7 +22,7 @@ namespace Sort {
                 elems[j] = elems[j - 1];
                 m_first = j;
                 m_second = j - 1;
-                HIGH_RES_WAIT(1.f / BaseSort::s_speed);
+                Core::Timer::sleep(1.f / BaseSort::s_speed, realTimer);
                 if (wantClose || wantStop) return;
                 --j;
             }
@@ -31,7 +31,7 @@ namespace Sort {
             m_first = j;
             m_second = i;
 
-            HIGH_RES_WAIT(1.f / BaseSort::s_speed);
+            Core::Timer::sleep(1.f / BaseSort::s_speed, realTimer);
             if (wantClose || wantStop) return;
         }
         

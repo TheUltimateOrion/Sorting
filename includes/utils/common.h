@@ -1,24 +1,6 @@
 #pragma once
 #include <chrono>
 
-#if defined(TESTING)
-    #define HIGH_RES_WAIT(t) do {} while(0);
-#else
-
-    #define HIGH_RES_WAIT(t)\
-        auto start = std::chrono::high_resolution_clock::now();\
-        realTimer.pause();\
-        while (true)\
-        {\
-            auto now = std::chrono::high_resolution_clock::now();\
-            double elapsed = std::chrono::duration<double, std::milli>(now - start).count();\
-            if (elapsed >= (t)) {\
-                realTimer.resume();\
-                break;\
-            }\
-        }
-#endif
-
 #ifndef STYLESET
 #define STYLESET(param) t_style.Colors[ImGuiCol_##param]
 #endif

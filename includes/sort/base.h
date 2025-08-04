@@ -25,7 +25,7 @@ namespace Sort
         
         std::vector<int> elems;
 
-        using elems_t = decltype(elems)::value_type;
+        using item_t = decltype(elems)::value_type;
 
         std::atomic<bool> sorted;
         std::atomic<bool> isSorting;
@@ -45,12 +45,12 @@ namespace Sort
         uint64_t swaps{0}; 
         uint64_t comparisons{0}; 
 
-        uint64_t getFirst() noexcept { return m_first.load(); }
-        uint64_t getSecond() noexcept { return m_second.load(); }
+        size_t getFirst() noexcept { return m_first.load(); }
+        size_t getSecond() noexcept { return m_second.load(); }
 
         BaseSort();
 
-        void swap(std::vector<elems_t>& array, uint64_t a, uint64_t b);
+        void swap(std::vector<item_t>& array, size_t a, size_t b);
 
         void shuffle();
         void reverse();

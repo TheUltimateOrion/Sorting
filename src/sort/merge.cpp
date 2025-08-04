@@ -44,7 +44,7 @@ namespace Sort {
                 indexOfSubArrayTwo++;
             }
                 
-            HIGH_RES_WAIT(1.f / BaseSort::s_speed);
+            Core::Timer::sleep(1.f / BaseSort::s_speed, realTimer);
             if (wantClose || wantStop) return;
 
             comparisons++;
@@ -59,7 +59,7 @@ namespace Sort {
             m_first = indexOfMergedArray;
             m_second = indexOfSubArrayOne + left;
 
-            HIGH_RES_WAIT(1.f / BaseSort::s_speed);
+            Core::Timer::sleep(1.f / BaseSort::s_speed, realTimer);
             if (wantClose || wantStop) return;
 
             indexOfSubArrayOne++;
@@ -74,7 +74,7 @@ namespace Sort {
             m_first = indexOfMergedArray;
             m_second = mid + indexOfSubArrayTwo + 1;
 
-            HIGH_RES_WAIT(1.f / BaseSort::s_speed);
+            Core::Timer::sleep(1.f / BaseSort::s_speed, realTimer);
             if (wantClose || wantStop) return;
             
             indexOfSubArrayTwo++;

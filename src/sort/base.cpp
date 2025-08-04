@@ -28,7 +28,7 @@ namespace Sort
         elems.resize(t_size);
         for (size_t i = 0; i < t_size; ++i)
         {
-            elems[i] = static_cast<elems_t>(i + 1);
+            elems[i] = static_cast<item_t>(i + 1);
         }
     }
 
@@ -102,7 +102,8 @@ namespace Sort
             m_first = i;
             m_second = m_first.load();
             
-            HIGH_RES_WAIT(1000.0 / static_cast<double>(elems.size()))
+            
+            Core::Timer::sleep(1000.0 / static_cast<double>(elems.size()), realTimer);
             if (wantClose || wantStop) return;
         }
 
@@ -130,7 +131,7 @@ namespace Sort
 
         for (size_t i = 0; i < temp.size(); ++i)
         {
-            if (temp[i] != static_cast<elems_t>(i + 1)) 
+            if (temp[i] != static_cast<item_t>(i + 1)) 
             {
                 break;
             }
@@ -138,7 +139,7 @@ namespace Sort
             m_first = i;
             m_second = m_first.load();
             
-            HIGH_RES_WAIT(500.0 / static_cast<double>(temp.size()))
+            Core::Timer::sleep(500.0 / static_cast<double>(temp.size()), realTimer);
             if (wantClose || wantStop) return;
         }
         
@@ -147,7 +148,7 @@ namespace Sort
         LOGINFO("Check completed");
     }
 
-    void BaseSort::swap(std::vector<elems_t>& array, size_t a, size_t b)
+    void BaseSort::swap(std::vector<item_t>& array, size_t a, size_t b)
     {
         m_first = a;
         m_second = b;
@@ -163,7 +164,7 @@ namespace Sort
             std::swap(array[a], array[b]);
         }
         
-        HIGH_RES_WAIT(1.f / BaseSort::s_speed);
+        Core::Timer::sleep(1.f / BaseSort::s_speed, realTimer);
 
         swaps++;
     }

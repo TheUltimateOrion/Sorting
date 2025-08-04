@@ -113,6 +113,12 @@
         "sstream": "cpp",
         "stop_token": "cpp",
         "text_encoding": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "span_ext": "cpp",
+        "xhash": "cpp",
+        "xiosbase": "cpp",
+        "xlocale": "cpp",
+        "xlocinfo": "cpp",
+        "util": "cpp"
     }
 }

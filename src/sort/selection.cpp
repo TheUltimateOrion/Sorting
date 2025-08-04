@@ -29,7 +29,7 @@ namespace Sort {
                     min = j;
                 }
 
-                HIGH_RES_WAIT(1.f / BaseSort::s_speed);
+                Core::Timer::sleep(1.f / BaseSort::s_speed, realTimer);
                 if (wantClose || wantStop) return;
 
             }
