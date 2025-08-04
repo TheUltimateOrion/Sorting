@@ -1,6 +1,8 @@
 #pragma once
+
 #include <vector>
 
+#include "sort/array.h"
 #include "sort/base.h"
 #include "render_params.h"
 
@@ -15,7 +17,7 @@ namespace Renderer
     {
     private:
         std::weak_ptr<Core::App> m_app;
-        std::vector<int> m_elems;
+        Sort::SortArray<int> m_elems;
 
         void drawElement(size_t k, const RenderParams& t_params) noexcept;
     public:

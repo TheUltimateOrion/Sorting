@@ -294,8 +294,6 @@ namespace Core
                 int freq = 0;
 
                 {
-                    std::scoped_lock<std::mutex> lock{sorter->mutex};
-
                     if (sorter->elems.empty() || sorter->getFirst() >= sorter->elems.size()) 
                     {
                         std::this_thread::sleep_for(100ms);

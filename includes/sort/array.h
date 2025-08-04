@@ -1,6 +1,12 @@
 #pragma once
+
+#include <algorithm>
+#include <atomic>
 #include <vector>
+
 #include <cstddef>
+
+#include "core/logging/logging.h"
 
 namespace Sort
 {
@@ -9,10 +15,13 @@ namespace Sort
     {
     private:
         std::vector<T> data;
-        mutable std::size_t accessCount = 0;
-        mutable std::size_t swapCount = 0;
-        mutable std::size_t compCount  = 0;
+        mutable std::atomic<std::size_t> accessCount = 0;
+        mutable std::atomic<std::size_t> swapCount = 0;
+        mutable std::atomic<std::size_t> compCount  = 0;
+        mutable std::mutex mutex;
     public:
+        using value_type = T;
+
         SortArray() = default;
         SortArray(std::initializer_list<T> init)
         {
@@ -22,36 +31,50 @@ namespace Sort
             }
         }
 
+        SortArray(const SortArray& array)
+        {
+            for (const auto& v : array)
+            {
+                add(v);
+            }
+        }
+
         void add(const T& v)
-        { 
+        {
+            std::scoped_lock<std::mutex> lock{mutex};
             data.emplace_back(v);
         }
 
-        std::size_t size() const noexcept
-        {
-            return data.size();
-        }
-
-        Elem& operator[](size_t i)
+        T& operator[](size_t i)
         { 
+            std::scoped_lock<std::mutex> lock{mutex};
             ++accessCount;
             return data[i];
         }
 
-        const Elem& operator[](size_t i) const
+        const T& operator[](size_t i) const
         {
+            std::scoped_lock<std::mutex> lock{mutex};
             ++accessCount;
             return data[i];
         }
 
         void swap(size_t a, size_t b)
         {
+            std::scoped_lock<std::mutex> lock{mutex};
+            
+            if (a >= size() || b >= size()) 
+            {
+                LOGERR("Swap indices out of bounds: " << a << ", " << b);
+                return;
+            }
+
             ++swapCount;
             std::swap(data[a], data[b]);
         }
 
         std::size_t getAccesses() const noexcept
-        { 
+        {
             return accessCount;
         }
 
@@ -71,23 +94,45 @@ namespace Sort
         }
 
         auto begin()
-        { 
+        {
+            std::scoped_lock<std::mutex> lock{mutex};
             return data.begin();
         }
         
         auto end()
-        { 
+        {
+            std::scoped_lock<std::mutex> lock{mutex};
             return data.end();
         }
 
         auto begin() const
-        { 
+        {
+            std::scoped_lock<std::mutex> lock{mutex};
             return data.begin();
         }
         
         auto end() const
-        { 
+        {
+            std::scoped_lock<std::mutex> lock{mutex};
             return data.end();
+        }
+
+        void resize(size_t t_size)
+        {
+            std::scoped_lock<std::mutex> lock{mutex};
+            data.resize(t_size);
+        }
+
+        bool empty() const noexcept
+        {
+            std::scoped_lock<std::mutex> lock{mutex};
+            return data.empty();
+        }
+
+        std::size_t size() const noexcept
+        {
+            std::scoped_lock<std::mutex> lock{mutex};
+            return data.size();
         }
     };
 }

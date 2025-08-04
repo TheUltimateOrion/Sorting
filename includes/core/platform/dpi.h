@@ -1,4 +1,5 @@
 #pragma once
+
 #include <SDL3/SDL.h>
 
 namespace Core::Platform 

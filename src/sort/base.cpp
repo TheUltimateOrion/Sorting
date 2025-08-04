@@ -22,8 +22,6 @@ namespace Sort
 
     void BaseSort::generateArray(size_t t_size)
     {
-        std::scoped_lock<std::mutex> lock{mutex};
-
         LOGINFO("Generating array");
         elems.resize(t_size);
         for (size_t i = 0; i < t_size; ++i)
@@ -47,21 +45,13 @@ namespace Sort
         swaps = 0;
         comparisons = 0;
 
-        std::vector temp {
-            [&]() {
-                std::scoped_lock lock{mutex};
-                return elems;
-            }()
-        };
+        SortArray temp {elems};
 
 
         std::reverse(temp.begin(), temp.end());
         for (size_t i = 0; i < temp.size(); i++)
         {
-            {
-                std::scoped_lock<std::mutex> lock{mutex};
-                elems[i] = temp[i];
-            }
+            elems[i] = temp[i];
 
             m_first = i;
             m_second = m_first.load();
@@ -83,21 +73,13 @@ namespace Sort
         swaps = 0;
         comparisons = 0;
         
-        std::vector temp {
-            [&]() {
-                std::scoped_lock lock{mutex};
-                return elems;
-            }()
-        };
+        SortArray temp {elems};
 
         std::shuffle(temp.begin(), temp.end(), std::random_device{});
 
         for (size_t i = 0; i < temp.size(); ++i)
         {
-            {
-                std::scoped_lock<std::mutex> lock{mutex};
-                elems[i] = temp[i];
-            }
+            elems[i] = temp[i];
 
             m_first = i;
             m_second = m_first.load();
@@ -119,12 +101,7 @@ namespace Sort
         wantStop = false;
         isChecking = true;
 
-        std::vector temp {
-            [&]() {
-                std::scoped_lock lock{mutex};
-                return elems;
-            }()
-        };
+        SortArray temp {elems};
 
         realTimer.end();
         timer.end();
@@ -148,21 +125,13 @@ namespace Sort
         LOGINFO("Check completed");
     }
 
-    void BaseSort::swap(std::vector<item_t>& array, size_t a, size_t b)
+    void BaseSort::swap(SortArray<item_t>& array, size_t a, size_t b)
     {
         m_first = a;
         m_second = b;
 
-        {
-            std::scoped_lock<std::mutex> lock{mutex};
-            if (a >= array.size() || b >= array.size()) 
-            {
-                LOGERR("Swap indices out of bounds: " << a << ", " << b);
-                return;
-            }
 
             std::swap(array[a], array[b]);
-        }
         
         Core::Timer::sleep(1.f / BaseSort::s_speed, realTimer);
 

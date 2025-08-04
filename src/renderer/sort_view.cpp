@@ -168,10 +168,7 @@ namespace Renderer
             SDL_SetRenderDrawColor(appShared->ctx->renderer, 0x0, 0x0, 0x0, 0x0);
             SDL_RenderClear(appShared->ctx->renderer);
 
-            {
-                std::scoped_lock<std::mutex> lock(sorter->mutex);
-                m_elems = sorter->elems;
-            }
+            m_elems = sorter->elems;
             
             RenderParams t_params 
             {

@@ -1,4 +1,5 @@
 #pragma once
+
 #include "sort/base.h"
 
 namespace Sort 

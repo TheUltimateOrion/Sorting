@@ -1,9 +1,9 @@
 #pragma once
 
 #include <atomic>
-#include <vector>
 #include <memory>
 
+#include "array.h"
 #include "core/timer.h"
 
 namespace Core
@@ -23,9 +23,9 @@ namespace Sort
     public:
         virtual ~BaseSort() = default;
         
-        std::vector<int> elems;
+        SortArray<int> elems;
 
-        using item_t = decltype(elems)::value_type;
+        using item_t = typename decltype(elems)::value_type;
 
         std::atomic<bool> sorted;
         std::atomic<bool> isSorting;
@@ -36,8 +36,6 @@ namespace Sort
         std::atomic<bool> running;
 
         static float s_speed;
-
-        std::mutex mutex;
 
         Core::Timer timer;
         Core::Timer realTimer;
@@ -50,7 +48,7 @@ namespace Sort
 
         BaseSort();
 
-        void swap(std::vector<item_t>& array, size_t a, size_t b);
+        void swap(SortArray<item_t>& array, size_t a, size_t b);
 
         void shuffle();
         void reverse();
