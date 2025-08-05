@@ -5,6 +5,6 @@
 namespace Core::Platform::Display
 {
     SDL_DisplayID          getCurrentDisplayID();
-    const SDL_DisplayMode* getDisplayMode(SDL_DisplayID id);
+    SDL_DisplayMode const* getDisplayMode(SDL_DisplayID t_id);
     float                  getFramerate(void);
-} // namespace Core::Platform::Display
+}  // namespace Core::Platform::Display

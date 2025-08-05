@@ -1,28 +1,30 @@
 #include "sort/distribution/pigeon_hole.h"
 
 #ifndef TESTING
-#include "renderer/sort_view.h"
+    #include "renderer/sort_view.h"
 #endif
 
 #include "utils/common.h"
 
-namespace Sort {
-    PigeonHoleSort::PigeonHoleSort() : BaseSort() {}
+namespace Sort
+{
+    PigeonHoleSort::PigeonHoleSort() : BaseSort() { }
 
     void PigeonHoleSort::sort()
     {
-        isSorting = true;
-        int n = elems.size();
-        
-        if (n == 0) 
+        isSorting        = true;
+
+        std::size_t size = elems.size();
+
+        if (size == 0)
         {
             isSorting = false;
-            sorted = true;
+            sorted    = true;
             return;
         }
 
         int min = elems[0], max = elems[0];
-        for (int i = 1; i < n; i++)
+        for (std::size_t i = 1; i < size; ++i)
         {
             if (elems[i] < min)
             {
@@ -34,38 +36,38 @@ namespace Sort {
                 max = elems[i];
             }
 
-            m_first = i;
+            m_first  = i;
             m_second = m_first.load();
 
             Core::Timer::sleep(1.f / BaseSort::s_speed, realTimer);
 
-            if (wantClose || wantStop) return;
+            if (wantClose || wantStop) { return; }
             elems.getComparisons() += 2;
         }
 
         std::vector<std::vector<int>> holes(max - min + 1);
 
-        for (int i = 0; i < n; ++i)
+        for (std::size_t i = 0; i < size; ++i)
         {
             holes[elems[i] - min].push_back(elems[i]);
         }
 
         int index = 0;
-        for (size_t i = 0; i < holes.size(); ++i) 
+        for (std::size_t i = 0; i < holes.size(); ++i)
         {
-            for (int val : holes[i]) 
+            for (std::size_t val : holes[i])
             {
                 elems[index] = val;
-                m_first = index;
-                m_second = i;
-                
+                m_first      = index;
+                m_second     = i;
+
                 Core::Timer::sleep(1.f / BaseSort::s_speed, realTimer);
-                if (wantClose || wantStop) return;
+                if (wantClose || wantStop) { return; }
                 index++;
             }
         }
 
         isSorting = false;
-        sorted = true;
+        sorted    = true;
     }
-} // namespace Sort
+}  // namespace Sort

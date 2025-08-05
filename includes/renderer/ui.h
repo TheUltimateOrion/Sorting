@@ -5,28 +5,37 @@
 
 #include <SDL3/SDL.h>
 
-
+#include "state.h"
 #include "utils/common.h"
 
-namespace Core 
+namespace Core
 {
     class App;
 }
-namespace Renderer 
+
+namespace Renderer
 {
-    class UI 
+    class UI
     {
     private:
         std::weak_ptr<Core::App> m_app;
 
-        int m_arrayLength;
-        uint32_t m_currentSortIndex;
+        UIState                  m_uiState {};
+
     public:
-        UI(std::shared_ptr<Core::App> app) noexcept;
+        UI(std::shared_ptr<Core::App> t_app) noexcept;
         ~UI() noexcept = default;
 
-        void renderText(const std::string& t_txt, float t_x, float t_y, SDL_Color t_col) const noexcept;
-        void renderInfo() const noexcept;
-        Utils::Signal renderUI();
+        void renderText(
+            std::string const& t_txt,
+            float              t_x,
+            float              t_y,
+            SDL_Color          t_col
+        ) const noexcept;
+
+        void            renderInfo() const noexcept;
+        Utils::Signal   renderUI();
+
+        inline UIState& getUIState() { return m_uiState; }
     };
-} // namespace Renderer
+}  // namespace Renderer

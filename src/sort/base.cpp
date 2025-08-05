@@ -1,36 +1,32 @@
 #include "sort/base.h"
 
-#include <thread>
-#include <random>
 #include <algorithm>
+#include <random>
+#include <thread>
 
 #ifndef TESTING
-#include "core/app.h"
-#include "renderer/sort_view.h"
+    #include "core/app.h"
+    #include "renderer/sort_view.h"
 #endif
 
 #include "core/app_ctx.h"
 #include "core/logging/logging.h"
 #include "utils/common.h"
 
-
 using namespace std::literals::chrono_literals;
 
-namespace Sort 
+namespace Sort
 {
-    float BaseSort::s_speed = 1.0f;
+    float BaseSort::s_speed {1.0f};
 
-    void BaseSort::generateArray(size_t t_size)
+    void  BaseSort::generateArray(std::size_t t_size)
     {
         LOGINFO("Generating array");
         elems.resize(t_size);
-        for (size_t i = 0; i < t_size; ++i)
-        {
-            elems[i] = static_cast<item_t>(i + 1);
-        }
+        for (std::size_t i = 0; i < t_size; ++i) { elems[i] = static_cast<elem_t>(i + 1); }
     }
 
-    BaseSort::BaseSort() : m_first(0), m_second(0), sorted(true), isSorting(false), isShuffling(false), isChecking(false), wantClose(false), wantStop(false), running(false) 
+    BaseSort::BaseSort()
     {
         constexpr int defaultSize = 512;
         generateArray(defaultSize);
@@ -39,7 +35,7 @@ namespace Sort
     void BaseSort::reverse()
     {
         isShuffling = true;
-        wantStop = false;
+        wantStop    = false;
 
         elems.resetCounters();
 
@@ -47,18 +43,18 @@ namespace Sort
         auxillary.resetCounters();
 
         std::reverse(auxillary.begin(), auxillary.end());
-        for (size_t i = 0; i < auxillary.size(); ++i)
+        for (std::size_t i = 0; i < auxillary.size(); ++i)
         {
             elems[i] = auxillary[i];
 
-            m_first = i;
+            m_first  = i;
             m_second = m_first.load();
-            
+
             Core::Timer::sleep(1000.0 / static_cast<double>(elems.size()), realTimer);
-            if (wantClose || wantStop) return;
+            if (wantClose || wantStop) { return; }
         }
 
-        sorted = false;
+        sorted      = false;
         isShuffling = false;
 
         std::this_thread::sleep_for(500ms);
@@ -67,27 +63,27 @@ namespace Sort
     void BaseSort::shuffle()
     {
         isShuffling = true;
-        wantStop = false;
-        
+        wantStop    = false;
+
         elems.resetCounters();
 
         auxillary = elems;
         auxillary.resetCounters();
 
-        std::shuffle(auxillary.begin(), auxillary.end(), std::random_device{});
+        std::shuffle(auxillary.begin(), auxillary.end(), std::random_device {});
 
-        for (size_t i = 0; i < auxillary.size(); ++i)
+        for (std::size_t i = 0; i < auxillary.size(); ++i)
         {
             elems[i] = auxillary[i];
 
-            m_first = i;
+            m_first  = i;
             m_second = m_first.load();
-            
+
             Core::Timer::sleep(1000.0 / static_cast<double>(elems.size()), realTimer);
-            if (wantClose || wantStop) return;
+            if (wantClose || wantStop) { return; }
         }
 
-        sorted = false;
+        sorted      = false;
         isShuffling = false;
 
         LOGINFO("Shuffling Done");
@@ -95,8 +91,8 @@ namespace Sort
     }
 
     void BaseSort::check()
-    {   
-        wantStop = false;
+    {
+        wantStop   = false;
         isChecking = true;
 
         elems.resetCounters();
@@ -107,38 +103,35 @@ namespace Sort
         realTimer.end();
         timer.end();
 
-        for (size_t i = 0; i < auxillary.size(); ++i)
+        for (std::size_t i = 0; i < auxillary.size(); ++i)
         {
-            if (auxillary[i] != static_cast<item_t>(i + 1)) 
-            {
-                break;
-            }
-            
-            m_first = i;
+            if (auxillary[i] != static_cast<elem_t>(i + 1)) { break; }
+
+            m_first  = i;
             m_second = m_first.load();
-            
+
             Core::Timer::sleep(500.0 / static_cast<double>(auxillary.size()), realTimer);
-            if (wantClose || wantStop) return;
+            if (wantClose || wantStop) { return; }
         }
-        
+
         isChecking = false;
-        
+
         LOGINFO("Check completed");
     }
 
-    void BaseSort::swap(SortArray<item_t>& array, size_t a, size_t b)
+    void BaseSort::swap(SortArray<elem_t>& array, std::size_t a, std::size_t b)
     {
-        m_first = a;
+        m_first  = a;
         m_second = b;
 
         array.swap(a, b);
-        
+
         Core::Timer::sleep(1.f / BaseSort::s_speed, realTimer);
     }
 
-    void BaseSort::setLength(size_t len)
+    void BaseSort::setLength(std::size_t len)
     {
         LOGINFO("Resizing to " << len);
         generateArray(len);
     }
-} // namespace Sort
+}  // namespace Sort

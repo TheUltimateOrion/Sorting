@@ -1,35 +1,36 @@
 #include "sort/distribution/gravity.h"
 
-#include <numeric>
 #include <algorithm>
+#include <numeric>
 
 #include "utils/common.h"
 
-namespace Sort {
-    GravitySort::GravitySort() : BaseSort() {}
+namespace Sort
+{
+    GravitySort::GravitySort() : BaseSort() { }
 
     void GravitySort::sort()
     {
         isSorting = true;
 
-        if (elems.empty()) 
+        if (elems.empty())
         {
             isSorting = false;
-            sorted = true;
+            sorted    = true;
             return;
         }
 
         int max = *std::max_element(elems.begin(), elems.end());
 
-        if (max <= 0) 
+        if (max <= 0)
         {
             return;
         }
 
-        size_t n = elems.size();
-        
+        std::size_t                   n = elems.size();
+
         std::vector<std::vector<int>> abacus(n, std::vector<int>(max, 0));
-        for (size_t i = 0; i < n; ++i)
+        for (std::size_t i = 0; i < n; ++i)
         {
             for (int j = 0; j < elems[i]; ++j)
             {
@@ -37,11 +38,11 @@ namespace Sort {
             }
         }
 
-        for (int col = 0; col < max; ++col) 
+        for (int col = 0; col < max; ++col)
         {
             int count = 0;
-            
-            for (size_t row = 0; row < n; ++row)
+
+            for (std::size_t row = 0; row < n; ++row)
             {
                 count += abacus[row][col];
             }
@@ -51,18 +52,18 @@ namespace Sort {
                 abacus[row][col] = (count-- > 0 ? 1 : 0);
             }
 
-            for (size_t i = 0; i < n; ++i) 
+            for (std::size_t i = 0; i < n; ++i)
             {
                 elems[i] = std::accumulate(abacus[i].begin(), abacus[i].end(), 0);
-                m_first = i;
+                m_first  = i;
                 m_second = i;
-                
+
                 Core::Timer::sleep(1.f / BaseSort::s_speed, realTimer);
-                if (wantClose || wantStop) return;
+                if (wantClose || wantStop) { return; }
             }
         }
-        
+
         isSorting = false;
-        sorted = true;
+        sorted    = true;
     }
-} // namespace Sort
+}  // namespace Sort

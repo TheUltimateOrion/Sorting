@@ -1,13 +1,13 @@
 #pragma once
 
-namespace Sort 
+namespace Sort
 {
     enum Category
     {
-        Exchange, 
-        Distribution, 
-        Insertion, 
+        Exchange,
+        Distribution,
+        Insertion,
         Merge,
         Select
     };
-} // namespace Sort
+}  // namespace Sort

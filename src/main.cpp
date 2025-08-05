@@ -5,13 +5,10 @@
 
 int main()
 {
-    std::shared_ptr<Core::App> app =
-        std::make_shared<Core::App>(); // Create a unique pointer to App
+    std::shared_ptr<Core::App>
+        app = std::make_shared<Core::App>();  // Create a unique pointer to App
 
-    if (app->init() != Utils::Signal::Success)
-    {
-        return EXIT_FAILURE;
-    }
+    if (app->init() != Utils::Signal::Success) { return EXIT_FAILURE; }
 
     LOGINFO("App initialized successfully");
     app->run();

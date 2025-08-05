@@ -1,12 +1,12 @@
 #pragma once
 
-namespace Renderer 
+namespace Renderer
 {
-    struct RenderParams 
+    struct RenderParams
     {
-        float degreesPerIndex;
-        float barSpacing;
-        float circleRadius;
-        float spiralScale;
+        float degreesPerIndex {0.0f};
+        float barSpacing {0.0f};
+        float circleRadius {0.0f};
+        float spiralScale {0.0f};
     };
-} // namespace Renderer
+}  // namespace Renderer

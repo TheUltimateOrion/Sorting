@@ -8,26 +8,31 @@ namespace Core
 {
     void Timer::start() noexcept
     {
-        std::scoped_lock<std::mutex> lock{m_mutex};
+        std::scoped_lock<std::mutex> lock {m_mutex};
+
         m_start = std::chrono::high_resolution_clock::now();
+
         m_end.reset();
         m_pauseStart.reset();
+
         m_pauseDuration = std::chrono::duration<double>::zero();
-        m_paused = false;
-        m_ended = false;
+
+        m_paused        = false;
+        m_ended         = false;
     }
 
     void Timer::end() noexcept
     {
-        std::scoped_lock<std::mutex> lock{m_mutex};
+        std::scoped_lock<std::mutex> lock {m_mutex};
 
-        if (!m_start.has_value()) 
+        if (!m_start.has_value())
         {
             return;
         }
 
         // If paused, include last pause in total pause duration
-        if (m_paused && m_pauseStart.has_value()) {
+        if (m_paused && m_pauseStart.has_value())
+        {
             m_pauseDuration += std::chrono::high_resolution_clock::now() - m_pauseStart.value();
             m_paused = false;
             m_pauseStart.reset();
@@ -35,14 +40,14 @@ namespace Core
 
         if (!m_ended)
         {
-            m_end = std::chrono::high_resolution_clock::now();
+            m_end   = std::chrono::high_resolution_clock::now();
             m_ended = true;
         }
     }
 
     void Timer::pause() noexcept
     {
-        std::scoped_lock<std::mutex> lock{m_mutex};
+        std::scoped_lock<std::mutex> lock {m_mutex};
 
         if (!m_start.has_value() || m_paused || m_end.has_value())
         {
@@ -50,12 +55,12 @@ namespace Core
         }
 
         m_pauseStart = std::chrono::high_resolution_clock::now();
-        m_paused = true;
+        m_paused     = true;
     }
 
     void Timer::resume() noexcept
     {
-        std::scoped_lock<std::mutex> lock{m_mutex};
+        std::scoped_lock<std::mutex> lock {m_mutex};
 
         if (!m_start.has_value() || !m_paused || m_end.has_value())
         {
@@ -63,7 +68,7 @@ namespace Core
         }
 
         auto now = std::chrono::high_resolution_clock::now();
-        
+
         m_pauseDuration += now - m_pauseStart.value();
         m_paused = false;
         m_pauseStart.reset();
@@ -71,7 +76,7 @@ namespace Core
 
     double Timer::getDuration() const
     {
-        std::scoped_lock<std::mutex> lock{m_mutex};
+        std::scoped_lock<std::mutex> lock {m_mutex};
         if (!m_start.has_value())
         {
             return 0.0;
@@ -80,7 +85,7 @@ namespace Core
         auto now = std::chrono::high_resolution_clock::now();
 
         auto ref = m_paused ? m_pauseStart.value() : now;
-        
+
         if (m_ended)
         {
             ref = m_end.value();
@@ -94,7 +99,7 @@ namespace Core
     double Timer::getTimestamp()
     {
         static auto start = std::chrono::high_resolution_clock::now();
-        auto now = std::chrono::high_resolution_clock::now();
+        auto        now   = std::chrono::high_resolution_clock::now();
         return std::chrono::duration<double>(now - start).count();
     }
-} // namespace Core
+}  // namespace Core

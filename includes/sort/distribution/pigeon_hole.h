@@ -2,7 +2,7 @@
 
 #include "sort/base.h"
 
-namespace Sort 
+namespace Sort
 {
     class PigeonHoleSort : virtual public BaseSort
     {
@@ -11,4 +11,4 @@ namespace Sort
 
         void sort() override;
     };
-} // namespace Sort
+}  // namespace Sort

@@ -10,150 +10,151 @@
 
 namespace Sort
 {
-    template<typename T>
-    class SortArray 
+    template <typename T>
+    class SortArray
     {
     private:
-        std::vector<T> data;
-        mutable std::atomic<std::size_t> accessCount {0};
-        mutable std::atomic<std::size_t> swapCount {0};
-        mutable std::atomic<std::size_t> compCount {0};
-        mutable std::mutex mutex;
+        std::vector<T>                   m_data;
+        mutable std::atomic<std::size_t> m_accessCount {0};
+        mutable std::atomic<std::size_t> m_swapCount {0};
+        mutable std::atomic<std::size_t> m_compCount {0};
+        mutable std::mutex               m_mutex;
+
     public:
         using value_type = T;
 
-        SortArray() = default;
-        SortArray(std::initializer_list<T> init)
+        SortArray()      = default;
+
+        SortArray(std::initializer_list<T> t_initList)
         {
-            for (const auto& v : init)
+            for (auto const& value : t_initList)
             {
-                add(v);
+                add(value);
             }
         }
 
-        SortArray(const SortArray<T>& other)
+        SortArray(SortArray<T> const& t_other)
         {
-            if (this != &other) 
+            if (this != &t_other)
             {
-                std::scoped_lock lock(mutex, other.mutex);
-                data = other.data;
-                accessCount= other.accessCount.load();
-                swapCount = other.swapCount.load();
-                compCount = other.compCount.load();
+                std::scoped_lock lock(m_mutex, t_other.m_mutex);
+                m_data        = t_other.m_data;
+                m_accessCount = t_other.m_accessCount.load();
+                m_swapCount   = t_other.m_swapCount.load();
+                m_compCount   = t_other.m_compCount.load();
             }
         }
 
-        void add(const T& v)
+        void add(T const& t_value)
         {
-            std::scoped_lock<std::mutex> lock{mutex};
-            data.emplace_back(v);
+            std::scoped_lock<std::mutex> lock {m_mutex};
+            m_data.emplace_back(t_value);
         }
 
-        std::vector<T> toVec()
+        SortArray<T>& operator=(SortArray<T> const& t_other)
         {
-            std::scoped_lock<std::mutex> lock{mutex};
-            return data;
-        }
-
-        SortArray<T>& operator=(const SortArray<T>& other)
-        {
-            if (this != &other) 
+            if (this != &t_other)
             {
-                std::scoped_lock lock(mutex, other.mutex);
-                data = other.data;
-                accessCount= other.accessCount.load();
-                swapCount = other.swapCount.load();
-                compCount = other.compCount.load();
+                std::scoped_lock lock(m_mutex, t_other.m_mutex);
+                m_data        = t_other.m_data;
+                m_accessCount = t_other.m_accessCount.load();
+                m_swapCount   = t_other.m_swapCount.load();
+                m_compCount   = t_other.m_compCount.load();
             }
             return *this;
         }
 
-        T& operator[](size_t i)
-        { 
-            std::scoped_lock<std::mutex> lock{mutex};
-            ++accessCount;
-            return data[i];
+        T& operator[](std::size_t t_index)
+        {
+            std::scoped_lock<std::mutex> lock {m_mutex};
+            ++m_accessCount;
+            return m_data[t_index];
         }
 
-        const T& operator[](size_t i) const
+        T const& operator[](std::size_t i) const
         {
-            std::scoped_lock<std::mutex> lock{mutex};
-            ++accessCount;
-            return data[i];
+            std::scoped_lock<std::mutex> lock {m_mutex};
+            ++m_accessCount;
+            return m_data[i];
         }
 
-        void swap(size_t a, size_t b)
+        void swap(std::size_t t_indexA, std::size_t t_indexB)
         {
-            if (a >= size() || b >= size()) 
+            if (t_indexA >= size() || t_indexB >= size())
             {
-                LOGERR("Swap indices out of bounds: " << a << ", " << b);
+                LOGERR("Swap indices out of bounds: " << t_indexA << ", " << t_indexB);
                 return;
             }
 
-            ++swapCount;
-            std::swap(data[a], data[b]);
+            ++m_swapCount;
+            std::swap(m_data[t_indexA], m_data[t_indexB]);
         }
 
         std::atomic<std::size_t>& getAccesses() const noexcept
         {
-            return accessCount;
+            return m_accessCount;
         }
 
         std::atomic<std::size_t>& getSwaps() const noexcept
-        { 
-            return swapCount;
+        {
+            return m_swapCount;
         }
 
         std::atomic<std::size_t>& getComparisons() const noexcept
-        { 
-            return compCount;
+        {
+            return m_compCount;
+        }
+
+        void incComparisons() noexcept
+        {
+            ++m_compCount;
         }
 
         void resetCounters() noexcept
         {
-            accessCount = swapCount = compCount = 0;
+            m_accessCount = m_swapCount = m_compCount = 0;
         }
 
         auto begin()
         {
-            std::scoped_lock<std::mutex> lock{mutex};
-            return data.begin();
+            std::scoped_lock<std::mutex> lock {m_mutex};
+            return m_data.begin();
         }
-        
+
         auto end()
         {
-            std::scoped_lock<std::mutex> lock{mutex};
-            return data.end();
+            std::scoped_lock<std::mutex> lock {m_mutex};
+            return m_data.end();
         }
 
         auto begin() const
         {
-            std::scoped_lock<std::mutex> lock{mutex};
-            return data.begin();
-        }
-        
-        auto end() const
-        {
-            std::scoped_lock<std::mutex> lock{mutex};
-            return data.end();
+            std::scoped_lock<std::mutex> lock {m_mutex};
+            return m_data.begin();
         }
 
-        void resize(size_t t_size)
+        auto end() const
         {
-            std::scoped_lock<std::mutex> lock{mutex};
-            data.resize(t_size);
+            std::scoped_lock<std::mutex> lock {m_mutex};
+            return m_data.end();
+        }
+
+        void resize(std::size_t t_size)
+        {
+            std::scoped_lock<std::mutex> lock {m_mutex};
+            m_data.resize(t_size);
         }
 
         bool empty() const noexcept
         {
-            std::scoped_lock<std::mutex> lock{mutex};
-            return data.empty();
+            std::scoped_lock<std::mutex> lock {m_mutex};
+            return m_data.empty();
         }
 
         std::size_t size() const noexcept
         {
-            std::scoped_lock<std::mutex> lock{mutex};
-            return data.size();
+            std::scoped_lock<std::mutex> lock {m_mutex};
+            return m_data.size();
         }
     };
-}
+}  // namespace Sort

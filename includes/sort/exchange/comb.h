@@ -2,15 +2,16 @@
 
 #include "sort/base.h"
 
-namespace Sort 
+namespace Sort
 {
     class CombSort : virtual public BaseSort
     {
     private:
-        int getNextGap(int t_gap);
+        std::size_t getNextGap(std::size_t t_gap);
+
     public:
         CombSort();
 
         void sort() override;
     };
-} // namespace Sort
+}  // namespace Sort

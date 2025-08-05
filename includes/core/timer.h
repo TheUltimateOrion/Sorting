@@ -1,31 +1,34 @@
 #pragma once
 
 #include <chrono>
-#include <optional>
 #include <mutex>
+#include <optional>
 
 namespace Core
 {
     class Timer
     {
-    
     private:
-        std::optional<std::chrono::high_resolution_clock::time_point> m_start, m_end;
-        std::optional<std::chrono::high_resolution_clock::time_point> m_pauseStart;
-        std::chrono::duration<double> m_pauseDuration{0.0};
-        mutable std::mutex m_mutex;
+        bool                                                          m_ended {false};
+        bool                                                          m_paused {false};
 
-        bool m_ended{false};
-        bool m_paused{false};
+        mutable std::mutex                                            m_mutex {};
+
+        std::chrono::duration<double>                                 m_pauseDuration {0.0};
+        std::optional<std::chrono::high_resolution_clock::time_point> m_start {}, m_end {};
+        std::optional<std::chrono::high_resolution_clock::time_point> m_pauseStart {};
+
     public:
-        Timer() noexcept = default;
+        Timer() noexcept  = default;
         ~Timer() noexcept = default;
 
-        void start() noexcept;
-        void end() noexcept;
+        void               start() noexcept;
+        void               end() noexcept;
+        void               pause() noexcept;
+        void               resume() noexcept;
+        double             getDuration() const;
 
-        void pause() noexcept;
-        void resume() noexcept;
+        static double      getTimestamp();
 
         inline static void sleep(double t_ms, Timer& t_timer) noexcept
         {
@@ -33,18 +36,14 @@ namespace Core
             t_timer.pause();
             while (true)
             {
-                auto now = std::chrono::high_resolution_clock::now();
+                auto   now     = std::chrono::high_resolution_clock::now();
                 double elapsed = std::chrono::duration<double, std::milli>(now - start).count();
-                if (elapsed >= t_ms) 
+                if (elapsed >= t_ms)
                 {
                     t_timer.resume();
                     break;
                 }
             }
         }
-
-        double getDuration() const;
-
-        static double getTimestamp();
     };
-} // namespace Core
+}  // namespace Core

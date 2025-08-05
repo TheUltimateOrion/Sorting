@@ -1,51 +1,44 @@
 #pragma once
 
-#include <string>
-#include <map>
-#include <vector>
 #include <concepts>
+#include <map>
+#include <string>
+#include <vector>
 
-template <class T>
-concept RegistryEntry = requires(T entry)
-{
+template <typename T>
+concept RegistryEntry = requires(T entry) {
     { entry.displayName } -> std::convertible_to<std::string>;
     { entry.factory() };
 };
 
-template <typename EntryType>
-requires RegistryEntry<EntryType>
-class Registry 
+template <typename EntryType> requires RegistryEntry<EntryType>
+class Registry
 {
 protected:
-    std::map<std::string, EntryType> m_regEntries;
+    std::map<std::string, EntryType> m_regEntries {};
+
 public:
-    Registry() noexcept = default;
+    Registry() noexcept  = default;
     ~Registry() noexcept = default;
-    
-    void registerFactory(const std::string& id, EntryType entry)
+
+    void registerFactory(std::string const& t_id, EntryType t_entry)
     {
-        m_regEntries[id] = std::move(entry);
+        m_regEntries[t_id] = std::move(t_entry);
     }
 
-    EntryType* get(const std::string& id)
+    EntryType* get(std::string const& t_id)
     {
-        auto it = m_regEntries.find(id);
-        if (it != m_regEntries.end())
-        {
-            return &it->second;
-        }
-        
+        auto it = m_regEntries.find(t_id);
+        if (it != m_regEntries.end()) { return &it->second; }
+
         return nullptr;
     }
-    
-    const EntryType* get(const std::string& id) const
+
+    EntryType const* get(std::string const& t_id) const
     {
-        auto it = m_regEntries.find(id);
-        if (it != m_regEntries.end())
-        {
-            return &it->second;
-        }
-        
+        auto it = m_regEntries.find(t_id);
+        if (it != m_regEntries.end()) { return &it->second; }
+
         return nullptr;
     }
 };

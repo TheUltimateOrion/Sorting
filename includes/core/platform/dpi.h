@@ -2,16 +2,16 @@
 
 #include <SDL3/SDL.h>
 
-namespace Core::Platform 
+namespace Core::Platform
 {
-    struct DPI 
+    struct DPI
     {
-        float scaleX;
-        float scaleY;
+        float scaleX {1.0f};
+        float scaleY {1.0f};
 
-        DPI() noexcept;
+        DPI() noexcept  = default;
         ~DPI() noexcept = default;
 
-        static DPI from(SDL_Window *window, SDL_Renderer *renderer);
+        static DPI from(SDL_Window* t_window, SDL_Renderer* t_renderer);
     };
-}
+}  // namespace Core::Platform

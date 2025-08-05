@@ -5,7 +5,7 @@
 #include <thread>
 
 #ifndef STYLESET
-#define STYLESET(param) t_style.Colors[ImGuiCol_##param]
+    #define STYLESET(param) t_style.Colors[ImGuiCol_##param]
 #endif
 
 namespace Utils
@@ -24,4 +24,4 @@ namespace Utils
     };
 
     void terminateThread(std::optional<std::thread>& t_thread);
-} // namespace Utils
+}  // namespace Utils

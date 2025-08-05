@@ -11,14 +11,14 @@ namespace Core
     struct Ctx
     {
         Core::Platform::DPI dpi;
-        SDL_Window*         window;
-        SDL_Renderer*       renderer;
-        float               winWidth  = 600.0f;
-        float               winHeight = 400.0f;
-        uint16_t            fps       = 60;
+        SDL_Window*         window {nullptr};
+        SDL_Renderer*       renderer {nullptr};
+        float               winWidth {600.0};
+        float               winHeight {400.0f};
+        std::uint16_t       fps {60};
 
-        static Ctx* createContext(float width, float height, uint16_t fps);
-        static void destroyContext(Ctx* ctx);
-        float       getFrameTime() const noexcept;
+        static Ctx*         createContext(float width, float height, std::uint16_t fps);
+        static void         destroyContext(Ctx* ctx);
+        float               getFrameTime() const noexcept;
     };
-} // namespace Core
+}  // namespace Core

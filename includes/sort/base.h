@@ -11,48 +11,51 @@ namespace Core
     class App;
 }
 
-namespace Sort 
+namespace Sort
 {
     class BaseSort
     {
     private:
-        void generateArray(size_t t_size);
+        void generateArray(std::size_t t_size);
+
     protected:
-        std::atomic<size_t> m_first;
-        std::atomic<size_t> m_second;
+        std::atomic<std::size_t> m_first {0};
+        std::atomic<std::size_t> m_second {0};
+
     public:
-        virtual ~BaseSort() = default;
-        
-        SortArray<int> elems;
-        SortArray<int> auxillary;
+        SortArray<int> elems {};
+        SortArray<int> auxillary {};
 
-        using item_t = typename decltype(elems)::value_type;
+        using elem_t = typename decltype(elems)::value_type;
 
-        std::atomic<bool> sorted;
-        std::atomic<bool> isSorting;
-        std::atomic<bool> isShuffling;
-        std::atomic<bool> isChecking;
-        std::atomic<bool> wantClose;
-        std::atomic<bool> wantStop;
-        std::atomic<bool> running;
+        Core::Timer       timer {};
+        Core::Timer       realTimer {};
 
-        static float s_speed;
+        std::atomic<bool> sorted {true};
+        std::atomic<bool> isSorting {false};
+        std::atomic<bool> isShuffling {false};
+        std::atomic<bool> isChecking {false};
+        std::atomic<bool> wantClose {false};
+        std::atomic<bool> wantStop {false};
+        std::atomic<bool> running {false};
+        std::atomic<bool> hasRadix {false};
 
-        Core::Timer timer;
-        Core::Timer realTimer;
+        static float      s_speed;
 
-        size_t getFirst() noexcept { return m_first.load(); }
-        size_t getSecond() noexcept { return m_second.load(); }
+        std::size_t       getFirst() noexcept { return m_first.load(); }
+
+        std::size_t       getSecond() noexcept { return m_second.load(); }
 
         BaseSort();
 
-        void swap(SortArray<item_t>& array, size_t a, size_t b);
+        void         swap(SortArray<elem_t>& array, std::size_t a, std::size_t b);
 
-        void shuffle();
-        void reverse();
-        void check();
-        void setLength(size_t length);
-        
+        void         shuffle();
+        void         reverse();
+        void         check();
+        void         setLength(std::size_t length);
+
         virtual void sort() = 0;
+        virtual ~BaseSort() = default;
     };
-} // namespace Sort
+}  // namespace Sort

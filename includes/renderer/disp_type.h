@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Renderer 
+namespace Renderer
 {
     enum DisplayType
     {
@@ -13,4 +13,4 @@ namespace Renderer
         Spiral,
         SpiralDot
     };
-} // namespace Renderer
+}  // namespace Renderer

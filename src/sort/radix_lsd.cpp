@@ -1,56 +1,54 @@
 #include "sort/distribution/radix_lsd.h"
 
 #ifndef TESTING
-#include "renderer/sort_view.h"
+    #include "renderer/sort_view.h"
 #endif
 
 #include "utils/common.h"
 
-namespace Sort {
-    RadixLSDSort::RadixLSDSort(int t_radix) : BaseSort(), m_radix(t_radix) {}
+namespace Sort
+{
+    RadixLSDSort::RadixLSDSort() : BaseSort {} { hasRadix = true; }
 
-    void RadixLSDSort::countSortByDigits(int exponent, int minValue)
+    void RadixLSDSort::countSortByDigits(std::uint64_t exponent, elem_t minValue)
     {
-        int bucketIndex;
-        std::vector<int> buckets(m_radix);
-        std::vector<int> output(elems.size());
+        std::uint8_t               bucketIndex;
+        std::vector<std::uint32_t> buckets(m_radix);
+        std::vector<elem_t>        output(elems.size());
 
         // Initialize bucket
         std::fill(buckets.begin(), buckets.end(), 0);
-        
+
         // Count frequencies
-        for (size_t i = 0; i < elems.size(); i++) 
+        for (std::size_t i = 0; i < elems.size(); ++i)
         {
-            bucketIndex = static_cast<int>(((elems[i] - minValue) / exponent) % m_radix);
+            bucketIndex = ((elems[i] - minValue) / exponent) % m_radix;
             buckets[bucketIndex]++;
         }
-        
+
         // Compute cumulates
-        for (int i = 1; i < m_radix; i++) 
-        {
-            buckets[i] += buckets[i - 1];
-        }
+        for (std::size_t i = 1; i < m_radix; ++i) { buckets[i] += buckets[i - 1]; }
 
         // Move records
-        for (int i = elems.size() - 1; i >= 0; i--) 
+        for (ptrdiff_t i = elems.size() - 1; i >= 0; --i)
         {
-            bucketIndex = static_cast<int>(((elems[i] - minValue) / exponent) % m_radix);
+            bucketIndex                    = ((elems[i] - minValue) / exponent) % m_radix;
             output[--buckets[bucketIndex]] = elems[i];
-            m_first = i;
-            m_second = bucketIndex;
+            m_first                        = i;
+            m_second                       = bucketIndex;
 
-            if (wantClose || wantStop) return;
+            if (wantClose || wantStop) { return; }
         }
 
         // Copy back
-        for (size_t i = 0; i < elems.size(); i++) 
+        for (std::size_t i = 0; i < elems.size(); ++i)
         {
             elems[i] = output[i];
-            m_first = i;
+            m_first  = i;
             m_second = ((output[i] - minValue) / exponent) % m_radix;
 
             Core::Timer::sleep(1.f / BaseSort::s_speed, realTimer);
-            if (wantClose || wantStop) return;
+            if (wantClose || wantStop) { return; }
         }
     }
 
@@ -58,39 +56,34 @@ namespace Sort {
     {
         isSorting = true;
 
-        if (elems.empty()) 
+        if (elems.empty())
         {
             isSorting = false;
-            sorted = true;
+            sorted    = true;
             return;
         }
-        
-        int minValue = elems[0];
-        int maxValue = elems[0];
-        for (size_t i = 1; i < elems.size(); i++) 
+
+        elem_t minValue = elems[0];
+        elem_t maxValue = elems[0];
+
+        for (std::size_t i = 1; i < elems.size(); ++i)
         {
-            if (elems[i] < minValue) 
-            {
-                minValue = elems[i];
-            } 
-            else if (elems[i] > maxValue) 
-            {
-                    maxValue = elems[i];
-            }
+            if (elems[i] < minValue) { minValue = elems[i]; }
+            else if (elems[i] > maxValue) { maxValue = elems[i]; }
         }
 
         // Perform counting sort on each exponent/digit, starting at the least
         // significant digit
-        int exponent = 1;
+        std::uint64_t exponent = 1;
 
-        while ((maxValue - minValue) / exponent >= 1) 
+        while ((maxValue - minValue) / exponent >= 1)
         {
             countSortByDigits(exponent, minValue);
-            if (wantClose || wantStop) return;
+            if (wantClose || wantStop) { return; }
             exponent *= m_radix;
         }
-        
+
         isSorting = false;
-        sorted = true;
+        sorted    = true;
     }
-} // namespace Sort
+}  // namespace Sort

@@ -1,28 +1,29 @@
 #include "sort/selection/selection.h"
 
 #ifndef TESTING
-#include "renderer/sort_view.h"
+    #include "renderer/sort_view.h"
 #endif
 
 #include "utils/common.h"
 
-namespace Sort {
-    SelectionSort::SelectionSort() : BaseSort() {}
+namespace Sort
+{
+    SelectionSort::SelectionSort() : BaseSort() { }
 
     void SelectionSort::sort()
     {
-        isSorting = true;
-        int size = elems.size();
+        isSorting        = true;
+        std::size_t size = elems.size();
 
-        for (int i = 0; i < size - 1; i ++)
+        for (std::size_t i = 0; i < size - 1; ++i)
         {
-            int min = i;
-            for (int j = i + 1; j < size; j++)
+            std::size_t min = i;
+            for (std::size_t j = i + 1; j < size; ++j)
             {
-                m_first = j;
+                m_first  = j;
                 m_second = min;
 
-                elems.getComparisons()++;
+                elems.incComparisons();
 
                 if (elems[j] < elems[min])
                 {
@@ -30,18 +31,17 @@ namespace Sort {
                 }
 
                 Core::Timer::sleep(1.f / BaseSort::s_speed, realTimer);
-                if (wantClose || wantStop) return;
-
+                if (wantClose || wantStop) { return; }
             }
             if (min != i)
             {
                 swap(elems, min, i);
             }
 
-            if (wantClose || wantStop) return;
+            if (wantClose || wantStop) { return; }
         }
 
         isSorting = false;
-        sorted = true;
+        sorted    = true;
     }
-} // namespace Sort
+}  // namespace Sort

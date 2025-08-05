@@ -5,12 +5,13 @@
 #include <string>
 #include <vector>
 
-#include "sort/category.h"
 #include "sort/base.h"
+#include "sort/category.h"
 
 struct SortRegistryEntry
 {
-    Sort::Category category;
-    std::string displayName;
+    std::string                                      id;
+    Sort::Category                                   category;
+    std::string                                      displayName;
     std::function<std::shared_ptr<Sort::BaseSort>()> factory;
 };

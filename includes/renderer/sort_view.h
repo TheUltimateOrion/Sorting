@@ -2,8 +2,9 @@
 
 #include <vector>
 
-#include "sort/base.h"
 #include "render_params.h"
+#include "sort/base.h"
+#include "state.h"
 
 namespace Core
 {
@@ -15,16 +16,18 @@ namespace Renderer
     class SortView
     {
     private:
-        std::weak_ptr<Core::App> m_app;
-        Sort::SortArray<int> m_elems;
+        std::weak_ptr<Core::App> m_app {};
+        Sort::SortArray<int>     m_elems {};
+        UIState&                 m_uiState;
 
-        void drawElement(size_t k, const RenderParams& t_params) noexcept;
+        void                     drawElement(std::size_t t_index, RenderParams const& t_params) noexcept;
+
     public:
-        SortView(std::shared_ptr<Core::App> app) noexcept;
+        SortView(std::shared_ptr<Core::App> t_app, UIState& t_state) noexcept;
         ~SortView() noexcept = default;
 
-        void update() noexcept;
+        void update(UIState& t_uiState) noexcept;
 
-        int renderGUI() noexcept;
+        int  renderGUI() noexcept;
     };
-} // namespace Renderer
+}  // namespace Renderer

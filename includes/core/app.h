@@ -8,17 +8,16 @@
 
 #ifndef TESTING
 
-#include <SDL3/SDL.h>
-#include <SDL3_ttf/SDL_ttf.h>
-#include <imgui/imgui.h>
+    #include <imgui/imgui.h>
+    #include <SDL3/SDL.h>
+    #include <SDL3_ttf/SDL_ttf.h>
 
-#include "renderer/sort_view.h"
-#include "renderer/ui.h"
+    #include "renderer/sort_view.h"
+    #include "renderer/ui.h"
 #endif
 
 #include "core/app_ctx.h"
 #include "renderer/disp_type.h"
-#include "sort/category.h"
 #include "sound/sound_engine.h"
 
 #ifndef TESTING
@@ -29,41 +28,57 @@ namespace Core
     {
     private:
         std::unique_ptr<Renderer::SortView> m_sortView;
-        Renderer::UI                        m_UI;
-        ImGuiIO*                            m_io;
-        SoundEngine*                        m_soundEngine;
-        std::optional<std::thread>          m_audioThread;
+        std::shared_ptr<Sort::BaseSort>     m_sorter;
 
-        [[nodiscard]] Utils::Signal initSDL();
-        [[nodiscard]] Utils::Signal initImGui();
-        [[nodiscard]] Utils::Signal initAudio();
-        [[nodiscard]] Utils::Signal initFont();
+        ImGuiIO*                            m_io {nullptr};
+        SoundEngine*                        m_soundEngine {nullptr};
 
-        ImGuiIO& configureIO() noexcept;
+        Renderer::UI                        m_UI {nullptr};
+        Core::SortRegistry                  m_sortRegistry {nullptr};
 
-        friend class Sort::BaseSort;
-        friend class Renderer::SortView;
+        std::optional<std::thread>          m_audioThread {};
+
+        [[nodiscard]]
+        Utils::Signal initSDL();
+
+        [[nodiscard]]
+        Utils::Signal initImGui();
+
+        [[nodiscard]]
+        Utils::Signal initAudio();
+
+        [[nodiscard]]
+        Utils::Signal initFont();
+
+        ImGuiIO&      configureIO() noexcept;
 
     public:
-        std::shared_ptr<Sort::BaseSort> sorter;
-        SDL_Event                       event;
-        TTF_Font*                       font;
-        enum Sort::Category             currentCategory;
-        enum Renderer::DisplayType      currentDisplayType;
-        std::array<const char*, 5>      categories;
-        std::array<const char*, 8>      displayTypes;
-        int                             sortRadix = 2;
-        std::optional<std::thread>      sortThread;
-        Core::SortRegistry              sortRegistry;
-        Core::Ctx*                      ctx;
-
-        App() noexcept;
+        App() noexcept = default;
         ~App();
 
-        Utils::Signal init();
-        void          run();
-        void          startAudioThread();
-        void          setStyle(ImGuiStyle& t_style) const noexcept;
+        SDL_Event                  event {};
+        TTF_Font*                  font {nullptr};
+        Core::Ctx*                 ctx {nullptr};
+        Renderer::DisplayType      currentDisplayType {Renderer::DisplayType::Bar};
+
+        std::array<char const*, 5> categories {
+            "Exchange", "Distribution", "Insertion", "Merge", "Select"
+        };
+
+        std::array<char const*, 8>                    displayTypes {"Bar", "Dot", "Rainbow Rectangle", "Circle", "Circle Dot", "Disparity Circle", "Spiral", "Spiral Dot"};
+
+        std::optional<std::thread>                    sortThread {};
+
+        Utils::Signal                                 init();
+        void                                          run();
+        void                                          startAudioThread();
+        void                                          setStyle(ImGuiStyle& t_style) const noexcept;
+
+        inline Core::SortRegistry const&              getRegistry() const { return m_sortRegistry; }
+
+        inline std::shared_ptr<Sort::BaseSort> const& getSorter() const { return m_sorter; }
+
+        inline void                                   setSorter(std::shared_ptr<Sort::BaseSort> t_sorter) { m_sorter = t_sorter; }
     };
-} // namespace Core
+}  // namespace Core
 #endif

@@ -11,4 +11,4 @@ namespace Utils
             t_thread.reset();
         }
     }
-} // namespace Utils
+}  // namespace Utils
