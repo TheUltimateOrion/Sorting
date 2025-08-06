@@ -4,10 +4,6 @@
 #include <optional>
 #include <thread>
 
-#ifndef STYLESET
-    #define STYLESET(param) t_style.Colors[ImGuiCol_##param]
-#endif
-
 namespace Utils
 {
     enum Signal

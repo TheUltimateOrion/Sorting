@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <atomic>
+#include <format>
 
 #include <imgui/backend/imgui_impl_sdl3.h>
 #include <imgui/backend/imgui_impl_sdlrenderer3.h>
@@ -12,6 +13,7 @@
 #include "core/platform/display.h"
 #include "renderer/state.h"
 #include "sort/category.h"
+#include "sort/flags.h"
 #include "sort/sort.h"
 #include "utils/common.h"
 
@@ -43,10 +45,10 @@ namespace Renderer
             auto&                          sorter       = appShared->getSorter();
             Core::SortRegistry const&      registry     = appShared->getRegistry();
             Core::Ctx*                     ctx          = appShared->getContext();
+
+            // Sort::Flags & sorter->getFlags()            = sorter->getFlags();
             std::vector<std::string>       ids          = registry.idsByCategory(m_uiState.sortCategory);
             Core::SortRegistryEntry const* currentEntry = registry.get(ids[m_uiState.sortIndex]);
-
-            Sort::Flags&                   sortFlags    = sorter->getFlags();
 
             Uint8                          _r, _g, _b, _a;
             SDL_GetRenderDrawColor(ctx->renderer, &_r, &_g, &_b, &_a);
@@ -56,7 +58,7 @@ namespace Renderer
 
             SDL_Color textColor {0, 0xFF, 0, 0};
 
-            if (sortFlags.isSorting || (sorter->timer.getDuration() == 0.0f))
+            if (sorter->getFlags().isSorting || (sorter->timer.getDuration() == 0.0f))
             {
                 textColor = {0xFF, 0xFF, 0xFF, 0};
             }
@@ -87,14 +89,14 @@ namespace Renderer
 
             std::string statusText {"IDLE"};
 
-            if (sortFlags.isSorting) { statusText = "SORTING..."; }
+            if (sorter->getFlags().isSorting) { statusText = "SORTING..."; }
 
-            if (sortFlags.isShuffling) { statusText = "SHUFFLING..."; }
+            if (sorter->getFlags().isShuffling) { statusText = "SHUFFLING..."; }
 
-            if (sortFlags.isChecking) { statusText = "CHECKING..."; }
+            if (sorter->getFlags().isChecking) { statusText = "CHECKING..."; }
 
-            if (!(sortFlags.isShuffling) && !(sortFlags.isSorting) && !(sortFlags.isChecking)
-                && sortFlags.hasSorted)
+            if (!(sorter->getFlags().isShuffling) && !(sorter->getFlags().isSorting) && !(sorter->getFlags().isChecking)
+                && sorter->getFlags().hasSorted)
             {
                 statusText = "SORTED!";
             }
@@ -107,31 +109,51 @@ namespace Renderer
 
     void UI::renderDebugMenu()
     {
+#define IMGUI_DEBUG_FLAG(flags, boolVal) ImGui::Text(std::format(#boolVal ": {}", flags.boolVal.load()).c_str());
+#define IMGUI_DEBUG_UISTATE(uiObj, data) ImGui::Text(std::format(#data ": {}", uiObj.data).c_str());
+
         if (auto appShared = m_app.lock())
         {
-            Core::Ctx*   ctx       = appShared->getContext();
-            auto&        sorter    = appShared->getSorter();
-
-            Sort::Flags& sortFlags = sorter->getFlags();
-
+            Sort::Flags& flags = appShared->getSorter()->getFlags();
             ImGui::Begin("Debug");
-            ImGui::Text((std::string {"Has Radix"} + std::string {sortFlags.hasRadix.load()}).c_str());
+            if (ImGui::CollapsingHeader("Sorting Flags"))
+            {
+                IMGUI_DEBUG_FLAG(flags, hasRadix);
+                IMGUI_DEBUG_FLAG(flags, hasSorted);
+                IMGUI_DEBUG_FLAG(flags, isChecking);
+                IMGUI_DEBUG_FLAG(flags, isRunning);
+                IMGUI_DEBUG_FLAG(flags, isShuffling);
+                IMGUI_DEBUG_FLAG(flags, isSorting);
+                IMGUI_DEBUG_FLAG(flags, shouldSort);
+                IMGUI_DEBUG_FLAG(flags, wantClose);
+                IMGUI_DEBUG_FLAG(flags, wantStop);
+            }
+            ImGui::Separator();
+            if (ImGui::CollapsingHeader("UI State"))
+            {
+                IMGUI_DEBUG_UISTATE(m_uiState, arrayLength);
+                IMGUI_DEBUG_UISTATE(m_uiState, isColored);
+                IMGUI_DEBUG_UISTATE(m_uiState, isReversed);
+                IMGUI_DEBUG_UISTATE(m_uiState, radix);
+                IMGUI_DEBUG_UISTATE((int) m_uiState, sortCategory);
+                IMGUI_DEBUG_UISTATE((int) m_uiState, sortDisplayType);
+                IMGUI_DEBUG_UISTATE(m_uiState, sortIndex);
+            }
             ImGui::End();
         }
+#undef IMGUI_DEBUG_BOOL
     }
 
     Utils::Signal UI::renderUI()
     {
-        static bool s_open = true;
-
         if (auto appShared = m_app.lock())
         {
-            auto&                     sorter    = appShared->getSorter();
-            Core::SortRegistry const& registry  = appShared->getRegistry();
-            Core::Ctx*                ctx       = appShared->getContext();
-            std::vector<std::string>  ids       = registry.idsByCategory(m_uiState.sortCategory);
+            auto&                     sorter   = appShared->getSorter();
+            Core::SortRegistry const& registry = appShared->getRegistry();
+            Core::Ctx*                ctx      = appShared->getContext();
 
-            Sort::Flags&              sortFlags = sorter->getFlags();
+            // Sort::Flags&              sorter->getFlags() = sorter->getFlags();
+            std::vector<std::string>  ids      = registry.idsByCategory(m_uiState.sortCategory);
 
             if (m_uiState.sortIndex >= ids.size()) { m_uiState.sortIndex = 0; }
             Core::SortRegistryEntry const* currentEntry = registry.get(ids[m_uiState.sortIndex]);
@@ -143,17 +165,8 @@ namespace Renderer
             ImGui_ImplSDL3_NewFrame();
             ImGui::NewFrame();
 
-            if (!s_open)
             {
-                sortFlags.wantClose = true;
-
-                ImGui::Render();
-                ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), ctx->renderer);
-                return Utils::Signal::CloseApp;
-            }
-
-            {
-                ImGui::Begin("Configure", &s_open);
+                ImGui::Begin("Configure", &m_uiState.isImGuiOpen);
                 ImGui::Text(
                     "Application average %.3f ms/frame (%.1f FPS)",
                     1000.0f / Core::Platform::Display::getFramerate(),
@@ -256,7 +269,7 @@ namespace Renderer
                 }
 
                 ImGui::Spacing();
-                if (!sortFlags.isRunning)
+                if (!sorter->getFlags().isRunning)
                 {
                     if (ImGui::Button("Sort"))
                     {
@@ -278,16 +291,14 @@ namespace Renderer
                         }
                         else { LOGERR("Unknown sort category/index"); }
 
-                        m_uiState.shouldSort = true;
-                        sortFlags.isRunning  = true;
+                        sorter->getFlags().setFlags(Sort::FlagGroup::SortButtonPressed);
                     }
                 }
                 else
                 {
                     if (ImGui::Button("Stop"))
                     {
-                        sortFlags.isRunning = false;
-                        sortFlags.wantStop  = true;
+                        sorter->getFlags().setFlags(Sort::FlagGroup::StopButtonPressed);
 
                         LOGINFO("Stopping sort");
 
@@ -305,19 +316,32 @@ namespace Renderer
                 renderDebugMenu();
 
                 ImGui::Render();
-
                 ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), ctx->renderer);
 
-                if (m_uiState.shouldSort)
+                if (!m_uiState.isImGuiOpen)
+                {
+                    sorter->getFlags().setFlags(Sort::FlagGroup::Quit);
+
+                    Utils::terminateThread(appShared->sortThread);
+
+                    LOGINFO("Exit signal recieved");
+
+                    return Utils::Signal::CloseApp;
+                }
+
+                if (sorter->getFlags().shouldSort)
                 {
                     Utils::terminateThread(appShared->sortThread);
 
-                    m_uiState.shouldSort  = false;
-                    bool isReversed       = m_uiState.isReversed;
+                    sorter->getFlags().shouldSort = false;
+                    bool isReversed               = m_uiState.isReversed;
 
-                    appShared->sortThread = std::make_optional<std::thread>(
-                        [appShared, isReversed, &sorter, &sortFlags]()
+                    appShared->sortThread         = std::make_optional<std::thread>(
+                        [appShared, isReversed]()
                         {
+                            auto sorter = appShared->getSorter();
+                            // Sort::Flags & sorter->getFlags() = sorter->getFlags();
+
                             if (!isReversed)
                             {
                                 LOGINFO("Shuffling");
@@ -331,37 +355,37 @@ namespace Renderer
                                 sorter->reverse();
                             }
 
-                            if (!sortFlags.wantStop)
+                            if (!sorter->getFlags().wantStop)
                             {
                                 LOGINFO("Sorting");
 
                                 sorter->timer.start();
                                 sorter->realTimer.start();
 
-                                sortFlags.isSorting = true;
+                                sorter->getFlags().isSorting = true;
                                 sorter->sort();
-                                sortFlags.doneSorting();
+                                sorter->getFlags().setFlags(Sort::FlagGroup::DoneSorting);
 
                                 sorter->realTimer.pause();
                                 sorter->timer.pause();
                             }
 
-                            if (!sortFlags.wantStop)
+                            if (!sorter->getFlags().wantStop)
                             {
                                 LOGINFO("Checking");
                                 sorter->check();
                             }
 
-                            if (sortFlags.wantStop) { return; }
+                            if (sorter->getFlags().wantStop) { return; }
 
-                            sortFlags.isRunning = false;
+                            sorter->getFlags().isRunning = false;
                         }
                     );
                 }
 
-                if (sortFlags.wantClose) { return Utils::Signal::CloseApp; }
+                if (sorter->getFlags().wantClose) { return Utils::Signal::CloseApp; }
 
-                if (sortFlags.wantStop) { return Utils::Signal::StopSort; }
+                if (sorter->getFlags().wantStop) { return Utils::Signal::StopSort; }
 
                 return Utils::Signal::Success;
             }

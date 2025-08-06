@@ -23,7 +23,7 @@ namespace Sort
     {
         if (elems.empty())
         {
-            m_flags.doneSorting();
+            m_flags.setFlags(FlagGroup::DoneSorting);
             return;
         }
 

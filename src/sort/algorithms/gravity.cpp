@@ -15,7 +15,7 @@ namespace Sort
 
         if (elems.empty() || max <= 0)
         {
-            m_flags.doneSorting();
+            m_flags.setFlags(FlagGroup::DoneSorting);
             return;
         }
 

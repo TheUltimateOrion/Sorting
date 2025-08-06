@@ -12,13 +12,34 @@ namespace Sort
         isShuffling = false;
         isSorting   = false;
 
+        shouldSort  = false;
+
         wantClose   = false;
         wantStop    = false;
     }
 
-    void Flags::doneSorting() noexcept
+    void Flags::setFlags(FlagGroup group) noexcept
     {
-        isSorting = false;
-        hasSorted = true;
+        switch (group)
+        {
+            case FlagGroup::DoneSorting:
+                isSorting = false;
+                hasSorted = true;
+                break;
+            case FlagGroup::SortButtonPressed:
+                shouldSort = true;
+                isRunning  = true;
+                break;
+            case FlagGroup::StopButtonPressed:
+                isRunning  = false;
+                shouldSort = false;
+                wantStop   = true;
+                break;
+            case FlagGroup::Quit:
+                isRunning = false;
+                wantStop  = true;
+                wantClose = true;
+                break;
+        }
     }
 }  // namespace Sort

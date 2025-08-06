@@ -189,15 +189,30 @@ namespace Core
 
         while (true)
         {
-            auto         start     = std::chrono::high_resolution_clock::now();
-            Sort::Flags& sortFlags = m_sorter->getFlags();
+            if (SDL_PollEvent(&m_event))
+            {
+                SDL_ConvertEventToRenderCoordinates(m_ctx->renderer, &m_event);
+
+                ImGui_ImplSDL3_ProcessEvent(&m_event);
+                if (m_event.type == SDL_EVENT_QUIT)
+                {
+                    m_sorter->getFlags().setFlags(Sort::FlagGroup::Quit);
+
+                    Utils::terminateThread(sortThread);
+
+                    LOGINFO("Exit signal recieved");
+                    break;
+                }
+            }
+
+            auto start = std::chrono::high_resolution_clock::now();
 
             m_sortView->update(m_UI.getUIState());
 
             switch (m_UI.renderUI())
             {
                 case Utils::Signal::StopSort: {
-                    sortFlags.reset();
+                    m_sorter->getFlags().reset();
                     break;
                 }
                 case Utils::Signal::CloseApp: {
@@ -212,21 +227,6 @@ namespace Core
             }
 
             SDL_RenderPresent(m_ctx->renderer);
-            if (SDL_PollEvent(&m_event))
-            {
-                SDL_ConvertEventToRenderCoordinates(m_ctx->renderer, &m_event);
-
-                ImGui_ImplSDL3_ProcessEvent(&m_event);
-                if (m_event.type == SDL_EVENT_QUIT)
-                {
-                    sortFlags.reset();
-
-                    Utils::terminateThread(sortThread);
-
-                    LOGINFO("Exit signal recieved");
-                    break;
-                }
-            }
 
             std::chrono::duration<double, std::milli>
                    elapsed = std::chrono::high_resolution_clock::now() - start;
@@ -253,10 +253,16 @@ namespace Core
         m_audioThread = std::make_optional<std::thread>(
             [this]()
             {
-                Sort::Flags& sortFlags = m_sorter->getFlags();
-
-                while (!sortFlags.wantClose)
+                while (true)
                 {
+                    if (!m_sorter)
+                    {
+                        std::this_thread::sleep_for(100ms);
+                        continue;
+                    }
+
+                    if (m_sorter->getFlags().wantClose) { break; }
+
                     constexpr float sec  = 0.04f;
                     constexpr float base = 100.f;
                     constexpr float min  = 100.f;
@@ -264,22 +270,17 @@ namespace Core
 
                     float           freq = 0.f;
 
+                    if (m_sorter->elems.empty() || m_sorter->getFirst() >= m_sorter->elems.size())
                     {
-                        if (m_sorter->elems.empty()
-                            || m_sorter->getFirst() >= m_sorter->elems.size())
-                        {
-                            std::this_thread::sleep_for(100ms);
-                            continue;  // skip this iteration;
-                        }
-
-                        freq = m_sorter->elems[m_sorter->getFirst()]
-                                 * (m_ctx->winHeight / static_cast<float>(m_sorter->elems.size()))
-                             + base;
+                        std::this_thread::sleep_for(100ms);
+                        continue;
                     }
 
-                    freq = std::clamp<float>(freq, min, max);
+                    freq = std::clamp<float>(
+                        m_sorter->elems[m_sorter->getFirst()] * (m_ctx->winHeight / static_cast<float>(m_sorter->elems.size())) + base, min, max
+                    );
 
-                    if (sortFlags.isSorting || sortFlags.isShuffling || sortFlags.isChecking)
+                    if (m_sorter->getFlags().isSorting || m_sorter->getFlags().isShuffling || m_sorter->getFlags().isChecking)
                     {
                         if (m_soundEngine->load(sec, freq) == Utils::Signal::Error)
                         {
@@ -308,11 +309,11 @@ namespace Core
                                 return;
                             }
                         }
-
-                        std::this_thread::sleep_for(
-                            std::chrono::milliseconds(static_cast<int>(sec * 1000))
-                        );
                     }
+
+                    std::this_thread::sleep_for(
+                        std::chrono::milliseconds(static_cast<int>(sec * 1000))
+                    );
                 }
             }
         );
@@ -320,60 +321,64 @@ namespace Core
 
     void App::setStyle(ImGuiStyle& t_style) const noexcept
     {
-        constexpr float WINDOW_PADDING     = 15.0f;
-        constexpr float WINDOW_ROUNDING    = 3.0f;
-        constexpr float FRAME_PADDING      = 5.0f;
-        constexpr float FRAME_ROUNDING     = 3.0f;
-        constexpr float INDENT_SPACING     = 25.0f;
-        constexpr float SCROLLBAR_SIZE     = 15.0f;
-        constexpr float SCROLLBAR_ROUNDING = 3.0f;
-        constexpr float GRAB_MIN_SIZE      = 5.0f;
-        constexpr float GRAB_ROUNDING      = 3.0f;
+#define IMGUI_COLOR_STYLE(param) t_style.Colors[ImGuiCol_##param]
 
-        t_style.WindowPadding              = ImVec2(WINDOW_PADDING, WINDOW_PADDING);
-        t_style.WindowRounding             = WINDOW_ROUNDING;
-        t_style.FramePadding               = ImVec2(FRAME_PADDING, FRAME_PADDING);
-        t_style.FrameRounding              = FRAME_ROUNDING;
-        t_style.IndentSpacing              = INDENT_SPACING;
-        t_style.ScrollbarSize              = SCROLLBAR_SIZE;
-        t_style.ScrollbarRounding          = SCROLLBAR_ROUNDING;
-        t_style.GrabMinSize                = GRAB_MIN_SIZE;
-        t_style.GrabRounding               = GRAB_ROUNDING;
+        constexpr float WINDOW_PADDING          = 15.0f;
+        constexpr float WINDOW_ROUNDING         = 3.0f;
+        constexpr float FRAME_PADDING           = 5.0f;
+        constexpr float FRAME_ROUNDING          = 3.0f;
+        constexpr float INDENT_SPACING          = 25.0f;
+        constexpr float SCROLLBAR_SIZE          = 15.0f;
+        constexpr float SCROLLBAR_ROUNDING      = 3.0f;
+        constexpr float GRAB_MIN_SIZE           = 5.0f;
+        constexpr float GRAB_ROUNDING           = 3.0f;
 
-        STYLESET(Text)                     = ImVec4(0.80f, 0.80f, 0.83f, 1.00f);
-        STYLESET(TextDisabled)             = ImVec4(0.24f, 0.23f, 0.29f, 1.00f);
-        STYLESET(WindowBg)                 = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
-        STYLESET(PopupBg)                  = ImVec4(0.07f, 0.07f, 0.09f, 1.00f);
-        STYLESET(Border)                   = ImVec4(0.80f, 0.80f, 0.83f, 0.88f);
-        STYLESET(BorderShadow)             = ImVec4(0.92f, 0.91f, 0.88f, 0.00f);
-        STYLESET(FrameBg)                  = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
-        STYLESET(FrameBgHovered)           = ImVec4(0.24f, 0.23f, 0.29f, 1.00f);
-        STYLESET(FrameBgActive)            = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
-        STYLESET(TitleBg)                  = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
-        STYLESET(TitleBgCollapsed)         = ImVec4(1.00f, 0.98f, 0.95f, 0.75f);
-        STYLESET(TitleBgActive)            = ImVec4(0.07f, 0.07f, 0.09f, 1.00f);
-        STYLESET(MenuBarBg)                = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
-        STYLESET(ScrollbarBg)              = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
-        STYLESET(ScrollbarGrab)            = ImVec4(0.80f, 0.80f, 0.83f, 0.31f);
-        STYLESET(ScrollbarGrabHovered)     = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
-        STYLESET(ScrollbarGrabActive)      = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
-        STYLESET(CheckMark)                = ImVec4(0.80f, 0.80f, 0.83f, 0.31f);
-        STYLESET(SliderGrab)               = ImVec4(0.80f, 0.80f, 0.83f, 0.31f);
-        STYLESET(SliderGrabActive)         = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
-        STYLESET(Button)                   = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
-        STYLESET(ButtonHovered)            = ImVec4(0.24f, 0.23f, 0.29f, 1.00f);
-        STYLESET(ButtonActive)             = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
-        STYLESET(Header)                   = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
-        STYLESET(HeaderHovered)            = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
-        STYLESET(HeaderActive)             = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
-        STYLESET(ResizeGrip)               = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-        STYLESET(ResizeGripHovered)        = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
-        STYLESET(ResizeGripActive)         = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
-        STYLESET(PlotLines)                = ImVec4(0.40f, 0.39f, 0.38f, 0.63f);
-        STYLESET(PlotLinesHovered)         = ImVec4(0.25f, 1.00f, 0.00f, 1.00f);
-        STYLESET(PlotHistogram)            = ImVec4(0.40f, 0.39f, 0.38f, 0.63f);
-        STYLESET(PlotHistogramHovered)     = ImVec4(0.25f, 1.00f, 0.00f, 1.00f);
-        STYLESET(TextSelectedBg)           = ImVec4(0.25f, 1.00f, 0.00f, 0.43f);
+        t_style.WindowPadding                   = ImVec2(WINDOW_PADDING, WINDOW_PADDING);
+        t_style.WindowRounding                  = WINDOW_ROUNDING;
+        t_style.FramePadding                    = ImVec2(FRAME_PADDING, FRAME_PADDING);
+        t_style.FrameRounding                   = FRAME_ROUNDING;
+        t_style.IndentSpacing                   = INDENT_SPACING;
+        t_style.ScrollbarSize                   = SCROLLBAR_SIZE;
+        t_style.ScrollbarRounding               = SCROLLBAR_ROUNDING;
+        t_style.GrabMinSize                     = GRAB_MIN_SIZE;
+        t_style.GrabRounding                    = GRAB_ROUNDING;
+
+        IMGUI_COLOR_STYLE(Text)                 = ImVec4(0.80f, 0.80f, 0.83f, 1.00f);
+        IMGUI_COLOR_STYLE(TextDisabled)         = ImVec4(0.24f, 0.23f, 0.29f, 1.00f);
+        IMGUI_COLOR_STYLE(WindowBg)             = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
+        IMGUI_COLOR_STYLE(PopupBg)              = ImVec4(0.07f, 0.07f, 0.09f, 1.00f);
+        IMGUI_COLOR_STYLE(Border)               = ImVec4(0.80f, 0.80f, 0.83f, 0.88f);
+        IMGUI_COLOR_STYLE(BorderShadow)         = ImVec4(0.92f, 0.91f, 0.88f, 0.00f);
+        IMGUI_COLOR_STYLE(FrameBg)              = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
+        IMGUI_COLOR_STYLE(FrameBgHovered)       = ImVec4(0.24f, 0.23f, 0.29f, 1.00f);
+        IMGUI_COLOR_STYLE(FrameBgActive)        = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
+        IMGUI_COLOR_STYLE(TitleBg)              = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
+        IMGUI_COLOR_STYLE(TitleBgCollapsed)     = ImVec4(1.00f, 0.98f, 0.95f, 0.75f);
+        IMGUI_COLOR_STYLE(TitleBgActive)        = ImVec4(0.07f, 0.07f, 0.09f, 1.00f);
+        IMGUI_COLOR_STYLE(MenuBarBg)            = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
+        IMGUI_COLOR_STYLE(ScrollbarBg)          = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
+        IMGUI_COLOR_STYLE(ScrollbarGrab)        = ImVec4(0.80f, 0.80f, 0.83f, 0.31f);
+        IMGUI_COLOR_STYLE(ScrollbarGrabHovered) = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
+        IMGUI_COLOR_STYLE(ScrollbarGrabActive)  = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
+        IMGUI_COLOR_STYLE(CheckMark)            = ImVec4(0.80f, 0.80f, 0.83f, 0.31f);
+        IMGUI_COLOR_STYLE(SliderGrab)           = ImVec4(0.80f, 0.80f, 0.83f, 0.31f);
+        IMGUI_COLOR_STYLE(SliderGrabActive)     = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
+        IMGUI_COLOR_STYLE(Button)               = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
+        IMGUI_COLOR_STYLE(ButtonHovered)        = ImVec4(0.24f, 0.23f, 0.29f, 1.00f);
+        IMGUI_COLOR_STYLE(ButtonActive)         = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
+        IMGUI_COLOR_STYLE(Header)               = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
+        IMGUI_COLOR_STYLE(HeaderHovered)        = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
+        IMGUI_COLOR_STYLE(HeaderActive)         = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
+        IMGUI_COLOR_STYLE(ResizeGrip)           = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+        IMGUI_COLOR_STYLE(ResizeGripHovered)    = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
+        IMGUI_COLOR_STYLE(ResizeGripActive)     = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
+        IMGUI_COLOR_STYLE(PlotLines)            = ImVec4(0.40f, 0.39f, 0.38f, 0.63f);
+        IMGUI_COLOR_STYLE(PlotLinesHovered)     = ImVec4(0.25f, 1.00f, 0.00f, 1.00f);
+        IMGUI_COLOR_STYLE(PlotHistogram)        = ImVec4(0.40f, 0.39f, 0.38f, 0.63f);
+        IMGUI_COLOR_STYLE(PlotHistogramHovered) = ImVec4(0.25f, 1.00f, 0.00f, 1.00f);
+        IMGUI_COLOR_STYLE(TextSelectedBg)       = ImVec4(0.25f, 1.00f, 0.00f, 0.43f);
+
+#undef IMGUI_COLOR_STYLE
     }
 
     void App::configureIO() noexcept

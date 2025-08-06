@@ -7,13 +7,13 @@ namespace Renderer
 {
     struct UIState
     {
-        bool           isColored {false};
-        bool           isReversed {false};
-        bool           shouldSort {false};
         std::size_t    arrayLength {512};
+        bool           isColored {false};
+        bool           isImGuiOpen {true};
+        bool           isReversed {false};
         std::uint8_t   radix {2};
-        std::uint8_t   sortIndex {0};
         Sort::Category sortCategory {Sort::Category::Exchange};
         DisplayType    sortDisplayType {DisplayType::Bar};
+        std::uint8_t   sortIndex {0};
     };
 }  // namespace Renderer
