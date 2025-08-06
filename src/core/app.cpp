@@ -189,16 +189,15 @@ namespace Core
 
         while (true)
         {
-            auto start = std::chrono::high_resolution_clock::now();
+            auto         start     = std::chrono::high_resolution_clock::now();
+            Sort::Flags& sortFlags = m_sorter->getFlags();
+
             m_sortView->update(m_UI.getUIState());
 
             switch (m_UI.renderUI())
             {
                 case Utils::Signal::StopSort: {
-                    m_sorter->isShuffling = false;
-                    m_sorter->isSorting   = false;
-                    m_sorter->sorted      = true;
-                    m_sorter->wantStop    = false;
+                    sortFlags.reset();
                     break;
                 }
                 case Utils::Signal::CloseApp: {
@@ -220,9 +219,7 @@ namespace Core
                 ImGui_ImplSDL3_ProcessEvent(&m_event);
                 if (m_event.type == SDL_EVENT_QUIT)
                 {
-                    m_sorter->running   = false;
-                    m_sorter->wantStop  = true;
-                    m_sorter->wantClose = true;
+                    sortFlags.reset();
 
                     Utils::terminateThread(sortThread);
 
@@ -256,7 +253,9 @@ namespace Core
         m_audioThread = std::make_optional<std::thread>(
             [this]()
             {
-                while (!m_sorter->wantClose)
+                Sort::Flags& sortFlags = m_sorter->getFlags();
+
+                while (!sortFlags.wantClose)
                 {
                     constexpr float sec  = 0.04f;
                     constexpr float base = 100.f;
@@ -280,7 +279,7 @@ namespace Core
 
                     freq = std::clamp<float>(freq, min, max);
 
-                    if (m_sorter->isSorting || m_sorter->isShuffling || m_sorter->isChecking)
+                    if (sortFlags.isSorting || sortFlags.isShuffling || sortFlags.isChecking)
                     {
                         if (m_soundEngine->load(sec, freq) == Utils::Signal::Error)
                         {

@@ -12,8 +12,6 @@ namespace Sort
 
     void InsertionSort::sort()
     {
-        isSorting = true;
-
         for (std::size_t i = 1; i < elems.size(); ++i)
         {
             std::size_t j    = i;
@@ -27,7 +25,7 @@ namespace Sort
                 --j;
 
                 Core::Timer::sleep(1.f / BaseSort::s_speed, realTimer);
-                if (wantClose || wantStop) { return; }
+                RETURN_IF_STOPPED();
             }
 
             elems[j] = temp;
@@ -35,10 +33,7 @@ namespace Sort
             m_second = i;
 
             Core::Timer::sleep(1.f / BaseSort::s_speed, realTimer);
-            if (wantClose || wantStop) { return; }
+            RETURN_IF_STOPPED();
         }
-
-        isSorting = false;
-        sorted    = true;
     }
 }  // namespace Sort

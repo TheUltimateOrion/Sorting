@@ -12,7 +12,6 @@ namespace Sort
 
     void SelectionSort::sort()
     {
-        isSorting        = true;
         std::size_t size = elems.size();
 
         for (std::size_t i = 0; i < size - 1; ++i)
@@ -31,17 +30,14 @@ namespace Sort
                 }
 
                 Core::Timer::sleep(1.f / BaseSort::s_speed, realTimer);
-                if (wantClose || wantStop) { return; }
+                RETURN_IF_STOPPED();
             }
             if (min != i)
             {
                 swap(elems, min, i);
             }
 
-            if (wantClose || wantStop) { return; }
+            RETURN_IF_STOPPED();
         }
-
-        isSorting = false;
-        sorted    = true;
     }
 }  // namespace Sort

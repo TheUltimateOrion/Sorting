@@ -26,6 +26,8 @@ namespace Renderer
         std::array<char const*, 5> m_sortCategories {"Exchange", "Distribution", "Insertion", "Merge", "Select"};
         std::array<char const*, 8> m_sortDisplayTypes {"Bar", "Dot", "Rainbow Rectangle", "Circle", "Circle Dot", "Disparity Circle", "Spiral", "Spiral Dot"};
 
+        void                       renderDebugMenu();
+
     public:
         UI(std::shared_ptr<Core::App> t_app) noexcept;
         ~UI() noexcept = default;

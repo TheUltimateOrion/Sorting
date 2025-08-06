@@ -5,6 +5,10 @@
 
 #include "array.h"
 #include "core/timer.h"
+#include "flags.h"
+
+#define RETURN_IF_STOPPED(ret)                                               \
+    if (m_flags.wantClose.load() || m_flags.wantStop.load()) { return ret; }
 
 namespace Core
 {
@@ -22,6 +26,8 @@ namespace Sort
         std::atomic<std::size_t> m_first {0};
         std::atomic<std::size_t> m_second {0};
 
+        Flags                    m_flags;
+
     public:
         SortArray<int> elems {};
         using elem_t = typename decltype(elems)::value_type;
@@ -30,15 +36,6 @@ namespace Sort
 
         Core::Timer       timer {};
         Core::Timer       realTimer {};
-
-        std::atomic<bool> sorted {true};
-        std::atomic<bool> isSorting {false};
-        std::atomic<bool> isShuffling {false};
-        std::atomic<bool> isChecking {false};
-        std::atomic<bool> wantClose {false};
-        std::atomic<bool> wantStop {false};
-        std::atomic<bool> running {false};
-        std::atomic<bool> hasRadix {false};
 
         static float      s_speed;
 
@@ -54,6 +51,8 @@ namespace Sort
         void         reverse();
         void         check();
         void         setLength(std::size_t length);
+
+        Flags&       getFlags() { return m_flags; }
 
         virtual void sort() = 0;
         virtual ~BaseSort() = default;

@@ -122,6 +122,7 @@
         "xlocale": "cpp",
         "xlocinfo": "cpp",
         "util": "cpp",
-        "*.inc": "cpp"
+        "*.inc": "cpp",
+        "*.def": "cpp"
     }
 }

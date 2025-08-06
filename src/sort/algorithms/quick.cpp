@@ -21,49 +21,34 @@ namespace Sort
                 swap(elems, static_cast<std::size_t>(i), j);
             }
 
-            if (wantClose || wantStop)
-            {
-                return 0;
-            }
             elems.incComparisons();
+
+            RETURN_IF_STOPPED(0);
         }
+
         m_first  = i + 1;
         m_second = t_high;
 
         swap(elems, static_cast<std::size_t>(i + 1), t_high);
-        if (wantClose || wantStop)
-        {
-            return 0;
-        }
+
         return static_cast<std::size_t>(i + 1);
     }
 
     void QuickSort::sort()
     {
-        isSorting = true;
         quickSort(0, elems.size() - 1);
-
-        if (wantClose || wantStop)
-        {
-            return;
-        }
-
-        isSorting = false;
-        sorted    = true;
     }
 
     void QuickSort::quickSort(std::size_t t_low, std::size_t t_high)
     {
-        if (wantClose || wantStop) { return; }
-
         if (t_low < t_high)
         {
             std::size_t pi = partition(t_low, t_high);
 
-            if (wantClose || wantStop) { return; }
+            RETURN_IF_STOPPED();
             quickSort(t_low, pi - 1);
 
-            if (wantClose || wantStop) { return; }
+            RETURN_IF_STOPPED();
             quickSort(pi + 1, t_high);
         }
     }

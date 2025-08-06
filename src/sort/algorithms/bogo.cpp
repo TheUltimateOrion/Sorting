@@ -40,28 +40,22 @@ namespace Sort
             std::uniform_int_distribution<std::size_t> dist(0, n - 1);
             std::size_t                                randIndex = dist(gen);
             swap(elems, i, randIndex);
-            if (wantClose || wantStop) { return; }
+            RETURN_IF_STOPPED();
         }
     }
 
     void BogoSort::sort()
     {
-        isSorting = true;
-
         if (elems.empty())
         {
-            isSorting = false;
-            sorted    = true;
+            m_flags.doneSorting();
             return;
         }
 
         while (!isSorted())
         {
             bogoShuffle();
-            if (wantClose || wantStop) { return; }
+            RETURN_IF_STOPPED();
         }
-
-        isSorting = false;
-        sorted    = true;
     }
 }  // namespace Sort

@@ -34,8 +34,8 @@ namespace Sort
 
     void BaseSort::reverse()
     {
-        isShuffling = true;
-        wantStop    = false;
+        m_flags.isShuffling = true;
+        m_flags.wantStop    = false;
 
         elems.resetCounters();
 
@@ -51,19 +51,18 @@ namespace Sort
             m_second = m_first.load();
 
             Core::Timer::sleep(1000.0 / static_cast<double>(elems.size()), realTimer);
-            if (wantClose || wantStop) { return; }
         }
 
-        sorted      = false;
-        isShuffling = false;
+        m_flags.hasSorted   = false;
+        m_flags.isShuffling = false;
 
         std::this_thread::sleep_for(500ms);
     }
 
     void BaseSort::shuffle()
     {
-        isShuffling = true;
-        wantStop    = false;
+        m_flags.isShuffling = true;
+        m_flags.wantStop    = false;
 
         elems.resetCounters();
 
@@ -80,11 +79,11 @@ namespace Sort
             m_second = m_first.load();
 
             Core::Timer::sleep(1000.0 / static_cast<double>(elems.size()), realTimer);
-            if (wantClose || wantStop) { return; }
+            RETURN_IF_STOPPED();
         }
 
-        sorted      = false;
-        isShuffling = false;
+        m_flags.hasSorted   = false;
+        m_flags.isShuffling = false;
 
         LOGINFO("Shuffling Done");
         std::this_thread::sleep_for(500ms);
@@ -92,10 +91,10 @@ namespace Sort
 
     void BaseSort::check()
     {
-        wantStop   = false;
-        isChecking = true;
+        m_flags.isChecking = true;
+        m_flags.wantStop   = false;
 
-        auxillary  = elems;
+        auxillary          = elems;
 
         realTimer.end();
         timer.end();
@@ -108,10 +107,10 @@ namespace Sort
             m_second = m_first.load();
 
             Core::Timer::sleep(500.0 / static_cast<double>(auxillary.size()), realTimer);
-            if (wantClose || wantStop) { return; }
+            RETURN_IF_STOPPED();
         }
 
-        isChecking = false;
+        m_flags.isChecking = false;
 
         LOGINFO("Check completed");
     }

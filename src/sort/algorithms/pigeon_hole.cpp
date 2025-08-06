@@ -12,14 +12,11 @@ namespace Sort
 
     void PigeonHoleSort::sort()
     {
-        isSorting        = true;
-
         std::size_t size = elems.size();
 
-        if (size == 0)
+        if (elems.empty())
         {
-            isSorting = false;
-            sorted    = true;
+            m_flags.doneSorting();
             return;
         }
 
@@ -41,7 +38,7 @@ namespace Sort
 
             Core::Timer::sleep(1.f / BaseSort::s_speed, realTimer);
 
-            if (wantClose || wantStop) { return; }
+            RETURN_IF_STOPPED();
             elems.getComparisons() += 2;
         }
 
@@ -63,11 +60,8 @@ namespace Sort
                 ++index;
 
                 Core::Timer::sleep(1.f / BaseSort::s_speed, realTimer);
-                if (wantClose || wantStop) { return; }
+                RETURN_IF_STOPPED();
             }
         }
-
-        isSorting = false;
-        sorted    = true;
     }
 }  // namespace Sort

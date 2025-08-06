@@ -21,12 +21,9 @@ namespace Sort
 
     void CombSort::sort()
     {
-        isSorting = true;
-
         if (elems.empty())
         {
-            isSorting = false;
-            sorted    = true;
+            m_flags.doneSorting();
             return;
         }
 
@@ -43,7 +40,7 @@ namespace Sort
         {
             // Find next gap
             gap = getNextGap(gap);
-            if (wantClose || wantStop) { return; }
+            RETURN_IF_STOPPED();
 
             // Initialize swapped as false so that we can
             // check if swap happened or not
@@ -55,16 +52,12 @@ namespace Sort
                 if (elems[i] > elems[i + gap])
                 {
                     swap(elems, i, i + gap);
-                    if (wantClose || wantStop)
-                    {
-                        return;
-                    }
                     swapped = true;
+
+                    RETURN_IF_STOPPED();
                 }
                 elems.incComparisons();
             }
         }
-        isSorting = false;
-        sorted    = true;
     }
 }  // namespace Sort

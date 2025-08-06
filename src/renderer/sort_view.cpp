@@ -245,7 +245,7 @@ namespace Renderer
                     g = 0x00;
                     b = 0x00;  // Red
                 }
-                else if (sorter->isChecking)
+                else if (sorter->getFlags().isChecking)
                 {
                     if (k < sorter->getFirst())
                     {

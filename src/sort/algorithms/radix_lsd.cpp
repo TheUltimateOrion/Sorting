@@ -8,7 +8,7 @@
 
 namespace Sort
 {
-    RadixLSDSort::RadixLSDSort() : BaseSort {} { hasRadix = true; }
+    RadixLSDSort::RadixLSDSort() : BaseSort {} { m_flags.hasRadix = true; }
 
     void RadixLSDSort::countSortByDigits(std::uint64_t exponent, elem_t minValue)
     {
@@ -37,7 +37,7 @@ namespace Sort
             m_first                        = i;
             m_second                       = bucketIndex;
 
-            if (wantClose || wantStop) { return; }
+            RETURN_IF_STOPPED();
         }
 
         // Copy back
@@ -48,18 +48,15 @@ namespace Sort
             m_second = ((output[i] - minValue) / exponent) % m_radix;
 
             Core::Timer::sleep(1.f / BaseSort::s_speed, realTimer);
-            if (wantClose || wantStop) { return; }
+            RETURN_IF_STOPPED();
         }
     }
 
     void RadixLSDSort::sort()
     {
-        isSorting = true;
-
         if (elems.empty())
         {
-            isSorting = false;
-            sorted    = true;
+            m_flags.doneSorting();
             return;
         }
 
@@ -79,11 +76,8 @@ namespace Sort
         while ((maxValue - minValue) / exponent >= 1)
         {
             countSortByDigits(exponent, minValue);
-            if (wantClose || wantStop) { return; }
+            RETURN_IF_STOPPED();
             exponent *= m_radix;
         }
-
-        isSorting = false;
-        sorted    = true;
     }
 }  // namespace Sort

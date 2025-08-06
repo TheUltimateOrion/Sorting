@@ -1,6 +1,7 @@
 #pragma once
 
 #include "sort/base.h"
+#include "sort/parametrized.h"
 
 namespace Sort
 {

@@ -42,15 +42,14 @@ namespace Sort
                 m_second                  = t_mid + indexOfSubArrayTwo + 1;
 
                 indexOfSubArrayTwo++;
-
-                if (wantClose || wantStop) { return; }
             }
-
-            Core::Timer::sleep(1.f / BaseSort::s_speed, realTimer);
-            if (wantClose || wantStop) { return; }
 
             elems.incComparisons();
             indexOfMergedArray++;
+
+            Core::Timer::sleep(1.f / BaseSort::s_speed, realTimer);
+
+            RETURN_IF_STOPPED();
         }
 
         // Copy the remaining elements of
@@ -61,11 +60,12 @@ namespace Sort
             m_first                   = indexOfMergedArray;
             m_second                  = indexOfSubArrayOne + t_left;
 
-            Core::Timer::sleep(1.f / BaseSort::s_speed, realTimer);
-            if (wantClose || wantStop) { return; }
-
             indexOfSubArrayOne++;
             indexOfMergedArray++;
+
+            Core::Timer::sleep(1.f / BaseSort::s_speed, realTimer);
+
+            RETURN_IF_STOPPED();
         }
 
         // Copy the remaining elements of
@@ -76,11 +76,12 @@ namespace Sort
             m_first                   = indexOfMergedArray;
             m_second                  = t_mid + indexOfSubArrayTwo + 1;
 
-            Core::Timer::sleep(1.f / BaseSort::s_speed, realTimer);
-            if (wantClose || wantStop) { return; }
-
             indexOfSubArrayTwo++;
             indexOfMergedArray++;
+
+            Core::Timer::sleep(1.f / BaseSort::s_speed, realTimer);
+
+            RETURN_IF_STOPPED();
         }
     }
 
@@ -92,39 +93,20 @@ namespace Sort
         }
 
         std::size_t t_mid = t_begin + (t_end - t_begin) / 2;
-        mergeSort(t_begin, t_mid);
-        if (wantClose || wantStop)
-        {
-            return;
-        }
 
+        mergeSort(t_begin, t_mid);
         mergeSort(t_mid + 1, t_end);
-        if (wantClose || wantStop)
-        {
-            return;
-        }
 
         merge(t_begin, t_mid, t_end);
-        if (wantClose || wantStop)
-        {
-            return;
-        }
     }
 
     // begin is for t_left index and end is t_right index
     // of the sub-array of arr to be sorted
     void MergeSort::sort()
     {
-        isSorting         = true;
         std::size_t begin = 0;
         std::size_t end   = elems.size() - 1;
 
         mergeSort(begin, end);
-        if (wantClose || wantStop)
-        {
-            return;
-        }
-        isSorting = false;
-        sorted    = true;
     }
 }  // namespace Sort

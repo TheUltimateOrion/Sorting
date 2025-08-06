@@ -6,8 +6,6 @@ namespace Sort
 
     void BubbleSort::sort()
     {
-        isSorting = true;
-
         for (std::size_t i = elems.size() - 1; i > 0; --i)
         {
             for (std::size_t j = 0; j < i; ++j)
@@ -15,17 +13,12 @@ namespace Sort
                 if (elems[j] > elems[j + 1])
                 {
                     swap(elems, j, j + 1);
-                    if (wantClose || wantStop)
-                    {
-                        return;
-                    }
+
+                    RETURN_IF_STOPPED();
                 }
 
                 elems.incComparisons();
             }
         }
-
-        isSorting = false;
-        sorted    = true;
     }
 }  // namespace Sort

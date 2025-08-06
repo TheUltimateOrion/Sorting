@@ -11,21 +11,11 @@ namespace Sort
 
     void GravitySort::sort()
     {
-        isSorting = true;
-
-        if (elems.empty())
-        {
-            isSorting = false;
-            sorted    = true;
-            return;
-        }
-
         elem_t max = *std::max_element(elems.begin(), elems.end());
 
-        if (max <= 0)
+        if (elems.empty() || max <= 0)
         {
-            isSorting = false;
-            sorted    = true;
+            m_flags.doneSorting();
             return;
         }
 
@@ -61,11 +51,8 @@ namespace Sort
                 m_second = i;
 
                 Core::Timer::sleep(1.f / BaseSort::s_speed, realTimer);
-                if (wantClose || wantStop) { return; }
+                RETURN_IF_STOPPED();
             }
         }
-
-        isSorting = false;
-        sorted    = true;
     }
 }  // namespace Sort
