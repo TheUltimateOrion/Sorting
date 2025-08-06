@@ -8,10 +8,13 @@
 #include "sort/base.h"
 #include "sort/category.h"
 
-struct SortRegistryEntry
+namespace Core
 {
-    std::string                                      id;
-    Sort::Category                                   category;
-    std::string                                      displayName;
-    std::function<std::shared_ptr<Sort::BaseSort>()> factory;
-};
+    struct SortRegistryEntry
+    {
+        std::string                                      id;
+        Sort::Category                                   category;
+        std::string                                      displayName;
+        std::function<std::shared_ptr<Sort::BaseSort>()> factory;
+    };
+}  // namespace Core

@@ -23,7 +23,7 @@ namespace Sort
             return;
         }
 
-        int min = elems[0], max = elems[0];
+        elem_t min = elems[0], max = elems[0];
         for (std::size_t i = 1; i < size; ++i)
         {
             if (elems[i] < min)
@@ -52,7 +52,7 @@ namespace Sort
             holes[elems[i] - min].push_back(elems[i]);
         }
 
-        int index = 0;
+        std::size_t index = 0;
         for (std::size_t i = 0; i < holes.size(); ++i)
         {
             for (std::size_t val : holes[i])
@@ -60,10 +60,10 @@ namespace Sort
                 elems[index] = val;
                 m_first      = index;
                 m_second     = i;
+                ++index;
 
                 Core::Timer::sleep(1.f / BaseSort::s_speed, realTimer);
                 if (wantClose || wantStop) { return; }
-                index++;
             }
         }
 

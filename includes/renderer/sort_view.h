@@ -27,7 +27,5 @@ namespace Renderer
         ~SortView() noexcept = default;
 
         void update(UIState& t_uiState) noexcept;
-
-        int  renderGUI() noexcept;
     };
 }  // namespace Renderer

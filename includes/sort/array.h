@@ -67,14 +67,14 @@ namespace Sort
         T& operator[](std::size_t t_index)
         {
             std::scoped_lock<std::mutex> lock {m_mutex};
-            ++m_accessCount;
+            m_accessCount++;
             return m_data[t_index];
         }
 
         T const& operator[](std::size_t i) const
         {
             std::scoped_lock<std::mutex> lock {m_mutex};
-            ++m_accessCount;
+            m_accessCount++;
             return m_data[i];
         }
 
@@ -86,7 +86,7 @@ namespace Sort
                 return;
             }
 
-            ++m_swapCount;
+            m_swapCount++;
             std::swap(m_data[t_indexA], m_data[t_indexB]);
         }
 
@@ -107,7 +107,7 @@ namespace Sort
 
         void incComparisons() noexcept
         {
-            ++m_compCount;
+            m_compCount++;
         }
 
         void resetCounters() noexcept

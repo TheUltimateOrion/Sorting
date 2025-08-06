@@ -24,9 +24,9 @@ namespace Sort
 
     public:
         SortArray<int> elems {};
-        SortArray<int> auxillary {};
-
         using elem_t = typename decltype(elems)::value_type;
+
+        SortArray<elem_t> auxillary {};
 
         Core::Timer       timer {};
         Core::Timer       realTimer {};

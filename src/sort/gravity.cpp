@@ -20,34 +20,36 @@ namespace Sort
             return;
         }
 
-        int max = *std::max_element(elems.begin(), elems.end());
+        elem_t max = *std::max_element(elems.begin(), elems.end());
 
         if (max <= 0)
         {
+            isSorting = false;
+            sorted    = true;
             return;
         }
 
-        std::size_t                   n = elems.size();
+        std::size_t                      n = elems.size();
 
-        std::vector<std::vector<int>> abacus(n, std::vector<int>(max, 0));
+        std::vector<std::vector<elem_t>> abacus(n, std::vector<elem_t>(max, 0));
         for (std::size_t i = 0; i < n; ++i)
         {
-            for (int j = 0; j < elems[i]; ++j)
+            for (elem_t j = 0; j < elems[i]; ++j)
             {
                 abacus[i][max - j - 1] = 1;
             }
         }
 
-        for (int col = 0; col < max; ++col)
+        for (elem_t col = 0; col < max; ++col)
         {
-            int count = 0;
+            elem_t count = 0;
 
             for (std::size_t row = 0; row < n; ++row)
             {
                 count += abacus[row][col];
             }
 
-            for (int row = n - 1; row >= 0; --row)
+            for (std::ptrdiff_t row = n - 1; row >= 0; --row)
             {
                 abacus[row][col] = (count-- > 0 ? 1 : 0);
             }

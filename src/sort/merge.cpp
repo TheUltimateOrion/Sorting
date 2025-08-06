@@ -10,28 +10,28 @@ namespace Sort
 {
     MergeSort::MergeSort() : BaseSort() { }
 
-    void MergeSort::merge(int const left, int const mid, int const right)
+    void MergeSort::merge(std::size_t t_left, std::size_t t_mid, std::size_t t_right)
     {
-        int const        subArrayOne = mid - left + 1;
-        int const        subArrayTwo = right - mid;
+        std::size_t         subArrayOne = t_mid - t_left + 1;
+        std::size_t         subArrayTwo = t_right - t_mid;
 
         // Create temp arrays
-        std::vector<int> leftArray(subArrayOne), rightArray(subArrayTwo);
+        std::vector<elem_t> leftArray(subArrayOne), rightArray(subArrayTwo);
 
         // Copy data to temp arrays leftArray[] and rightArray[]
-        std::copy(elems.begin() + left, elems.begin() + mid + 1, leftArray.begin());
-        std::copy(elems.begin() + mid + 1, elems.begin() + right + 1, rightArray.begin());
+        std::copy(elems.begin() + t_left, elems.begin() + t_mid + 1, leftArray.begin());
+        std::copy(elems.begin() + t_mid + 1, elems.begin() + t_right + 1, rightArray.begin());
 
-        int indexOfSubArrayOne = 0, indexOfSubArrayTwo = 0, indexOfMergedArray = left;
+        std::size_t indexOfSubArrayOne = 0, indexOfSubArrayTwo = 0, indexOfMergedArray = t_left;
 
-        // Merge the temp arrays back into array[left..right]
+        // Merge the temp arrays back into array[t_left..t_right]
         while (indexOfSubArrayOne < subArrayOne && indexOfSubArrayTwo < subArrayTwo)
         {
             if (leftArray[indexOfSubArrayOne] <= rightArray[indexOfSubArrayTwo])
             {
                 elems[indexOfMergedArray] = leftArray[indexOfSubArrayOne];
                 m_first                   = indexOfMergedArray;
-                m_second                  = indexOfSubArrayOne + left;
+                m_second                  = indexOfSubArrayOne + t_left;
 
                 indexOfSubArrayOne++;
             }
@@ -39,10 +39,11 @@ namespace Sort
             {
                 elems[indexOfMergedArray] = rightArray[indexOfSubArrayTwo];
                 m_first                   = indexOfMergedArray;
-                m_second                  = mid + indexOfSubArrayTwo + 1;
+                m_second                  = t_mid + indexOfSubArrayTwo + 1;
+
+                indexOfSubArrayTwo++;
 
                 if (wantClose || wantStop) { return; }
-                indexOfSubArrayTwo++;
             }
 
             Core::Timer::sleep(1.f / BaseSort::s_speed, realTimer);
@@ -53,12 +54,12 @@ namespace Sort
         }
 
         // Copy the remaining elements of
-        // left[], if there are any
+        // t_left[], if there are any
         while (indexOfSubArrayOne < subArrayOne)
         {
             elems[indexOfMergedArray] = leftArray[indexOfSubArrayOne];
             m_first                   = indexOfMergedArray;
-            m_second                  = indexOfSubArrayOne + left;
+            m_second                  = indexOfSubArrayOne + t_left;
 
             Core::Timer::sleep(1.f / BaseSort::s_speed, realTimer);
             if (wantClose || wantStop) { return; }
@@ -68,12 +69,12 @@ namespace Sort
         }
 
         // Copy the remaining elements of
-        // right[], if there are any
+        // t_right[], if there are any
         while (indexOfSubArrayTwo < subArrayTwo)
         {
             elems[indexOfMergedArray] = rightArray[indexOfSubArrayTwo];
             m_first                   = indexOfMergedArray;
-            m_second                  = mid + indexOfSubArrayTwo + 1;
+            m_second                  = t_mid + indexOfSubArrayTwo + 1;
 
             Core::Timer::sleep(1.f / BaseSort::s_speed, realTimer);
             if (wantClose || wantStop) { return; }
@@ -83,38 +84,40 @@ namespace Sort
         }
     }
 
-    void MergeSort::mergeSort(int const begin, int const end)
+    void MergeSort::mergeSort(std::size_t t_begin, std::size_t t_end)
     {
-        if (begin >= end)
+        if (t_begin >= t_end)
         {
             return;
         }
 
-        int mid = begin + (end - begin) / 2;
-        mergeSort(begin, mid);
+        std::size_t t_mid = t_begin + (t_end - t_begin) / 2;
+        mergeSort(t_begin, t_mid);
         if (wantClose || wantStop)
         {
             return;
         }
-        mergeSort(mid + 1, end);
+
+        mergeSort(t_mid + 1, t_end);
         if (wantClose || wantStop)
         {
             return;
         }
-        merge(begin, mid, end);
+
+        merge(t_begin, t_mid, t_end);
         if (wantClose || wantStop)
         {
             return;
         }
     }
 
-    // begin is for left index and end is right index
+    // begin is for t_left index and end is t_right index
     // of the sub-array of arr to be sorted
     void MergeSort::sort()
     {
-        isSorting = true;
-        int begin = 0;
-        int end   = elems.size() - 1;
+        isSorting         = true;
+        std::size_t begin = 0;
+        std::size_t end   = elems.size() - 1;
 
         mergeSort(begin, end);
         if (wantClose || wantStop)

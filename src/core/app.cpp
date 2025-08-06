@@ -27,11 +27,7 @@ namespace Core
             m_audioThread.reset();
         }
 
-        if (font)
-        {
-            LOGINFO("Destroying font renderer");
-            TTF_CloseFont(font);
-        }
+        LOGINFO("Deinitializing SDL_ttf");
         TTF_Quit();
 
         LOGINFO("Shutting down ImGui renderer");
@@ -43,7 +39,7 @@ namespace Core
         LOGINFO("Destroying ImGui context");
         ImGui::DestroyContext();
 
-        Ctx::destroyContext(ctx);
+        Ctx::destroyContext(m_ctx);
 
         LOGINFO("Quitting...");
         SDL_Quit();
@@ -98,14 +94,14 @@ namespace Core
         }
         LOGINFO("SDL initialized successfully");
 
-        ctx = Core::Ctx::createContext(1920.0f, 1080.0f, 240);
+        m_ctx = Core::Ctx::createContext(1920.0f, 1080.0f, 240);
 
         LOGINFO("Setting render parameters");
-        SDL_SetRenderDrawColor(ctx->renderer, 0x0, 0x0, 0x0, 0x0);
-        SDL_SetRenderDrawBlendMode(ctx->renderer, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(m_ctx->renderer, 0x0, 0x0, 0x0, 0x0);
+        SDL_SetRenderDrawBlendMode(m_ctx->renderer, SDL_BLENDMODE_BLEND);
 
         LOGINFO("Clearing window");
-        SDL_RenderClear(ctx->renderer);
+        SDL_RenderClear(m_ctx->renderer);
 
         return Utils::Signal::Success;
     }
@@ -114,20 +110,11 @@ namespace Core
     {
         LOGINFO("Loading font");
         TTF_Init();
-        std::string basePath {SDL_GetBasePath()};
-        std::string relPath {"/res/font.ttf"};
 
-        font = TTF_OpenFont((basePath + relPath).c_str(), 12);
-
-        if (font == NULL)
+        if (m_ctx->createFont("/res/font.ttf") == Utils::Signal::Error)
         {
-            LOGINFO(
-                "Font failed to load: '" << (basePath + relPath)
-                                         << "' is not a font or does not exist"
-            );
             return Utils::Signal::Error;
         }
-        LOGINFO("Font loaded successfully from " << (basePath + relPath));
 
         return Utils::Signal::Success;
     }
@@ -163,20 +150,20 @@ namespace Core
         ImGui::SetCurrentContext(imCtx);
 
         LOGINFO("Configuring ImGui io");
-        m_io = &configureIO();
+        configureIO();
 
         LOGINFO("Setting ImGui styling");
         ImGuiStyle& style = ImGui::GetStyle();
         setStyle(style);
 
         LOGINFO("Setting up ImGui renderer");
-        if (!ImGui_ImplSDL3_InitForSDLRenderer(ctx->window, ctx->renderer))
+        if (!ImGui_ImplSDL3_InitForSDLRenderer(m_ctx->window, m_ctx->renderer))
         {
             return Utils::Signal::Error;
         }
 
         LOGINFO("Initializing ImGui SDL renderer");
-        if (!ImGui_ImplSDLRenderer3_Init(ctx->renderer)) { return Utils::Signal::Error; }
+        if (!ImGui_ImplSDLRenderer3_Init(m_ctx->renderer)) { return Utils::Signal::Error; }
 
         m_UI = Renderer::UI(shared_from_this());
 
@@ -198,7 +185,7 @@ namespace Core
         startAudioThread();
 
         LOGINFO("Starting main loop");
-        SDL_PollEvent(&event);
+        SDL_PollEvent(&m_event);
 
         while (true)
         {
@@ -219,17 +206,19 @@ namespace Core
                     m_sorter->realTimer.end();
                     return;
                 }
-                case Utils::Signal::Success:
-                default                    : break;
+                [[likely]] case Utils::Signal::Success:
+                    [[fallthrough]];
+                default:
+                    break;
             }
 
-            SDL_RenderPresent(ctx->renderer);
-            if (SDL_PollEvent(&event))
+            SDL_RenderPresent(m_ctx->renderer);
+            if (SDL_PollEvent(&m_event))
             {
-                SDL_ConvertEventToRenderCoordinates(ctx->renderer, &event);
+                SDL_ConvertEventToRenderCoordinates(m_ctx->renderer, &m_event);
 
-                ImGui_ImplSDL3_ProcessEvent(&event);
-                if (event.type == SDL_EVENT_QUIT)
+                ImGui_ImplSDL3_ProcessEvent(&m_event);
+                if (m_event.type == SDL_EVENT_QUIT)
                 {
                     m_sorter->running   = false;
                     m_sorter->wantStop  = true;
@@ -245,7 +234,7 @@ namespace Core
             std::chrono::duration<double, std::milli>
                    elapsed = std::chrono::high_resolution_clock::now() - start;
 
-            double delay   = ctx->getFrameTime() - elapsed.count();
+            double delay   = m_ctx->getFrameTime() - elapsed.count();
 
             if (delay > 1.5) { SDL_Delay(static_cast<Uint32>(delay - 1.0)); }
 
@@ -254,7 +243,7 @@ namespace Core
                 auto now = std::chrono::high_resolution_clock::now();
 
                 if (std::chrono::duration<double, std::milli>(now - start).count()
-                    >= ctx->getFrameTime())
+                    >= m_ctx->getFrameTime())
                 {
                     break;
                 }
@@ -270,11 +259,11 @@ namespace Core
                 while (!m_sorter->wantClose)
                 {
                     constexpr float sec  = 0.04f;
-                    constexpr int   base = 100;
-                    constexpr int   min  = 100;
-                    constexpr int   max  = 800;
+                    constexpr float base = 100.f;
+                    constexpr float min  = 100.f;
+                    constexpr float max  = 800.f;
 
-                    int             freq = 0;
+                    float           freq = 0.f;
 
                     {
                         if (m_sorter->elems.empty()
@@ -285,11 +274,11 @@ namespace Core
                         }
 
                         freq = m_sorter->elems[m_sorter->getFirst()]
-                                 * (ctx->winHeight / static_cast<float>(m_sorter->elems.size()))
+                                 * (m_ctx->winHeight / static_cast<float>(m_sorter->elems.size()))
                              + base;
                     }
 
-                    freq = std::clamp(freq, min, max);
+                    freq = std::clamp<float>(freq, min, max);
 
                     if (m_sorter->isSorting || m_sorter->isShuffling || m_sorter->isChecking)
                     {
@@ -388,7 +377,7 @@ namespace Core
         STYLESET(TextSelectedBg)           = ImVec4(0.25f, 1.00f, 0.00f, 0.43f);
     }
 
-    ImGuiIO& App::configureIO() noexcept
+    void App::configureIO() noexcept
     {
         ImGuiIO& io = ImGui::GetIO();
 
@@ -396,7 +385,5 @@ namespace Core
 
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;  // Enable Keyboard Controls
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;   // Enable Gamepad Controls
-
-        return io;
     }
 }  // namespace Core

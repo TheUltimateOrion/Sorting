@@ -4,8 +4,6 @@
 
 #include "core/logging/logging.h"
 
-SoundEngine::SoundEngine() : m_buf(0), m_src(0), m_samples(nullptr) { }
-
 SoundEngine* SoundEngine::get()
 {
     static SoundEngine instance;
@@ -16,13 +14,17 @@ char const* SoundEngine::alErrorString(ALenum t_err) const noexcept
 {
     switch (t_err)
     {
-        case AL_NO_ERROR        : return "AL_NO_ERROR";
+        [[likely]]
+        case AL_NO_ERROR:
+            return "AL_NO_ERROR";
         case ALC_INVALID_DEVICE : return "ALC_INVALID_DEVICE";
         case ALC_INVALID_CONTEXT: return "ALC_INVALID_CONTEXT";
-        case AL_INVALID_VALUE   : return "AL_INVALID_VALUE";
-        case AL_OUT_OF_MEMORY   : return "AL_OUT_OF_MEMORY";
-
-        default                 : return "Unknown error code";
+        case AL_INVALID_VALUE:
+            return "AL_INVALID_VALUE";
+        [[unlikely]]
+        case AL_OUT_OF_MEMORY:
+            return "AL_OUT_OF_MEMORY";
+        default: return "Unknown error code";
     }
 }
 
@@ -91,24 +93,19 @@ Utils::Signal SoundEngine::play()
     return Utils::Signal::Success;
 }
 
-SoundEngine::~SoundEngine()
+SoundEngine::~SoundEngine() noexcept
 {
-    ALCdevice*  dev = nullptr;
-    ALCcontext* ctx = nullptr;
+    ALCcontext* ctx = alcGetCurrentContext();
+    ALCdevice*  dev = alcGetContextsDevice(ctx);
 
     LOGINFO("Deleting current OpenAL context");
-    ctx = alcGetCurrentContext();
-    dev = alcGetContextsDevice(ctx);
+    if (ctx) { alcDestroyContext(ctx); }
     alcMakeContextCurrent(nullptr);
-    alcDestroyContext(ctx);
 
     LOGINFO("Closing OpenAL device");
-    alcCloseDevice(dev);
+    if (dev) { alcCloseDevice(dev); }
 
-    if (m_samples != nullptr)
-    {
-        delete m_samples;
-    }
+    if (m_samples != nullptr) { delete m_samples; }
 }
 
 ALenum SoundEngine::alGetLastError() const noexcept { return m_err; }

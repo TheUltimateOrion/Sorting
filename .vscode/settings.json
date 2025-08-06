@@ -121,6 +121,7 @@
         "xiosbase": "cpp",
         "xlocale": "cpp",
         "xlocinfo": "cpp",
-        "util": "cpp"
+        "util": "cpp",
+        "*.inc": "cpp"
     }
 }

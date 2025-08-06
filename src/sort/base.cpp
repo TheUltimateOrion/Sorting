@@ -28,7 +28,7 @@ namespace Sort
 
     BaseSort::BaseSort()
     {
-        constexpr int defaultSize = 512;
+        constexpr std::size_t defaultSize = 512;
         generateArray(defaultSize);
     }
 
@@ -95,10 +95,7 @@ namespace Sort
         wantStop   = false;
         isChecking = true;
 
-        elems.resetCounters();
-
-        auxillary = elems;
-        auxillary.resetCounters();
+        auxillary  = elems;
 
         realTimer.end();
         timer.end();

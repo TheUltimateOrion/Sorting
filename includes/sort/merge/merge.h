@@ -7,8 +7,8 @@ namespace Sort
     class MergeSort : virtual public BaseSort
     {
     private:
-        void merge(int const t_left, int const t_mid, int const t_right);
-        void mergeSort(int const t_begin, int const t_end);
+        void merge(std::size_t t_left, std::size_t t_mid, std::size_t t_right);
+        void mergeSort(std::size_t t_begin, std::size_t t_end);
 
     public:
         MergeSort();

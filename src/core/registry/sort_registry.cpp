@@ -6,7 +6,7 @@
 
 namespace Core
 {
-    SortRegistry::SortRegistry(std::shared_ptr<Core::App> t_app) : m_app(t_app) { }
+    SortRegistry::SortRegistry(std::shared_ptr<Core::App> t_app) : m_app {t_app} { }
 
     template <class Factory>
     void SortRegistry::registerSort(

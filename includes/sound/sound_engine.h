@@ -17,26 +17,23 @@
 class SoundEngine
 {
 private:
-    ALuint m_buf;
+    ALuint m_buf {0};
     ALuint m_src {0};
-    short* m_samples;
-    ALenum m_err = AL_NO_ERROR;
+    short* m_samples {nullptr};
+    ALenum m_err {AL_NO_ERROR};
 
 public:
-    static SoundEngine* get();
+    SoundEngine() noexcept = default;
+    ~SoundEngine() noexcept;
 
-    SoundEngine();
-    ~SoundEngine();
+    static SoundEngine*         get();
 
-    ALenum      alGetLastError() const noexcept;
-    char const* alErrorString(ALenum t_err) const noexcept;
+    ALenum                      alGetLastError() const noexcept;
+    char const*                 alErrorString(ALenum t_err) const noexcept;
 
-    [[nodiscard]]
-    Utils::Signal init();
+    [[nodiscard]] Utils::Signal init();
 
-    [[nodiscard]]
-    Utils::Signal load(float t_ms, float t_freq);
+    [[nodiscard]] Utils::Signal load(float t_ms, float t_freq);
 
-    [[nodiscard]]
-    Utils::Signal play();
+    [[nodiscard]] Utils::Signal play();
 };

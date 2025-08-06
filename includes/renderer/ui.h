@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <memory>
 #include <string>
 
@@ -18,21 +19,18 @@ namespace Renderer
     class UI
     {
     private:
-        std::weak_ptr<Core::App> m_app;
+        std::weak_ptr<Core::App>   m_app;
 
-        UIState                  m_uiState {};
+        UIState                    m_uiState {};
+
+        std::array<char const*, 5> m_sortCategories {"Exchange", "Distribution", "Insertion", "Merge", "Select"};
+        std::array<char const*, 8> m_sortDisplayTypes {"Bar", "Dot", "Rainbow Rectangle", "Circle", "Circle Dot", "Disparity Circle", "Spiral", "Spiral Dot"};
 
     public:
         UI(std::shared_ptr<Core::App> t_app) noexcept;
         ~UI() noexcept = default;
 
-        void renderText(
-            std::string const& t_txt,
-            float              t_x,
-            float              t_y,
-            SDL_Color          t_col
-        ) const noexcept;
-
+        void            renderText(std::string const& t_txt, float t_x, float t_y, SDL_Color t_col) const noexcept;
         void            renderInfo() const noexcept;
         Utils::Signal   renderUI();
 

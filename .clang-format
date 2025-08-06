@@ -52,7 +52,7 @@ BraceWrapping:
   SplitEmptyRecord: false
   SplitEmptyNamespace: false
 
-BreakAfterAttributes: Always
+BreakAfterAttributes: Leave
 BreakArrays: false
 BreakBeforeBinaryOperators: All
 BreakBeforeBraces: Custom
@@ -115,6 +115,7 @@ NamespaceIndentation: All
 
 PenaltyBreakAssignment: 2000
 PenaltyBreakBeforeMemberAccess: 200
+PenaltyBreakOpenParenthesis: 1
 PenaltyReturnTypeOnItsOwnLine: 301
 
 PointerAlignment: Left

@@ -12,7 +12,7 @@ namespace Core
         SDL_DisplayID          displayID = Core::Platform::Display::getCurrentDisplayID();
         SDL_DisplayMode const* mode      = Core::Platform::Display::getDisplayMode(displayID);
 
-        ctx->fps                         = std::clamp(static_cast<int>(t_fps), 1, static_cast<int>(mode->refresh_rate));
+        ctx->fps                         = std::clamp<uint16_t>(t_fps, 1, static_cast<uint16_t>(mode->refresh_rate));
         ctx->winWidth                    = t_width / mode->pixel_density;
         ctx->winHeight                   = t_height / mode->pixel_density;
 
@@ -30,17 +30,34 @@ namespace Core
 
     void Ctx::destroyContext(Ctx* t_ctx)
     {
-        if (t_ctx->renderer)
-        {
-            LOGINFO("Destroying SDL renderer");
-            SDL_DestroyRenderer(t_ctx->renderer);
-        }
+        LOGINFO("Destroying SDL renderer");
+        if (t_ctx->renderer) { SDL_DestroyRenderer(t_ctx->renderer); }
 
         LOGINFO("Destroying SDL window");
         if (t_ctx->window) { SDL_DestroyWindow(t_ctx->window); }
 
+        LOGINFO("Destroying font");
+        if (t_ctx->font) { TTF_CloseFont(t_ctx->font); }
+
         delete t_ctx;
     }
 
-    float Ctx::getFrameTime() const noexcept { return 1000.0f / fps; }
+    Utils::Signal Ctx::createFont(std::string const& relativePath)
+    {
+        std::string basePath {SDL_GetBasePath()};
+        font = TTF_OpenFont((basePath + relativePath).c_str(), 12);
+
+        if (font == NULL)
+        {
+            LOGINFO(
+                "Font failed to load: '" << (basePath + relativePath)
+                                         << "' is not a font or does not exist"
+            );
+            return Utils::Signal::Error;
+        }
+
+        LOGINFO("Font loaded successfully from " << (basePath + relativePath));
+        return Utils::Signal::Success;
+    }
+
 }  // namespace Core
