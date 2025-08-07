@@ -8,12 +8,17 @@
 
 namespace Sort
 {
-    RadixLSDSort::RadixLSDSort() : BaseSort {} { m_flags.hasRadix = true; }
+    RadixLSDSort::RadixLSDSort() : BaseSort {}
+    {
+        setParameterBounds(2, 10);
+    }
 
     void RadixLSDSort::countSortByDigits(std::uint64_t exponent, elem_t minValue)
     {
+        uint8_t                    radix = getParameter();
+
         std::uint8_t               bucketIndex;
-        std::vector<std::uint32_t> buckets(m_radix);
+        std::vector<std::uint32_t> buckets(radix);
         std::vector<elem_t>        output(elems.size());
 
         // Initialize bucket
@@ -22,17 +27,17 @@ namespace Sort
         // Count frequencies
         for (std::size_t i = 0; i < elems.size(); ++i)
         {
-            bucketIndex = ((elems[i] - minValue) / exponent) % m_radix;
+            bucketIndex = ((elems[i] - minValue) / exponent) % radix;
             buckets[bucketIndex]++;
         }
 
         // Compute cumulates
-        for (std::size_t i = 1; i < m_radix; ++i) { buckets[i] += buckets[i - 1]; }
+        for (std::size_t i = 1; i < radix; ++i) { buckets[i] += buckets[i - 1]; }
 
         // Move records
         for (ptrdiff_t i = elems.size() - 1; i >= 0; --i)
         {
-            bucketIndex                    = ((elems[i] - minValue) / exponent) % m_radix;
+            bucketIndex                    = ((elems[i] - minValue) / exponent) % radix;
             output[--buckets[bucketIndex]] = elems[i];
             m_first                        = i;
             m_second                       = bucketIndex;
@@ -45,7 +50,7 @@ namespace Sort
         {
             elems[i] = output[i];
             m_first  = i;
-            m_second = ((output[i] - minValue) / exponent) % m_radix;
+            m_second = ((output[i] - minValue) / exponent) % radix;
 
             Core::Timer::sleep(1.f / BaseSort::s_speed, realTimer);
             RETURN_IF_STOPPED();
@@ -77,7 +82,7 @@ namespace Sort
         {
             countSortByDigits(exponent, minValue);
             RETURN_IF_STOPPED();
-            exponent *= m_radix;
+            exponent *= getParameter();
         }
     }
 }  // namespace Sort

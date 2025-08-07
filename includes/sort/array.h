@@ -14,11 +14,11 @@ namespace Sort
     class SortArray
     {
     private:
-        std::vector<T>                   m_data;
-        mutable std::atomic<std::size_t> m_accessCount {0};
-        mutable std::atomic<std::size_t> m_swapCount {0};
-        mutable std::atomic<std::size_t> m_compCount {0};
-        mutable std::mutex               m_mutex;
+        std::vector<T>                     m_data;
+        mutable std::atomic<std::uint64_t> m_accessCount {0};
+        mutable std::atomic<std::uint64_t> m_swapCount {0};
+        mutable std::atomic<std::uint64_t> m_compCount {0};
+        mutable std::mutex                 m_mutex;
 
     public:
         using value_type = T;
@@ -71,11 +71,11 @@ namespace Sort
             return m_data[t_index];
         }
 
-        T const& operator[](std::size_t i) const
+        T const& operator[](std::size_t t_index) const
         {
             std::scoped_lock<std::mutex> lock {m_mutex};
             m_accessCount++;
-            return m_data[i];
+            return m_data[t_index];
         }
 
         void swap(std::size_t t_indexA, std::size_t t_indexB)
@@ -90,17 +90,17 @@ namespace Sort
             std::swap(m_data[t_indexA], m_data[t_indexB]);
         }
 
-        std::atomic<std::size_t>& getAccesses() const noexcept
+        std::atomic<std::size_t> const& getAccesses() const noexcept
         {
             return m_accessCount;
         }
 
-        std::atomic<std::size_t>& getSwaps() const noexcept
+        std::atomic<std::size_t> const& getSwaps() const noexcept
         {
             return m_swapCount;
         }
 
-        std::atomic<std::size_t>& getComparisons() const noexcept
+        std::atomic<std::size_t> const& getComparisons() const noexcept
         {
             return m_compCount;
         }
@@ -108,6 +108,11 @@ namespace Sort
         void incComparisons() noexcept
         {
             m_compCount++;
+        }
+
+        void addComparisons(std::uint64_t t_compCount) noexcept
+        {
+            m_compCount += t_compCount;
         }
 
         void resetCounters() noexcept

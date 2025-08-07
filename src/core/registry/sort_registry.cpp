@@ -1,14 +1,16 @@
 #include "core/registry/sort_registry.h"
-#include "sort/sort.h"
+
+#include <format>
 
 #include "core/app_ctx.h"
 #include "core/logging/logging.h"
+#include "sort/sort.h"
 
 namespace Core
 {
     SortRegistry::SortRegistry(std::shared_ptr<Core::App> t_app) : m_app {t_app} { }
 
-    template <class Factory>
+    template <typename Factory>
     void SortRegistry::registerSort(
         std::string const& t_id,
         Sort::Category     t_category,
@@ -16,13 +18,22 @@ namespace Core
         Factory            t_factory
     ) requires SortFactory<Factory>
     {
+        using FactoryReturnType        = std::invoke_result_t<Factory>::element_type;
+
+        constexpr bool isParameterized = std::is_base_of_v<Sort::IParameterized, FactoryReturnType>;
+
         LOGINFO(
-            "Registering sort: " + t_id
-            + " in category: " + std::to_string(static_cast<int>(t_category))
+            std::format(
+                "Registering sort:\n\tID: {}\n\tType: <{}{}>\n\tCategory: {}",
+                t_id,
+                Utils::demangleName(typeid(FactoryReturnType).name()),
+                isParameterized ? ": Parameterized" : "",
+                static_cast<int>(t_category)
+            )
         );
 
         registerFactory(
-            t_id, SortRegistryEntry {t_id, t_category, t_displayName, std::move(t_factory)}
+            t_id, SortRegistryEntry {t_id, t_category, t_displayName, std::move(t_factory), isParameterized}
         );
     }
 

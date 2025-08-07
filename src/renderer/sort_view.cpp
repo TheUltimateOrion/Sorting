@@ -29,7 +29,7 @@ namespace Renderer
         {
             if (k >= m_elems.size()) { return; }
 
-            Core::Ctx* ctx = appShared->getContext();
+            Core::Ctx const* const ctx = appShared->getContext();
 
             switch (m_uiState.sortDisplayType)
             {
@@ -215,8 +215,8 @@ namespace Renderer
         m_uiState = t_uiState;
         if (auto appShared = m_app.lock())
         {
-            auto&      sorter = appShared->getSorter();
-            Core::Ctx* ctx    = appShared->getContext();
+            auto&                  sorter = appShared->getSorter();
+            Core::Ctx const* const ctx    = appShared->getContext();
 
             SDL_SetRenderDrawColor(ctx->renderer, 0x0, 0x0, 0x0, 0x0);
             SDL_RenderClear(ctx->renderer);

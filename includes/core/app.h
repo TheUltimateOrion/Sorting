@@ -59,7 +59,7 @@ namespace Core
 
         inline Core::SortRegistry const&              getRegistry() const { return m_sortRegistry; }
 
-        inline Core::Ctx*                             getContext() const { return m_ctx; }
+        inline Core::Ctx const*                       getContext() const { return m_ctx; }
 
         inline std::shared_ptr<Sort::BaseSort> const& getSorter() const { return m_sorter; }
 

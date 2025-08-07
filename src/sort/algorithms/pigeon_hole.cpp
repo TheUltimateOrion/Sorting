@@ -39,7 +39,7 @@ namespace Sort
             Core::Timer::sleep(1.f / BaseSort::s_speed, realTimer);
 
             RETURN_IF_STOPPED();
-            elems.getComparisons() += 2;
+            elems.addComparisons(2);
         }
 
         std::vector<std::vector<int>> holes(max - min + 1);

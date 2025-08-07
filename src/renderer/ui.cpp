@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <atomic>
 #include <format>
+#include <type_traits>
 
 #include <imgui/backend/imgui_impl_sdl3.h>
 #include <imgui/backend/imgui_impl_sdlrenderer3.h>
@@ -25,12 +26,13 @@ namespace Renderer
     {
         if (auto appShared = m_app.lock())
         {
-            Core::Ctx*   ctx         = appShared->getContext();
+            Core::Ctx const* const ctx         = appShared->getContext();
 
-            SDL_Surface* textSurface = TTF_RenderText_Solid(ctx->font, t_txt.c_str(), 0, t_col);
-            SDL_Texture* text        = SDL_CreateTextureFromSurface(ctx->renderer, textSurface);
-            float        text_width  = static_cast<float>(textSurface->w);
-            float        text_height = static_cast<float>(textSurface->h);
+            SDL_Surface*           textSurface = TTF_RenderText_Solid(ctx->font, t_txt.c_str(), 0, t_col);
+            SDL_Texture*           text        = SDL_CreateTextureFromSurface(ctx->renderer, textSurface);
+            float                  text_width  = static_cast<float>(textSurface->w);
+            float                  text_height = static_cast<float>(textSurface->h);
+
             SDL_DestroySurface(textSurface);
             SDL_FRect renderQuad {t_x, t_y, text_width, text_height};
             SDL_RenderTexture(ctx->renderer, text, nullptr, &renderQuad);
@@ -44,7 +46,7 @@ namespace Renderer
         {
             auto&                          sorter       = appShared->getSorter();
             Core::SortRegistry const&      registry     = appShared->getRegistry();
-            Core::Ctx*                     ctx          = appShared->getContext();
+            Core::Ctx const* const         ctx          = appShared->getContext();
 
             // Sort::Flags & sorter->getFlags()            = sorter->getFlags();
             std::vector<std::string>       ids          = registry.idsByCategory(m_uiState.sortCategory);
@@ -118,7 +120,6 @@ namespace Renderer
             ImGui::Begin("Debug");
             if (ImGui::CollapsingHeader("Sorting Flags"))
             {
-                IMGUI_DEBUG_FLAG(flags, hasRadix);
                 IMGUI_DEBUG_FLAG(flags, hasSorted);
                 IMGUI_DEBUG_FLAG(flags, isChecking);
                 IMGUI_DEBUG_FLAG(flags, isRunning);
@@ -134,7 +135,7 @@ namespace Renderer
                 IMGUI_DEBUG_UISTATE(m_uiState, arrayLength);
                 IMGUI_DEBUG_UISTATE(m_uiState, isColored);
                 IMGUI_DEBUG_UISTATE(m_uiState, isReversed);
-                IMGUI_DEBUG_UISTATE(m_uiState, radix);
+                IMGUI_DEBUG_UISTATE(m_uiState, sortParameter);
                 IMGUI_DEBUG_UISTATE((int) m_uiState, sortCategory);
                 IMGUI_DEBUG_UISTATE((int) m_uiState, sortDisplayType);
                 IMGUI_DEBUG_UISTATE(m_uiState, sortIndex);
@@ -150,9 +151,8 @@ namespace Renderer
         {
             auto&                     sorter   = appShared->getSorter();
             Core::SortRegistry const& registry = appShared->getRegistry();
-            Core::Ctx*                ctx      = appShared->getContext();
+            Core::Ctx const* const    ctx      = appShared->getContext();
 
-            // Sort::Flags&              sorter->getFlags() = sorter->getFlags();
             std::vector<std::string>  ids      = registry.idsByCategory(m_uiState.sortCategory);
 
             if (m_uiState.sortIndex >= ids.size()) { m_uiState.sortIndex = 0; }
@@ -261,11 +261,13 @@ namespace Renderer
                 ImGui::InputInt("Set Array Length", &length, 2);
                 m_uiState.arrayLength = std::clamp<size_t>(length, 2, 1024 * 10);
 
-                if (currentEntry->id == "radix_lsd")
+                if (currentEntry->isParameterized)
                 {
-                    int radix = static_cast<int>(m_uiState.radix);
-                    ImGui::SliderInt("Set Buckets/Radix", &radix, 2, 10, "%d");
-                    m_uiState.radix = static_cast<std::uint8_t>(radix);
+                    auto parameterizedSort = dynamic_pointer_cast<Sort::IParameterized>(sorter);
+                    auto bounds            = parameterizedSort->getParameterBounds();
+
+                    ImGui::SliderScalar("Set Buckets/Radix", ImGuiDataType_S64, &m_uiState.sortParameter, &bounds.first, &bounds.second, "%d");
+                    m_uiState.sortParameter = std::clamp(m_uiState.sortParameter, bounds.first, bounds.second);
                 }
 
                 ImGui::Spacing();
@@ -279,13 +281,17 @@ namespace Renderer
                             if (currentEntry)
                             {
                                 appShared->setSorter(currentEntry->factory());
-                                sorter->setLength(m_uiState.arrayLength);
 
-                                if (sorter->getFlags().hasRadix)
+                                auto newSorter = appShared->getSorter();
+
+                                newSorter->setLength(m_uiState.arrayLength);
+
+                                if (currentEntry->isParameterized)
                                 {
-                                    dynamic_pointer_cast<Sort::RadixLSDSort>(sorter)->setRadix(
-                                        m_uiState.radix
-                                    );
+                                    dynamic_pointer_cast<Sort::IParameterized>(newSorter)
+                                        ->setParameter(
+                                            m_uiState.sortParameter
+                                        );
                                 }
                             }
                         }

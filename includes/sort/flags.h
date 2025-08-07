@@ -15,7 +15,6 @@ namespace Sort
 
     struct Flags
     {
-        std::atomic<bool> hasRadix {false};
         std::atomic<bool> hasSorted {true};
 
         std::atomic<bool> isChecking {false};

@@ -19,5 +19,6 @@ namespace Utils
         CloseApp       = 0x02,
     };
 
-    void terminateThread(std::optional<std::thread>& t_thread);
+    void        terminateThread(std::optional<std::thread>& t_thread);
+    std::string demangleName(char const* name);
 }  // namespace Utils

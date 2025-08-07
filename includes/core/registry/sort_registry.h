@@ -8,6 +8,7 @@
 #include "registry.h"
 #include "sort/base.h"
 #include "sort/category.h"
+#include "sort/parametrized.h"
 #include "sort_entry.h"
 
 namespace Core

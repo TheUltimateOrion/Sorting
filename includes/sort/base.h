@@ -32,16 +32,16 @@ namespace Sort
         SortArray<int> elems {};
         using elem_t = typename decltype(elems)::value_type;
 
-        SortArray<elem_t> auxillary {};
+        SortArray<elem_t>  auxillary {};
 
-        Core::Timer       timer {};
-        Core::Timer       realTimer {};
+        Core::Timer        timer {};
+        Core::Timer        realTimer {};
 
-        static float      s_speed;
+        static float       s_speed;
 
-        std::size_t       getFirst() noexcept { return m_first.load(); }
+        inline std::size_t getFirst() noexcept { return m_first.load(); }
 
-        std::size_t       getSecond() noexcept { return m_second.load(); }
+        inline std::size_t getSecond() noexcept { return m_second.load(); }
 
         BaseSort();
 

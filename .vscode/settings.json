@@ -123,6 +123,14 @@
         "xlocinfo": "cpp",
         "util": "cpp",
         "*.inc": "cpp",
-        "*.def": "cpp"
+        "*.def": "cpp",
+        "byte": "cpp",
+        "narrow": "cpp",
+        "zstring": "cpp",
+        "complex": "cpp",
+        "expected": "cpp",
+        "filesystem": "cpp",
+        "source_location": "cpp",
+        "assert": "cpp"
     }
 }

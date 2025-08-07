@@ -5,17 +5,15 @@
 
 namespace Sort
 {
-    class RadixLSDSort : virtual public BaseSort
+    class RadixLSDSort : virtual public BaseSort,
+                         virtual public Parameterized<uint8_t>
     {
     private:
-        std::uint8_t m_radix {2};
-        void         countSortByDigits(std::uint64_t t_exponent, elem_t t_minValue);
+        void countSortByDigits(std::uint64_t t_exponent, elem_t t_minValue);
 
     public:
         RadixLSDSort();
 
-        inline void setRadix(std::uint8_t t_radix) { m_radix = t_radix; }
-
-        void        sort() override;
+        void sort() override;
     };
 }  // namespace Sort
