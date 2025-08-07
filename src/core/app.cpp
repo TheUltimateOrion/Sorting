@@ -1,12 +1,18 @@
 #include "core/app.h"
 
-#include <imgui/backend/imgui_impl_sdl3.h>
-#include <imgui/backend/imgui_impl_sdlrenderer3.h>
+#include "imgui/backend/imgui_impl_sdl3.h"
+#include "imgui/backend/imgui_impl_sdlrenderer3.h"
 
 #include "core/logging/logging.h"
 #include "core/platform/dpi.h"
 #include "sort/exchange/bubble.h"
 #include "utils/common.h"
+
+#include <algorithm>
+#include <chrono>
+#include <ratio>
+
+#include <cstdio>
 
 using namespace std::literals::chrono_literals;
 

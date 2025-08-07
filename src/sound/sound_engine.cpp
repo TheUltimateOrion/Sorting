@@ -1,8 +1,8 @@
 #include "sound/sound_engine.h"
 
-#include <cmath>
-
 #include "core/logging/logging.h"
+
+#include <cmath>
 
 SoundEngine* SoundEngine::get()
 {
@@ -35,7 +35,7 @@ Utils::Signal SoundEngine::init()
 
     LOGINFO("Finding default OpenAL audio device");
     char const* defname = alcGetString(nullptr, ALC_DEFAULT_DEVICE_SPECIFIER);
-    // std::cout << "Default device: " << defname << std::endl;
+    LOGINFO("Default device: " << defname);
 
     LOGINFO("Opening OpenAL audio device: " << defname);
     dev = alcOpenDevice(defname);
@@ -67,7 +67,7 @@ Utils::Signal SoundEngine::load(float t_ms, float t_freq)
 
     for (std::size_t i = 0; i < buf_size; ++i)
     {
-        m_samples[i] = 32'760 * sin((2.f * float(M_PI) * t_freq) / sample_rate * i);
+        m_samples[i] = 32'760 * std::sin((2.f * M_PI * t_freq) / sample_rate * i);
     }
 
     /* Download buffer to OpenAL */

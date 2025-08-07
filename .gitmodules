@@ -1,12 +1,12 @@
 [submodule "external/SDL"]
 	path = external/SDL
-	url = https://github.com/libsdl-org/SDL
+	url = https://github.com/libsdl-org/SDL.git
 [submodule "external/SDL_ttf"]
 	path = external/SDL_ttf
-	url = https://github.com/libsdl-org/SDL_ttf
+	url = https://github.com/libsdl-org/SDL_ttf.git
 [submodule "external/googletest"]
 	path = external/googletest
-	url = https://github.com/google/googletest
+	url = https://github.com/google/googletest.git
 [submodule "external/openal-soft"]
 	path = external/openal-soft
-	url = https://github.com/kcat/openal-soft
+	url = https://github.com/kcat/openal-soft.git

@@ -1,13 +1,12 @@
 #pragma once
 
-#include <functional>
-#include <memory>
-#include <string>
-#include <vector>
-
 #include "sort/base.h"
 #include "sort/category.h"
 #include "sort/parametrized.h"
+
+#include <functional>
+#include <memory>
+#include <string>
 
 namespace Core
 {

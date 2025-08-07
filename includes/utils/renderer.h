@@ -1,7 +1,8 @@
 #pragma once
 
-#include <cmath>
 #include <SDL3/SDL.h>
+
+#include <cmath>
 
 namespace Utils
 {

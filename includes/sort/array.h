@@ -1,12 +1,14 @@
 #pragma once
 
-#include <algorithm>
+#include "core/logging/logging.h"
+
 #include <atomic>
+#include <initializer_list>
+#include <mutex>
 #include <vector>
 
 #include <cstddef>
-
-#include "core/logging/logging.h"
+#include <cstdint>
 
 namespace Sort
 {
@@ -47,7 +49,7 @@ namespace Sort
 
         void add(T const& t_value)
         {
-            std::scoped_lock<std::mutex> lock {m_mutex};
+            std::scoped_lock lock {m_mutex};
             m_data.emplace_back(t_value);
         }
 
@@ -55,7 +57,8 @@ namespace Sort
         {
             if (this != &t_other)
             {
-                std::scoped_lock lock(m_mutex, t_other.m_mutex);
+                std::scoped_lock lock {m_mutex, t_other.m_mutex};
+
                 m_data        = t_other.m_data;
                 m_accessCount = t_other.m_accessCount.load();
                 m_swapCount   = t_other.m_swapCount.load();
@@ -66,14 +69,16 @@ namespace Sort
 
         T& operator[](std::size_t t_index)
         {
-            std::scoped_lock<std::mutex> lock {m_mutex};
+            std::scoped_lock lock {m_mutex};
+
             m_accessCount++;
             return m_data[t_index];
         }
 
         T const& operator[](std::size_t t_index) const
         {
-            std::scoped_lock<std::mutex> lock {m_mutex};
+            std::scoped_lock lock {m_mutex};
+
             m_accessCount++;
             return m_data[t_index];
         }
@@ -122,43 +127,50 @@ namespace Sort
 
         auto begin()
         {
-            std::scoped_lock<std::mutex> lock {m_mutex};
+            std::scoped_lock lock {m_mutex};
+
             return m_data.begin();
         }
 
         auto end()
         {
-            std::scoped_lock<std::mutex> lock {m_mutex};
+            std::scoped_lock lock {m_mutex};
+
             return m_data.end();
         }
 
         auto begin() const
         {
-            std::scoped_lock<std::mutex> lock {m_mutex};
+            std::scoped_lock lock {m_mutex};
+
             return m_data.begin();
         }
 
         auto end() const
         {
-            std::scoped_lock<std::mutex> lock {m_mutex};
+            std::scoped_lock lock {m_mutex};
+
             return m_data.end();
         }
 
         void resize(std::size_t t_size)
         {
-            std::scoped_lock<std::mutex> lock {m_mutex};
+            std::scoped_lock lock {m_mutex};
+
             m_data.resize(t_size);
         }
 
         bool empty() const noexcept
         {
-            std::scoped_lock<std::mutex> lock {m_mutex};
+            std::scoped_lock lock {m_mutex};
+
             return m_data.empty();
         }
 
         std::size_t size() const noexcept
         {
-            std::scoped_lock<std::mutex> lock {m_mutex};
+            std::scoped_lock lock {m_mutex};
+
             return m_data.size();
         }
     };

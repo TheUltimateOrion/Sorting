@@ -1,10 +1,12 @@
 #pragma once
 
-#include <vector>
-
 #include "render_params.h"
 #include "sort/base.h"
 #include "state.h"
+
+#include <memory>
+
+#include <cstddef>
 
 namespace Core
 {

@@ -1,10 +1,7 @@
 #include "sort/merge/merge.h"
 
-#ifndef TESTING
-    #include "renderer/sort_view.h"
-#endif
-
-#include "utils/common.h"
+#include <algorithm>
+#include <vector>
 
 namespace Sort
 {

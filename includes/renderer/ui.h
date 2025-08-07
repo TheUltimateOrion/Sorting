@@ -1,13 +1,13 @@
 #pragma once
 
-#include <array>
-#include <memory>
-#include <string>
+#include "state.h"
+#include "utils/common.h"
 
 #include <SDL3/SDL.h>
 
-#include "state.h"
-#include "utils/common.h"
+#include <array>
+#include <memory>
+#include <string>
 
 namespace Core
 {

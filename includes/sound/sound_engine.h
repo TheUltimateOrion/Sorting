@@ -1,9 +1,9 @@
 #pragma once
 
+#include "utils/common.h"
+
 #include <AL/al.h>
 #include <AL/alc.h>
-
-#include "utils/common.h"
 
 #ifndef AL_CHECK_ERR
     #define AL_CHECK_ERR(ret)            \

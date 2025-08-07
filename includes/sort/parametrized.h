@@ -3,14 +3,16 @@
 #include <concepts>
 #include <utility>
 
+#include <cstddef>
+
 namespace Sort
 {
     class IParameterized
     {
     public:
-        virtual ~IParameterized() noexcept                             = default;
-        virtual std::pair<int64_t, int64_t> getParameterBounds() const = 0;
-        virtual void                        setParameter(int value)    = 0;
+        virtual ~IParameterized() noexcept                                       = default;
+        virtual std::pair<std::int64_t, std::int64_t> getParameterBounds() const = 0;
+        virtual void                                  setParameter(int value)    = 0;
     };
 
     template <typename T>
@@ -39,9 +41,9 @@ namespace Sort
         Parameterized() noexcept          = default;
         virtual ~Parameterized() noexcept = default;
 
-        std::pair<int64_t, int64_t> getParameterBounds() const override
+        std::pair<std::int64_t, std::int64_t> getParameterBounds() const override
         {
-            return {static_cast<int64_t>(m_param.minVal), static_cast<int64_t>(m_param.maxVal)};
+            return {static_cast<std::int64_t>(m_param.minVal), static_cast<std::int64_t>(m_param.maxVal)};
         }
 
         void setParameter(int value) override

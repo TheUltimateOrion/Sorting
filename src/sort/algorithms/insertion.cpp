@@ -1,10 +1,6 @@
 #include "sort/insertion/insertion.h"
 
-#ifndef TESTING
-    #include "renderer/sort_view.h"
-#endif
-
-#include "utils/common.h"
+#include <cstddef>
 
 namespace Sort
 {

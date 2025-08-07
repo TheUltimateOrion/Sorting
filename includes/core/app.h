@@ -1,16 +1,7 @@
 #pragma once
 
-#include <memory>
-#include <optional>
-#include <thread>
-#include <vector>
-
 #ifndef TESTING
-
-    #include <imgui/imgui.h>
-    #include <SDL3/SDL.h>
-    #include <SDL3_ttf/SDL_ttf.h>
-
+    #include "imgui/imgui.h"
     #include "renderer/sort_view.h"
     #include "renderer/ui.h"
 #endif
@@ -18,6 +9,15 @@
 #include "core/app_ctx.h"
 #include "renderer/disp_type.h"
 #include "sound/sound_engine.h"
+
+#ifndef TESTING
+    #include <SDL3/SDL.h>
+    #include <SDL3_ttf/SDL_ttf.h>
+#endif
+
+#include <memory>
+#include <optional>
+#include <thread>
 
 #ifndef TESTING
 

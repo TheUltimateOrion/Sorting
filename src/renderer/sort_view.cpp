@@ -1,7 +1,7 @@
 #include "renderer/sort_view.h"
 
-#include <imgui/backend/imgui_impl_sdl3.h>
-#include <imgui/backend/imgui_impl_sdlrenderer3.h>
+#include "imgui/backend/imgui_impl_sdl3.h"
+#include "imgui/backend/imgui_impl_sdlrenderer3.h"
 
 #include "core/app.h"
 #include "core/app_ctx.h"
@@ -12,6 +12,8 @@
 #include "sort/sort.h"
 #include "utils/common.h"
 #include "utils/renderer.h"
+
+#include <algorithm>
 
 using namespace std::literals::chrono_literals;
 

@@ -1,9 +1,5 @@
 #include "sort/exchange/quick.h"
 
-#ifndef TESTING
-    #include "renderer/sort_view.h"
-#endif
-
 namespace Sort
 {
     QuickSort::QuickSort() : BaseSort() { }

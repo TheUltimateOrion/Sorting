@@ -1,17 +1,13 @@
 #include "sort/base.h"
 
-#include <algorithm>
-#include <random>
-#include <thread>
-
-#ifndef TESTING
-    #include "core/app.h"
-    #include "renderer/sort_view.h"
-#endif
-
 #include "core/app_ctx.h"
 #include "core/logging/logging.h"
 #include "utils/common.h"
+
+#include <algorithm>
+#include <chrono>
+#include <random>
+#include <thread>
 
 using namespace std::literals::chrono_literals;
 

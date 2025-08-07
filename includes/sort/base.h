@@ -1,11 +1,12 @@
 #pragma once
 
-#include <atomic>
-#include <memory>
-
 #include "array.h"
 #include "core/timer.h"
 #include "flags.h"
+
+#include <atomic>
+
+#include <cstddef>
 
 #define RETURN_IF_STOPPED(ret)                                               \
     if (m_flags.wantClose.load() || m_flags.wantStop.load()) { return ret; }

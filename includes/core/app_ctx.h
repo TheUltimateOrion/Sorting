@@ -1,13 +1,15 @@
 #pragma once
 
-#include <chrono>
-#include <memory>
-
-#include <SDL3_ttf/SDL_ttf.h>
-
 #include "core/platform/dpi.h"
 #include "registry/sort_registry.h"
 #include "utils/common.h"
+
+#include <SDL3_ttf/SDL_ttf.h>
+
+#include <memory>
+#include <string>
+
+#include <cstdint>
 
 namespace Core
 {

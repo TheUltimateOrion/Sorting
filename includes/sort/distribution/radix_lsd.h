@@ -3,6 +3,8 @@
 #include "sort/base.h"
 #include "sort/parametrized.h"
 
+#include <cstdint>
+
 namespace Sort
 {
     class RadixLSDSort : virtual public BaseSort,

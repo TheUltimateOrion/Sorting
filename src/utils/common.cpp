@@ -23,7 +23,8 @@ namespace Utils
         char*       demangled = abi::__cxa_demangle(name, nullptr, nullptr, &status);
         std::string result    = (status == 0 && demangled != nullptr) ? demangled : name;
 
-        std::free(demangled);
+        delete demangled;
+
         return result;
 #else
         return name;  // MSVC already demangled

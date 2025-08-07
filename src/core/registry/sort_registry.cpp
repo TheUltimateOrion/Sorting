@@ -1,10 +1,10 @@
 #include "core/registry/sort_registry.h"
 
-#include <format>
-
 #include "core/app_ctx.h"
 #include "core/logging/logging.h"
 #include "sort/sort.h"
+
+#include <format>
 
 namespace Core
 {

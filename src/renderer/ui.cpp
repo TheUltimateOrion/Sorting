@@ -1,22 +1,26 @@
 #include "renderer/ui.h"
 
-#include <algorithm>
-#include <atomic>
-#include <format>
-#include <type_traits>
-
-#include <imgui/backend/imgui_impl_sdl3.h>
-#include <imgui/backend/imgui_impl_sdlrenderer3.h>
-
 #include "core/app.h"
 #include "core/app_ctx.h"
 #include "core/logging/logging.h"
 #include "core/platform/display.h"
+#include "imgui/backend/imgui_impl_sdl3.h"
+#include "imgui/backend/imgui_impl_sdlrenderer3.h"
 #include "renderer/state.h"
 #include "sort/category.h"
 #include "sort/flags.h"
 #include "sort/sort.h"
 #include "utils/common.h"
+
+#include <algorithm>
+#include <format>
+#include <limits>
+#include <optional>
+#include <thread>
+#include <vector>
+
+#include <cstddef>
+#include <cstdint>
 
 namespace Renderer
 {
@@ -263,10 +267,27 @@ namespace Renderer
 
                 if (currentEntry->isParameterized)
                 {
-                    auto parameterizedSort = dynamic_pointer_cast<Sort::IParameterized>(sorter);
-                    auto bounds            = parameterizedSort->getParameterBounds();
+                    auto                tempSorter        = currentEntry->factory();
+                    auto                parameterizedSort = std::dynamic_pointer_cast<Sort::IParameterized>(tempSorter);
+                    auto                bounds            = parameterizedSort->getParameterBounds();
 
-                    ImGui::SliderScalar("Set Buckets/Radix", ImGuiDataType_S64, &m_uiState.sortParameter, &bounds.first, &bounds.second, "%d");
+                    static std::uint8_t prevIndex         = std::numeric_limits<std::uint8_t>::max();
+
+                    if (m_uiState.sortIndex != prevIndex)
+                    {
+                        m_uiState.sortParameter = std::clamp(m_uiState.sortParameter, bounds.first, bounds.second);
+                        prevIndex               = m_uiState.sortIndex;
+                    }
+
+                    ImGui::SliderScalar(
+                        "Set Buckets/Radix",
+                        ImGuiDataType_S64,
+                        &m_uiState.sortParameter,
+                        &bounds.first,
+                        &bounds.second,
+                        "%d"
+                    );
+
                     m_uiState.sortParameter = std::clamp(m_uiState.sortParameter, bounds.first, bounds.second);
                 }
 

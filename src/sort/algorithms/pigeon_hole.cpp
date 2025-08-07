@@ -1,10 +1,8 @@
 #include "sort/distribution/pigeon_hole.h"
 
-#ifndef TESTING
-    #include "renderer/sort_view.h"
-#endif
+#include <vector>
 
-#include "utils/common.h"
+#include <cstddef>
 
 namespace Sort
 {
@@ -42,7 +40,7 @@ namespace Sort
             elems.addComparisons(2);
         }
 
-        std::vector<std::vector<int>> holes(max - min + 1);
+        std::vector<std::vector<elem_t>> holes(max - min + 1);
 
         for (std::size_t i = 0; i < size; ++i)
         {

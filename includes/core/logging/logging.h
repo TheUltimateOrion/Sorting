@@ -1,9 +1,9 @@
 #pragma once
 
+#include "core/timer.h"
+
 #include <iostream>
 #include <thread>
-
-#include "core/timer.h"
 
 #define LOGINFO(str)                                                        \
     std::cout << "[INFO][Thread ID: " << std::this_thread::get_id() << "][" \

@@ -3,6 +3,9 @@
 #include "disp_type.h"
 #include "sort/category.h"
 
+#include <cstddef>
+#include <cstdint>
+
 namespace Renderer
 {
     struct UIState

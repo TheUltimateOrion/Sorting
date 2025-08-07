@@ -2,9 +2,7 @@
 
 #include <random>
 
-#ifndef TESTING
-    #include "renderer/sort_view.h"
-#endif
+#include <cstddef>
 
 namespace Sort
 {

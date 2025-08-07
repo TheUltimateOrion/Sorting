@@ -2,8 +2,9 @@
 
 #include <algorithm>
 #include <numeric>
+#include <vector>
 
-#include "utils/common.h"
+#include <cstddef>
 
 namespace Sort
 {

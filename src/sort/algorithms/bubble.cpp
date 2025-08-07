@@ -1,5 +1,7 @@
 #include "sort/exchange/bubble.h"
 
+#include <cstddef>
+
 namespace Sort
 {
     BubbleSort::BubbleSort() : BaseSort() { }

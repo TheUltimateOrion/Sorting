@@ -2,6 +2,8 @@
 
 #include "sort/base.h"
 
+#include <cstddef>
+
 namespace Sort
 {
     class MergeSort : virtual public BaseSort

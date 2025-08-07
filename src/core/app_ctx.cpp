@@ -3,6 +3,11 @@
 #include "core/logging/logging.h"
 #include "core/platform/display.h"
 
+#include <algorithm>
+#include <string>
+
+#include <cstdint>
+
 namespace Core
 {
     Ctx* Ctx::createContext(float t_width, float t_height, std::uint16_t t_fps)
@@ -12,7 +17,7 @@ namespace Core
         SDL_DisplayID          displayID = Core::Platform::Display::getCurrentDisplayID();
         SDL_DisplayMode const* mode      = Core::Platform::Display::getDisplayMode(displayID);
 
-        ctx->fps                         = std::clamp<uint16_t>(t_fps, 1, static_cast<uint16_t>(mode->refresh_rate));
+        ctx->fps                         = std::clamp<std::uint16_t>(t_fps, 1, static_cast<std::uint16_t>(mode->refresh_rate));
         ctx->winWidth                    = t_width / mode->pixel_density;
         ctx->winHeight                   = t_height / mode->pixel_density;
 
