@@ -1,7 +1,6 @@
 #pragma once
 
-#ifndef TESTING
-    #include "imgui/imgui.h"
+#ifndef _TESTING_
     #include "renderer/sort_view.h"
     #include "renderer/ui.h"
 #endif
@@ -10,7 +9,8 @@
 #include "renderer/disp_type.h"
 #include "sound/sound_engine.h"
 
-#ifndef TESTING
+#ifndef _TESTING_
+    #include <imgui.h>
     #include <SDL3/SDL.h>
     #include <SDL3_ttf/SDL_ttf.h>
 #endif
@@ -19,7 +19,7 @@
 #include <optional>
 #include <thread>
 
-#ifndef TESTING
+#ifndef _TESTING_
 
 namespace Core
 {

@@ -1,6 +1,6 @@
 #include "core/platform/display.h"
 
-#include "imgui/imgui.h"
+#include <imgui.h>
 
 namespace Core::Platform::Display
 {

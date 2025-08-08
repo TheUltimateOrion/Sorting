@@ -4,13 +4,14 @@
 #include "core/app_ctx.h"
 #include "core/logging/logging.h"
 #include "core/platform/display.h"
-#include "imgui/backend/imgui_impl_sdl3.h"
-#include "imgui/backend/imgui_impl_sdlrenderer3.h"
 #include "renderer/state.h"
 #include "sort/category.h"
 #include "sort/flags.h"
 #include "sort/sort.h"
 #include "utils/common.h"
+
+#include <imgui_impl_sdl3.h>
+#include <imgui_impl_sdlrenderer3.h>
 
 #include <algorithm>
 #include <format>

@@ -12,7 +12,7 @@ target_include_directories(${PROJECT_NAME}_TEST PRIVATE
 )
 
 target_link_libraries(${PROJECT_NAME}_TEST PRIVATE GTest::gtest_main)
-target_compile_definitions(${PROJECT_NAME}_TEST PRIVATE TESTING)
+target_compile_definitions(${PROJECT_NAME}_TEST PRIVATE _TESTING_)
 
 gtest_discover_tests(${PROJECT_NAME}_TEST)
 set_target_properties(${PROJECT_NAME}_TEST PROPERTIES FOLDER test)
