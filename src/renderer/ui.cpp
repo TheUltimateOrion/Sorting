@@ -122,7 +122,6 @@ namespace Renderer
         if (auto appShared = m_app.lock())
         {
             Sort::Flags& flags = appShared->getSorter()->getFlags();
-            ImGui::Begin("Debug");
             if (ImGui::CollapsingHeader("Sorting Flags"))
             {
                 IMGUI_DEBUG_FLAG(flags, hasSorted);
@@ -145,24 +144,196 @@ namespace Renderer
                 IMGUI_DEBUG_UISTATE((int) m_uiState, sortDisplayType);
                 IMGUI_DEBUG_UISTATE(m_uiState, sortIndex);
             }
-            ImGui::End();
         }
 #undef IMGUI_DEBUG_BOOL
     }
 
-    Utils::Signal UI::renderUI()
+    void UI::renderSortChooser(
+        Core::SortRegistry const&       t_registry,
+        std::string const&              t_currentName,
+        std::vector<std::string> const& t_ids
+    )
+    {
+        if (ImGui::BeginCombo(
+                "##combo1", m_sortCategories[m_uiState.sortCategory]
+            ))  // The second parameter is the label previewed before opening the combo.
+        {
+            for (std::size_t n = 0; n < m_sortCategories.size(); ++n)
+            {
+                bool isSelected
+                    = (m_sortCategories[m_uiState.sortCategory]
+                       == m_sortCategories[n]);  // You can store your selection
+                                                 // however you want, outside or
+                                                 // inside your objects
+                if (ImGui::Selectable(m_sortCategories[n], isSelected))
+                {
+                    m_uiState.sortCategory = static_cast<Sort::Category>(n);
+                }
+                if (isSelected)
+                {
+                    ImGui::SetItemDefaultFocus();  // You may set the initial focus when
+                                                   // opening the combo (scrolling + for
+                                                   // keyboard navigation support)
+                }
+            }
+            ImGui::EndCombo();
+        }
+
+        if (ImGui::BeginCombo(
+                "##combo2", t_currentName.c_str()
+            ))  // The second parameter is the label previewed before opening the combo.
+        {
+            for (std::size_t n = 0; n < t_ids.size(); ++n)
+            {
+                Core::SortRegistryEntry const* selectedEntry = t_registry.get(t_ids[n]);
+                bool                           isSelected    = (n == m_uiState.sortIndex);
+
+                if (ImGui::Selectable(selectedEntry->displayName.c_str(), isSelected))
+                {
+                    m_uiState.sortIndex = n;
+                }
+                if (isSelected) { ImGui::SetItemDefaultFocus(); }
+            }
+            ImGui::EndCombo();
+        }
+    }
+
+    void UI::renderSortDisplayConfigs()
+    {
+        if (ImGui::BeginCombo(
+                "##combo3", m_sortDisplayTypes[m_uiState.sortDisplayType]
+            ))  // The second parameter is the label previewed before opening the combo.
+        {
+            for (std::size_t n = 0; n < m_sortDisplayTypes.size(); ++n)
+            {
+                bool isSelected
+                    = (m_sortDisplayTypes[m_uiState.sortDisplayType]
+                       == m_sortDisplayTypes[n]);  // You can store your selection
+                                                   // however you want, outside or
+                                                   // inside your objects
+
+                if (ImGui::Selectable(m_sortDisplayTypes[n], isSelected))
+                {
+                    m_uiState.sortDisplayType = static_cast<DisplayType>(n);
+                }
+
+                if (isSelected)
+                {
+                    ImGui::SetItemDefaultFocus();  // You may set the initial focus when
+                                                   // opening the combo (scrolling + for
+                                                   // keyboard navigation support)
+                }
+            }
+            ImGui::EndCombo();
+        }
+
+        ImGui::SameLine();
+        ImGui::Checkbox("Color", &m_uiState.isColored);
+    }
+
+    void UI::renderSortAlgorithmConfigs(Core::SortRegistryEntry const* const t_currentEntry)
+    {
+        ImGui::InputFloat("Set Speed", &Sort::BaseSort::s_speed, 0.001f);
+        Sort::BaseSort::s_speed = std::clamp<float>(Sort::BaseSort::s_speed, 0.001f, 1000.f);
+
+        int length              = static_cast<int>(m_uiState.arrayLength);
+        ImGui::InputInt("Set Array Length", &length, 2);
+        m_uiState.arrayLength = std::clamp<size_t>(length, 2, 1024 * 10);
+
+        if (t_currentEntry->isParameterized)
+        {
+            static std::uint8_t                          prevIndex = std::numeric_limits<std::uint8_t>::max();
+
+            static std::pair<std::int64_t, std::int64_t> bounds;
+
+            if (m_uiState.sortIndex != prevIndex)
+            {
+                auto tempSorter        = t_currentEntry->factory();
+                auto parameterizedSort = std::dynamic_pointer_cast<Sort::IParameterized>(tempSorter);
+                bounds                 = parameterizedSort->getParameterBounds();
+
+                prevIndex              = m_uiState.sortIndex;
+            }
+
+            m_uiState.sortParameter = std::clamp(m_uiState.sortParameter, bounds.first, bounds.second);
+
+            ImGui::SliderScalar(
+                "Set Buckets/Radix",
+                ImGuiDataType_S64,
+                &m_uiState.sortParameter,
+                &bounds.first,
+                &bounds.second,
+                "%d"
+            );
+        }
+
+        ImGui::SameLine();
+        ImGui::Checkbox("Reverse instead of Shuffling", &m_uiState.isReversed);
+    }
+
+    void UI::renderSortButtons(
+        Core::SortRegistryEntry const* const t_currentEntry,
+        std::vector<std::string> const&      t_ids
+    )
+    {
+        if (auto appShared = m_app.lock())
+        {
+            auto sorter = appShared->getSorter();
+
+            if (!sorter->getFlags().isRunning)
+            {
+                if (ImGui::Button("Sort"))
+                {
+                    LOGINFO("Starting sort");
+                    if (m_uiState.sortIndex < t_ids.size())
+                    {
+                        if (t_currentEntry)
+                        {
+                            appShared->setSorter(t_currentEntry->factory());
+
+                            auto newSorter = appShared->getSorter();
+
+                            newSorter->setLength(m_uiState.arrayLength);
+
+                            if (t_currentEntry->isParameterized)
+                            {
+                                dynamic_pointer_cast<Sort::IParameterized>(newSorter)
+                                    ->setParameter(
+                                        m_uiState.sortParameter
+                                    );
+                            }
+
+                            newSorter->getFlags().setFlags(Sort::FlagGroup::SortButtonPressed);
+                        }
+                    }
+                    else { LOGERR("Unknown sort category/index"); }
+                }
+            }
+            else
+            {
+                if (ImGui::Button("Stop"))
+                {
+                    sorter->getFlags().setFlags(Sort::FlagGroup::StopButtonPressed);
+
+                    LOGINFO("Stopping sort");
+                }
+            }
+        }
+    }
+
+    void UI::renderUI()
     {
         if (auto appShared = m_app.lock())
         {
             auto&                     sorter   = appShared->getSorter();
             Core::SortRegistry const& registry = appShared->getRegistry();
-            Core::Ctx const* const    ctx      = appShared->getContext();
+            Core::Ctx const*          ctx      = appShared->getContext();
 
             std::vector<std::string>  ids      = registry.idsByCategory(m_uiState.sortCategory);
 
             if (m_uiState.sortIndex >= ids.size()) { m_uiState.sortIndex = 0; }
-            Core::SortRegistryEntry const* currentEntry = registry.get(ids[m_uiState.sortIndex]);
-            std::string const              currentName  = currentEntry ? currentEntry->displayName : "";
+            Core::SortRegistryEntry const* const currentEntry = registry.get(ids[m_uiState.sortIndex]);
+            std::string const                    currentName  = currentEntry ? currentEntry->displayName : "";
 
             renderInfo();
 
@@ -170,255 +341,46 @@ namespace Renderer
             ImGui_ImplSDL3_NewFrame();
             ImGui::NewFrame();
 
+            ImGui::Begin("Configure", &m_uiState.isImGuiOpen);
+            ImGui::Text(
+                "Application average %.3f ms/frame (%.1f FPS)",
+                1000.0f / Core::Platform::Display::getFramerate(),
+                Core::Platform::Display::getFramerate()
+            );
+
+            renderSortChooser(registry, currentName, ids);
+
+            ImGui::Spacing();
+            ImGui::SeparatorText("Display Config");
+            ImGui::Spacing();
+
+            renderSortDisplayConfigs();
+
+            ImGui::Spacing();
+            ImGui::SeparatorText("Variables");
+            ImGui::Spacing();
+
+            renderSortAlgorithmConfigs(currentEntry);
+
+            ImGui::Spacing();
+
+            renderSortButtons(currentEntry, ids);
+
+            ImGui::End();
+
+            ImGui::Begin("Debug");
+
+            renderDebugMenu();
+
+            ImGui::End();
+
+            ImGui::Render();
+            ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), ctx->renderer);
+
+            if (!m_uiState.isImGuiOpen)
             {
-                ImGui::Begin("Configure", &m_uiState.isImGuiOpen);
-                ImGui::Text(
-                    "Application average %.3f ms/frame (%.1f FPS)",
-                    1000.0f / Core::Platform::Display::getFramerate(),
-                    Core::Platform::Display::getFramerate()
-                );
-
-                if (ImGui::BeginCombo(
-                        "##combo1", m_sortCategories[m_uiState.sortCategory]
-                    ))  // The second parameter is the label previewed before opening the combo.
-                {
-                    for (std::size_t n = 0; n < m_sortCategories.size(); ++n)
-                    {
-                        bool isSelected
-                            = (m_sortCategories[m_uiState.sortCategory]
-                               == m_sortCategories[n]);  // You can store your selection
-                                                         // however you want, outside or
-                                                         // inside your objects
-                        if (ImGui::Selectable(m_sortCategories[n], isSelected))
-                        {
-                            m_uiState.sortCategory = static_cast<Sort::Category>(n);
-                        }
-                        if (isSelected)
-                        {
-                            ImGui::SetItemDefaultFocus();  // You may set the initial focus when
-                                                           // opening the combo (scrolling + for
-                                                           // keyboard navigation support)
-                        }
-                    }
-                    ImGui::EndCombo();
-                }
-
-                if (ImGui::BeginCombo(
-                        "##combo2", currentName.c_str()
-                    ))  // The second parameter is the label previewed before opening the combo.
-                {
-                    for (std::size_t n = 0; n < ids.size(); ++n)
-                    {
-                        Core::SortRegistryEntry const* selectedEntry = registry.get(ids[n]);
-                        bool                           isSelected    = (n == m_uiState.sortIndex);
-
-                        if (ImGui::Selectable(selectedEntry->displayName.c_str(), isSelected))
-                        {
-                            m_uiState.sortIndex = n;
-                        }
-                        if (isSelected) { ImGui::SetItemDefaultFocus(); }
-                    }
-                    ImGui::EndCombo();
-                }
-
-                ImGui::Spacing();
-                ImGui::SeparatorText("Display Config");
-                ImGui::Spacing();
-
-                if (ImGui::BeginCombo(
-                        "##combo3", m_sortDisplayTypes[m_uiState.sortDisplayType]
-                    ))  // The second parameter is the label previewed before opening the combo.
-                {
-                    for (std::size_t n = 0; n < m_sortDisplayTypes.size(); ++n)
-                    {
-                        bool isSelected
-                            = (m_sortDisplayTypes[m_uiState.sortDisplayType]
-                               == m_sortDisplayTypes[n]);  // You can store your selection
-                                                           // however you want, outside or
-                                                           // inside your objects
-
-                        if (ImGui::Selectable(m_sortDisplayTypes[n], isSelected))
-                        {
-                            m_uiState.sortDisplayType = static_cast<DisplayType>(n);
-                        }
-
-                        if (isSelected)
-                        {
-                            ImGui::SetItemDefaultFocus();  // You may set the initial focus when
-                                                           // opening the combo (scrolling + for
-                                                           // keyboard navigation support)
-                        }
-                    }
-                    ImGui::EndCombo();
-                }
-
-                ImGui::SameLine();
-                ImGui::Checkbox("Color", &m_uiState.isColored);
-
-                ImGui::Spacing();
-                ImGui::SeparatorText("Variables");
-                ImGui::Spacing();
-
-                ImGui::InputFloat("Set Speed", &Sort::BaseSort::s_speed, 0.001f);
-                Sort::BaseSort::s_speed = std::clamp<float>(Sort::BaseSort::s_speed, 0.001f, 1000.f);
-
-                int length              = static_cast<int>(m_uiState.arrayLength);
-                ImGui::InputInt("Set Array Length", &length, 2);
-                m_uiState.arrayLength = std::clamp<size_t>(length, 2, 1024 * 10);
-
-                if (currentEntry->isParameterized)
-                {
-                    auto                tempSorter        = currentEntry->factory();
-                    auto                parameterizedSort = std::dynamic_pointer_cast<Sort::IParameterized>(tempSorter);
-                    auto                bounds            = parameterizedSort->getParameterBounds();
-
-                    static std::uint8_t prevIndex         = std::numeric_limits<std::uint8_t>::max();
-
-                    if (m_uiState.sortIndex != prevIndex)
-                    {
-                        m_uiState.sortParameter = std::clamp(m_uiState.sortParameter, bounds.first, bounds.second);
-                        prevIndex               = m_uiState.sortIndex;
-                    }
-
-                    ImGui::SliderScalar(
-                        "Set Buckets/Radix",
-                        ImGuiDataType_S64,
-                        &m_uiState.sortParameter,
-                        &bounds.first,
-                        &bounds.second,
-                        "%d"
-                    );
-
-                    m_uiState.sortParameter = std::clamp(m_uiState.sortParameter, bounds.first, bounds.second);
-                }
-
-                ImGui::Spacing();
-                if (!sorter->getFlags().isRunning)
-                {
-                    if (ImGui::Button("Sort"))
-                    {
-                        LOGINFO("Starting sort");
-                        if (m_uiState.sortIndex < ids.size())
-                        {
-                            if (currentEntry)
-                            {
-                                appShared->setSorter(currentEntry->factory());
-
-                                auto newSorter = appShared->getSorter();
-
-                                newSorter->setLength(m_uiState.arrayLength);
-
-                                if (currentEntry->isParameterized)
-                                {
-                                    dynamic_pointer_cast<Sort::IParameterized>(newSorter)
-                                        ->setParameter(
-                                            m_uiState.sortParameter
-                                        );
-                                }
-                            }
-                        }
-                        else { LOGERR("Unknown sort category/index"); }
-
-                        sorter->getFlags().setFlags(Sort::FlagGroup::SortButtonPressed);
-                    }
-                }
-                else
-                {
-                    if (ImGui::Button("Stop"))
-                    {
-                        sorter->getFlags().setFlags(Sort::FlagGroup::StopButtonPressed);
-
-                        LOGINFO("Stopping sort");
-
-                        sorter->timer.end();
-                        sorter->realTimer.end();
-
-                        Utils::terminateThread(appShared->sortThread);
-                    }
-                }
-
-                ImGui::SameLine();
-                ImGui::Checkbox("Reverse instead of Shuffling", &m_uiState.isReversed);
-                ImGui::End();
-
-                renderDebugMenu();
-
-                ImGui::Render();
-                ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), ctx->renderer);
-
-                if (!m_uiState.isImGuiOpen)
-                {
-                    sorter->getFlags().setFlags(Sort::FlagGroup::Quit);
-
-                    Utils::terminateThread(appShared->sortThread);
-
-                    LOGINFO("Exit signal recieved");
-
-                    return Utils::Signal::CloseApp;
-                }
-
-                if (sorter->getFlags().shouldSort)
-                {
-                    Utils::terminateThread(appShared->sortThread);
-
-                    sorter->getFlags().shouldSort = false;
-                    bool isReversed               = m_uiState.isReversed;
-
-                    appShared->sortThread         = std::make_optional<std::thread>(
-                        [appShared, isReversed]()
-                        {
-                            auto sorter = appShared->getSorter();
-                            // Sort::Flags & sorter->getFlags() = sorter->getFlags();
-
-                            if (!isReversed)
-                            {
-                                LOGINFO("Shuffling");
-
-                                sorter->shuffle();
-                            }
-                            else
-                            {
-                                LOGINFO("Reversing");
-
-                                sorter->reverse();
-                            }
-
-                            if (!sorter->getFlags().wantStop)
-                            {
-                                LOGINFO("Sorting");
-
-                                sorter->timer.start();
-                                sorter->realTimer.start();
-
-                                sorter->getFlags().isSorting = true;
-                                sorter->sort();
-                                sorter->getFlags().setFlags(Sort::FlagGroup::DoneSorting);
-
-                                sorter->realTimer.pause();
-                                sorter->timer.pause();
-                            }
-
-                            if (!sorter->getFlags().wantStop)
-                            {
-                                LOGINFO("Checking");
-                                sorter->check();
-                            }
-
-                            if (sorter->getFlags().wantStop) { return; }
-
-                            sorter->getFlags().isRunning = false;
-                        }
-                    );
-                }
-
-                if (sorter->getFlags().wantClose) { return Utils::Signal::CloseApp; }
-
-                if (sorter->getFlags().wantStop) { return Utils::Signal::StopSort; }
-
-                return Utils::Signal::Success;
+                sorter->getFlags().setFlags(Sort::FlagGroup::Quit);
             }
         }
-
-        return Utils::Signal::Success;
     }
 }  // namespace Renderer

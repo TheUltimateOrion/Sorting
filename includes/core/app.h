@@ -44,6 +44,7 @@ namespace Core
         [[nodiscard]] Utils::Signal         initImGui();
         [[nodiscard]] Utils::Signal         initAudio();
         [[nodiscard]] Utils::Signal         initFont();
+        [[nodiscard]] Utils::Signal         handleSortRequests();
 
     public:
         App() noexcept = default;

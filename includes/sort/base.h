@@ -8,8 +8,8 @@
 
 #include <cstddef>
 
-#define RETURN_IF_STOPPED(ret)                                               \
-    if (m_flags.wantClose.load() || m_flags.wantStop.load()) { return ret; }
+#define RETURN_IF_STOPPED(ret)                                 \
+    if (m_flags.wantClose || m_flags.wantStop) { return ret; }
 
 namespace Core
 {

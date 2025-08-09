@@ -7,10 +7,7 @@
 
 namespace Sort
 {
-    RadixLSDSort::RadixLSDSort() : BaseSort {}
-    {
-        setParameterBounds(2, 10);
-    }
+    RadixLSDSort::RadixLSDSort() : BaseSort {}, Parameterized {"Radix", 2, 10} { }
 
     void RadixLSDSort::countSortByDigits(std::uint64_t exponent, elem_t minValue)
     {
@@ -40,8 +37,6 @@ namespace Sort
             output[--buckets[bucketIndex]] = elems[i];
             m_first                        = i;
             m_second                       = bucketIndex;
-
-            RETURN_IF_STOPPED();
         }
 
         // Copy back
@@ -52,7 +47,6 @@ namespace Sort
             m_second = ((output[i] - minValue) / exponent) % radix;
 
             Core::Timer::sleep(1.f / BaseSort::s_speed, realTimer);
-            RETURN_IF_STOPPED();
         }
     }
 
@@ -80,7 +74,7 @@ namespace Sort
         while ((maxValue - minValue) / exponent >= 1)
         {
             countSortByDigits(exponent, minValue);
-            RETURN_IF_STOPPED();
+
             exponent *= getParameter();
         }
     }

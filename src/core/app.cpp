@@ -23,15 +23,7 @@ namespace Core
         LOGINFO("Joining and Destroying Sorting Thread");
         Utils::terminateThread(sortThread);
 
-        if (m_audioThread.has_value())
-        {
-            if (m_audioThread->joinable())
-            {
-                LOGINFO("Joining Audio Thread");
-                m_audioThread->join();
-            }
-            m_audioThread.reset();
-        }
+        Utils::terminateThread(m_audioThread);
 
         LOGINFO("Deinitializing SDL_ttf");
         TTF_Quit();
@@ -176,6 +168,69 @@ namespace Core
         return Utils::Signal::Success;
     }
 
+    Utils::Signal App::handleSortRequests()
+    {
+        if (m_sorter->getFlags().wantClose)
+        {
+            return Utils::Signal::CloseApp;
+        }
+
+        if (m_sorter->getFlags().wantStop)
+        {
+            return Utils::Signal::StopSort;
+        }
+
+        if (m_sorter->getFlags().shouldSort)
+        {
+            m_sorter->getFlags().shouldSort = false;
+            bool isReversed                 = m_UI.getUIState().isReversed;
+
+            sortThread                      = std::make_optional<std::thread>(
+                [this, isReversed]()
+                {
+                    auto sorter = getSorter();
+
+                    if (!isReversed)
+                    {
+                        LOGINFO("Shuffling");
+
+                        sorter->shuffle();
+                    }
+                    else
+                    {
+                        LOGINFO("Reversing");
+
+                        sorter->reverse();
+                    }
+
+                    if (!sorter->getFlags().wantStop)
+                    {
+                        LOGINFO("Sorting");
+
+                        sorter->timer.start();
+                        sorter->realTimer.start();
+
+                        sorter->getFlags().isSorting = true;
+                        sorter->sort();
+                        sorter->getFlags().setFlags(Sort::FlagGroup::DoneSorting);
+
+                        sorter->realTimer.pause();
+                        sorter->timer.pause();
+                    }
+
+                    if (!sorter->getFlags().wantStop)
+                    {
+                        LOGINFO("Checking");
+                        sorter->check();
+                    }
+
+                    sorter->getFlags().isRunning = false;
+                }
+            );
+        }
+        return Utils::Signal::Success;
+    }
+
     void App::run()
     {
         LOGINFO("Initializing sorter");
@@ -203,29 +258,32 @@ namespace Core
                 if (m_event.type == SDL_EVENT_QUIT)
                 {
                     m_sorter->getFlags().setFlags(Sort::FlagGroup::Quit);
-
-                    Utils::terminateThread(sortThread);
-
-                    LOGINFO("Exit signal recieved");
-                    break;
                 }
             }
 
             auto start = std::chrono::high_resolution_clock::now();
 
             m_sortView->update(m_UI.getUIState());
+            m_UI.renderUI();
 
-            switch (m_UI.renderUI())
+            switch (handleSortRequests())
             {
-                case Utils::Signal::StopSort: {
+                case Utils::Signal::StopSort:
                     m_sorter->getFlags().reset();
+
+                    Utils::terminateThread(sortThread);
+
+                    m_sorter->timer.end();
+                    m_sorter->realTimer.end();
                     break;
-                }
-                case Utils::Signal::CloseApp: {
+                case Utils::Signal::CloseApp:
+                    LOGINFO("Exit signal recieved");
+
+                    Utils::terminateThread(sortThread);
+
                     m_sorter->timer.end();
                     m_sorter->realTimer.end();
                     return;
-                }
                 [[likely]] case Utils::Signal::Success:
                     [[fallthrough]];
                 default:
@@ -395,5 +453,6 @@ namespace Core
 
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;  // Enable Keyboard Controls
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;   // Enable Gamepad Controls
+        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;      // Enable Docking
     }
 }  // namespace Core

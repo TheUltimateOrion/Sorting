@@ -17,7 +17,7 @@ option(BUILD_TESTING "Build Test Executable?" OFF)
 #     include(GoogleTest)
 #     enable_testing()
 #     add_subdirectory(test)
-# endif()
+# endif(BUILD_TESTING)
 
 # External dependencies
 add_subdirectory(external)
