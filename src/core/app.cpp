@@ -20,9 +20,9 @@ namespace Core
 {
     App::~App()
     {
-        LOGINFO("Joining and Destroying Sorting Thread");
-        Utils::terminateThread(sortThread);
+        LOGINFO("Joining and Destroying Threads");
 
+        Utils::terminateThread(m_sortThread);
         Utils::terminateThread(m_audioThread);
 
         LOGINFO("Deinitializing SDL_ttf");
@@ -170,47 +170,37 @@ namespace Core
 
     Utils::Signal App::handleSortRequests()
     {
-        if (m_sorter->getFlags().wantClose)
+        if (m_sorter->getFlags().hasQuit || m_sorter->getFlags().hasAborted)
         {
-            return Utils::Signal::CloseApp;
-        }
+            Utils::terminateThread(m_sortThread);
 
-        if (m_sorter->getFlags().wantStop)
-        {
-            return Utils::Signal::StopSort;
+            m_sorter->timer.end();
+            m_sorter->realTimer.end();
+
+            return (m_sorter->getFlags().hasQuit ? Utils::Signal::CloseApp : Utils::Signal::StopSort);
         }
 
         if (m_sorter->getFlags().shouldSort)
         {
-            m_sorter->getFlags().shouldSort = false;
-            bool isReversed                 = m_UI.getUIState().isReversed;
+            Utils::terminateThread(m_sortThread);
 
-            sortThread                      = std::make_optional<std::thread>(
-                [this, isReversed]()
+            m_sorter->getFlags().setFlags(Sort::FlagGroup::CreatingThread);
+
+            m_sortThread = std::make_optional<std::thread>(
+                [this]()
                 {
                     auto sorter = getSorter();
 
-                    if (!isReversed)
-                    {
-                        LOGINFO("Shuffling");
+                    sorter->shuffle(m_UI.getUIState().isReversed);
 
-                        sorter->shuffle();
-                    }
-                    else
+                    if (!sorter->getFlags().hasAborted)
                     {
-                        LOGINFO("Reversing");
-
-                        sorter->reverse();
-                    }
-
-                    if (!sorter->getFlags().wantStop)
-                    {
-                        LOGINFO("Sorting");
+                        LOGINFO("Running Algorithm");
 
                         sorter->timer.start();
                         sorter->realTimer.start();
 
-                        sorter->getFlags().isSorting = true;
+                        sorter->getFlags().setFlags(Sort::FlagGroup::StartSorting);
                         sorter->sort();
                         sorter->getFlags().setFlags(Sort::FlagGroup::DoneSorting);
 
@@ -218,13 +208,10 @@ namespace Core
                         sorter->timer.pause();
                     }
 
-                    if (!sorter->getFlags().wantStop)
+                    if (!sorter->getFlags().hasAborted)
                     {
-                        LOGINFO("Checking");
                         sorter->check();
                     }
-
-                    sorter->getFlags().isRunning = false;
                 }
             );
         }
@@ -269,20 +256,9 @@ namespace Core
             switch (handleSortRequests())
             {
                 case Utils::Signal::StopSort:
-                    m_sorter->getFlags().reset();
-
-                    Utils::terminateThread(sortThread);
-
-                    m_sorter->timer.end();
-                    m_sorter->realTimer.end();
                     break;
                 case Utils::Signal::CloseApp:
                     LOGINFO("Exit signal recieved");
-
-                    Utils::terminateThread(sortThread);
-
-                    m_sorter->timer.end();
-                    m_sorter->realTimer.end();
                     return;
                 [[likely]] case Utils::Signal::Success:
                     [[fallthrough]];
@@ -325,7 +301,7 @@ namespace Core
                         continue;
                     }
 
-                    if (m_sorter->getFlags().wantClose) { break; }
+                    if (m_sorter->getFlags().hasQuit) { break; }
 
                     constexpr float sec  = 0.04f;
                     constexpr float base = 100.f;
@@ -454,5 +430,6 @@ namespace Core
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;  // Enable Keyboard Controls
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;   // Enable Gamepad Controls
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;      // Enable Docking
+        io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;    // Enable Dragging Out of Window
     }
 }  // namespace Core

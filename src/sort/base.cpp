@@ -28,44 +28,25 @@ namespace Sort
         generateArray(defaultSize);
     }
 
-    void BaseSort::reverse()
+    void BaseSort::shuffle(bool t_isReversed)
     {
-        m_flags.isShuffling = true;
-        m_flags.wantStop    = false;
+        m_flags.setFlags(FlagGroup::StartShuffling);
 
         elems.resetCounters();
 
         auxillary = elems;
         auxillary.resetCounters();
 
-        std::reverse(auxillary.begin(), auxillary.end());
-        for (std::size_t i = 0; i < auxillary.size(); ++i)
+        if (t_isReversed)
         {
-            elems[i] = auxillary[i];
-
-            m_first  = i;
-            m_second = m_first.load();
-
-            Core::Timer::sleep(1000.0 / static_cast<double>(elems.size()), realTimer);
+            LOGINFO("Reversing");
+            std::reverse(auxillary.begin(), auxillary.end());
         }
-
-        m_flags.hasSorted   = false;
-        m_flags.isShuffling = false;
-
-        std::this_thread::sleep_for(500ms);
-    }
-
-    void BaseSort::shuffle()
-    {
-        m_flags.isShuffling = true;
-        m_flags.wantStop    = false;
-
-        elems.resetCounters();
-
-        auxillary = elems;
-        auxillary.resetCounters();
-
-        std::shuffle(auxillary.begin(), auxillary.end(), std::random_device {});
+        else
+        {
+            LOGINFO("Shuffling");
+            std::shuffle(auxillary.begin(), auxillary.end(), std::random_device {});
+        }
 
         for (std::size_t i = 0; i < auxillary.size(); ++i)
         {
@@ -78,22 +59,22 @@ namespace Sort
             RETURN_IF_STOPPED();
         }
 
-        m_flags.hasSorted   = false;
-        m_flags.isShuffling = false;
-
         LOGINFO("Shuffling Done");
+
+        m_flags.setFlags(FlagGroup::DoneShuffling);
         std::this_thread::sleep_for(500ms);
     }
 
     void BaseSort::check()
     {
-        m_flags.isChecking = true;
-        m_flags.wantStop   = false;
+        m_flags.setFlags(FlagGroup::StartChecking);
 
-        auxillary          = elems;
+        auxillary = elems;
 
         realTimer.end();
         timer.end();
+
+        LOGINFO("Checking");
 
         for (std::size_t i = 0; i < auxillary.size(); ++i)
         {
@@ -106,9 +87,9 @@ namespace Sort
             RETURN_IF_STOPPED();
         }
 
-        m_flags.isChecking = false;
-
         LOGINFO("Check completed");
+
+        m_flags.setFlags(FlagGroup::DoneChecking);
     }
 
     void BaseSort::swap(SortArray<elem_t>& array, std::size_t a, std::size_t b)

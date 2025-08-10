@@ -53,7 +53,7 @@ namespace Renderer
             Core::SortRegistry const&      registry     = appShared->getRegistry();
             Core::Ctx const* const         ctx          = appShared->getContext();
 
-            // Sort::Flags & sorter->getFlags()            = sorter->getFlags();
+            Sort::Flags&                   flags        = sorter->getFlags();
             std::vector<std::string>       ids          = registry.idsByCategory(m_uiState.sortCategory);
             Core::SortRegistryEntry const* currentEntry = registry.get(ids[m_uiState.sortIndex]);
 
@@ -65,7 +65,7 @@ namespace Renderer
 
             SDL_Color textColor {0, 0xFF, 0, 0};
 
-            if (sorter->getFlags().isSorting || (sorter->timer.getDuration() == 0.0f))
+            if (flags.isRunning || (sorter->timer.getDuration() == 0.0f))
             {
                 textColor = {0xFF, 0xFF, 0xFF, 0};
             }
@@ -96,19 +96,16 @@ namespace Renderer
 
             std::string statusText {"IDLE"};
 
-            if (sorter->getFlags().isSorting) { statusText = "SORTING..."; }
+            if (flags.isSorting) { statusText = "SORTING..."; }
 
-            if (sorter->getFlags().isShuffling) { statusText = "SHUFFLING..."; }
+            if (flags.isShuffling) { statusText = "SHUFFLING..."; }
 
-            if (sorter->getFlags().isChecking) { statusText = "CHECKING..."; }
+            if (flags.isChecking) { statusText = "CHECKING..."; }
 
-            if (!(sorter->getFlags().isShuffling) && !(sorter->getFlags().isSorting) && !(sorter->getFlags().isChecking)
-                && sorter->getFlags().hasSorted)
-            {
-                statusText = "SORTED!";
-            }
+            if (flags.isSorted) { statusText = "SORTED!"; }
 
-            renderText(statusText, 10.0f, 110.0f, {0xFF, 0xFF, 0xFF, 0});
+            if (flags.hasAborted) { statusText = "ABORTED!"; }
+            renderText(statusText, 10.0f, 120.0f, {0xFF, 0xFF, 0xFF, 0});
 
             SDL_SetRenderDrawColor(ctx->renderer, _r, _g, _b, _a);
         }
@@ -124,14 +121,16 @@ namespace Renderer
             Sort::Flags& flags = appShared->getSorter()->getFlags();
             if (ImGui::CollapsingHeader("Sorting Flags"))
             {
-                IMGUI_DEBUG_FLAG(flags, hasSorted);
+                IMGUI_DEBUG_FLAG(flags, hasAborted);
+                IMGUI_DEBUG_FLAG(flags, hasQuit);
+
                 IMGUI_DEBUG_FLAG(flags, isChecking);
                 IMGUI_DEBUG_FLAG(flags, isRunning);
                 IMGUI_DEBUG_FLAG(flags, isShuffling);
+                IMGUI_DEBUG_FLAG(flags, isSorted);
                 IMGUI_DEBUG_FLAG(flags, isSorting);
+
                 IMGUI_DEBUG_FLAG(flags, shouldSort);
-                IMGUI_DEBUG_FLAG(flags, wantClose);
-                IMGUI_DEBUG_FLAG(flags, wantStop);
             }
             ImGui::Separator();
             if (ImGui::CollapsingHeader("UI State"))
@@ -335,52 +334,63 @@ namespace Renderer
             Core::SortRegistryEntry const* const currentEntry = registry.get(ids[m_uiState.sortIndex]);
             std::string const                    currentName  = currentEntry ? currentEntry->displayName : "";
 
-            renderInfo();
-
-            ImGui_ImplSDLRenderer3_NewFrame();
-            ImGui_ImplSDL3_NewFrame();
-            ImGui::NewFrame();
-
-            ImGui::Begin("Configure", &m_uiState.isImGuiOpen);
-            ImGui::Text(
-                "Application average %.3f ms/frame (%.1f FPS)",
-                1000.0f / Core::Platform::Display::getFramerate(),
-                Core::Platform::Display::getFramerate()
-            );
-
-            renderSortChooser(registry, currentName, ids);
-
-            ImGui::Spacing();
-            ImGui::SeparatorText("Display Config");
-            ImGui::Spacing();
-
-            renderSortDisplayConfigs();
-
-            ImGui::Spacing();
-            ImGui::SeparatorText("Variables");
-            ImGui::Spacing();
-
-            renderSortAlgorithmConfigs(currentEntry);
-
-            ImGui::Spacing();
-
-            renderSortButtons(currentEntry, ids);
-
-            ImGui::End();
-
-            ImGui::Begin("Debug");
-
-            renderDebugMenu();
-
-            ImGui::End();
-
-            ImGui::Render();
-            ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), ctx->renderer);
-
             if (!m_uiState.isImGuiOpen)
             {
                 sorter->getFlags().setFlags(Sort::FlagGroup::Quit);
             }
+
+            renderInfo();
+
+            ImGui_ImplSDLRenderer3_NewFrame();
+            ImGui_ImplSDL3_NewFrame();
+
+            ImGui::NewFrame();
+
+            // Main Window
+            {
+                ImGui::Begin("Configure", &m_uiState.isImGuiOpen);
+                ImGui::Text(
+                    "Application average %.3f ms/frame (%.1f FPS)",
+                    1000.0f / Core::Platform::Display::getFramerate(),
+                    Core::Platform::Display::getFramerate()
+                );
+
+                renderSortChooser(registry, currentName, ids);
+
+                ImGui::Spacing();
+                ImGui::SeparatorText("Display Config");
+                ImGui::Spacing();
+
+                renderSortDisplayConfigs();
+
+                ImGui::Spacing();
+                ImGui::SeparatorText("Variables");
+                ImGui::Spacing();
+
+                renderSortAlgorithmConfigs(currentEntry);
+
+                ImGui::Spacing();
+
+                renderSortButtons(currentEntry, ids);
+
+                ImGui::End();
+            }
+
+            // Debug Window
+            {
+                ImGui::Begin("Debug");
+
+                renderDebugMenu();
+
+                ImGui::End();
+            }
+
+            ImGui::Render();
+
+            ImGui::UpdatePlatformWindows();
+            ImGui::RenderPlatformWindowsDefault();
+
+            ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), ctx->renderer);
         }
     }
 }  // namespace Renderer

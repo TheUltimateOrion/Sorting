@@ -7,7 +7,17 @@ namespace Sort
 
     enum FlagGroup
     {
+        CreatingThread,
+
+        StartShuffling,
+        DoneShuffling,
+
+        StartSorting,
         DoneSorting,
+
+        StartChecking,
+        DoneChecking,
+
         Quit,
         SortButtonPressed,
         StopButtonPressed,
@@ -15,17 +25,16 @@ namespace Sort
 
     struct Flags
     {
-        std::atomic<bool> hasSorted {true};
+        std::atomic<bool> hasAborted {false};
+        std::atomic<bool> hasQuit {false};
 
         std::atomic<bool> isChecking {false};
         std::atomic<bool> isRunning {false};
         std::atomic<bool> isShuffling {false};
         std::atomic<bool> isSorting {false};
+        std::atomic<bool> isSorted {true};
 
         std::atomic<bool> shouldSort {false};
-
-        std::atomic<bool> wantClose {false};
-        std::atomic<bool> wantStop {false};
 
         void              reset() noexcept;
 

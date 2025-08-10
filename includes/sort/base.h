@@ -9,7 +9,7 @@
 #include <cstddef>
 
 #define RETURN_IF_STOPPED(ret)                                 \
-    if (m_flags.wantClose || m_flags.wantStop) { return ret; }
+    if (m_flags.hasAborted || m_flags.hasQuit) { return ret; }
 
 namespace Core
 {
@@ -48,8 +48,7 @@ namespace Sort
 
         void         swap(SortArray<elem_t>& array, std::size_t a, std::size_t b);
 
-        void         shuffle();
-        void         reverse();
+        void         shuffle(bool t_isReversed);
         void         check();
         void         setLength(std::size_t length);
 

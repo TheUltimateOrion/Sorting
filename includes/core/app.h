@@ -37,6 +37,7 @@ namespace Core
         SDL_Event                           m_event {};
 
         std::optional<std::thread>          m_audioThread {};
+        std::optional<std::thread>          m_sortThread {};
 
         void                                configureIO() noexcept;
 
@@ -49,8 +50,6 @@ namespace Core
     public:
         App() noexcept = default;
         ~App();
-
-        std::optional<std::thread>                    sortThread {};
 
         Utils::Signal                                 init();
         void                                          run();
