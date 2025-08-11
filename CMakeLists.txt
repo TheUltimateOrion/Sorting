@@ -185,8 +185,7 @@ elseif(APPLE)
   # macOS: create a DMG that contains the .app bundle produced by install()
   set(CPACK_GENERATOR "DragNDrop")
   set(CPACK_DMG_VOLUME_NAME "${PROJECT_NAME} ${PROJECT_VERSION}")
-  set(CPACK_DMG_FORMAT "UDZO")                              # compressed
-  set(CPACK_DMG_DS_STORE OFF)
+  set(CPACK_DMG_FORMAT "UDZO")  
   set(CPACK_DMG_DISABLE_APPLICATIONS_SYMLINK OFF)
   # Optional background if you add an image file
   if(EXISTS "${CMAKE_SOURCE_DIR}/macos/dmg_background.png")
