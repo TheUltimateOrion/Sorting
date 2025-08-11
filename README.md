@@ -8,10 +8,9 @@ A C++ sorting algorithm visualizer built with SDL3 and ImGui. The application an
 - Several visual styles including bars, dots, circles and spirals.
 - Adjustable array length and sorting speed.
 - Cross-platform build via CMake.
+- Debug Window for tracking variables
 
-## Building
-
-### Prerequisites
+## Prerequisites
 
 This project requires a **C++20** capable compiler and **CMake 3.28** or newer.
 All third‑party libraries (SDL3, SDL_ttf and OpenAL) are included as git
@@ -23,14 +22,23 @@ git clone --recursive <repo-url>
 git submodule update --init --recursive
 ```
 
-Platform specific setup:
 
-- **Windows**: Install **MSYS2** with either the `mingw64-toolchain` or `ucrt64-toolchain` environment (or use Visual Studio/MSVC). The required dependencies are already provided by the submodules.
+### **Windows**: 
+Install **MSYS2** with either the `mingw64-toolchain` or `ucrt64-toolchain` environment (or use Visual Studio/MSVC).
   
-- **Linux**: Install packages such as `build-essential`, `cmake`, and `ninja-build`.
-  
-- **macOS**: Use Xcode-Build-Tools or install the tools with Homebrew: `brew install cmake ninja`.
+### **Linux**
+Install `build-essential` and `cmake`:
 
+* **Ubuntu/Debian-based** — `sudo apt update && sudo apt install build-essential cmake`
+* **Fedora/Red Hat-based** — `sudo dnf install gcc gcc-c++ make cmake`
+* **Arch/Manjaro-based** — `sudo pacman -S base-devel cmake ninja`
+* **openSUSE** — `sudo zypper install gcc gcc-c++ make cmake`
+
+### **MacOS**
+Use **Brew**: `brew install cmake`.
+
+
+## Building
 ```bash
 cmake -S . -B build
 cmake --build build --target install
@@ -42,9 +50,16 @@ The resulting binaries are placed in the `dist/` directory.
 
 Run the generated `Sorting` executable. The GUI lets you select algorithms, tweak parameters and view real-time statistics.
 
-**Note**: On **MacOS**, you might need to provide _permissions_ in the **_System Preferences_** in order for the app to run.
+> **Note for macOS users:**  
+> If you download the app without an Apple-signed build, macOS may quarantine it and show a **"Damaged"** warning.  
+> To allow it to run, open **Terminal** and run:
+> ```bash
+> sudo xattr -dr com.apple.quarantine /Applications/OrionSort.app
+> ```
+> This removes the quarantine flag so the app can launch normally.
 
-## Tests
+
+## Tests (_Temporarily Unavailable_)
 
 Unit tests are provided with GoogleTest. From the build directory, execute:
 
