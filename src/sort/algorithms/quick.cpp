@@ -19,7 +19,7 @@ namespace Sort
                 swap(elems, static_cast<std::size_t>(i), j);
             }
 
-            elems.incComparisons();
+            elems.addComparisons(1);
             RETURN_IF_STOPPED(0);
         }
 

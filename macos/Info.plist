@@ -4,11 +4,11 @@
 <plist version="1.0">
 <dict>
     <key>CFBundleExecutable</key>
-    <string>Sorting</string>
+    <string>OrionSort</string>
     <key>CFBundleIdentifier</key>
-    <string>com.orion.sorting</string>
+    <string>com.orion.orionsort</string>
     <key>CFBundleName</key>
-    <string>Sorting</string>
+    <string>OrionSort</string>
     <key>CFBundleVersion</key>
     <string>${PROJECT_VERSION}</string>
     <key>CFBundlePackageType</key>

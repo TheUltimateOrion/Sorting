@@ -48,10 +48,10 @@ namespace Sort
                 {
                     swap(elems, i, i + gap);
                     swapped = true;
-
-                    RETURN_IF_STOPPED();
                 }
-                elems.incComparisons();
+                elems.addComparisons(1);
+
+                RETURN_IF_STOPPED();
             }
         }
     }

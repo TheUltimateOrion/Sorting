@@ -41,7 +41,7 @@ namespace Sort
                 indexOfSubArrayTwo++;
             }
 
-            elems.incComparisons();
+            elems.addComparisons(1);
             indexOfMergedArray++;
 
             Core::Timer::Sleep(1.f / BaseSort::s_speed, realTimer);

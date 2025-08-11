@@ -18,7 +18,7 @@ namespace Sort
                 m_first  = j;
                 m_second = min;
 
-                elems.incComparisons();
+                elems.addComparisons(1);
 
                 if (elems[j] < elems[min])
                 {

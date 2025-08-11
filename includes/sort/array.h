@@ -95,24 +95,19 @@ namespace Sort
             std::swap(m_data[t_indexA], m_data[t_indexB]);
         }
 
-        std::atomic<std::size_t> const& getAccesses() const noexcept
+        std::uint64_t getAccesses() const noexcept
         {
-            return m_accessCount;
+            return m_accessCount.load();
         }
 
-        std::atomic<std::size_t> const& getSwaps() const noexcept
+        std::uint64_t getSwaps() const noexcept
         {
-            return m_swapCount;
+            return m_swapCount.load();
         }
 
-        std::atomic<std::size_t> const& getComparisons() const noexcept
+        std::uint64_t getComparisons() const noexcept
         {
-            return m_compCount;
-        }
-
-        void incComparisons() noexcept
-        {
-            m_compCount++;
+            return m_compCount.load();
         }
 
         void addComparisons(std::uint64_t t_compCount) noexcept

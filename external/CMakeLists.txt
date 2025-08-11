@@ -1,5 +1,7 @@
 add_subdirectory(openal-soft EXCLUDE_FROM_ALL)
 add_subdirectory(SDL)
+
+set(SDLTTF_VENDORED ON)  # SDL_ttf builds its own dependencies
 add_subdirectory(SDL_ttf)
 
 

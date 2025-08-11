@@ -31,7 +31,8 @@ namespace Renderer
 
     void UI::renderAboutWindow() noexcept
     {
-        if (ImGui::BeginPopupModal("OrionSort##modal", nullptr))
+        ImGui::SetNextWindowSize(ImVec2(550.0f, 450.0f));
+        if (ImGui::BeginPopupModal("OrionSort##modal", nullptr, ImGuiWindowFlags_NoResize))
         {
             ImGui::Text("OrionSort");
             ImGui::SameLine();
@@ -153,6 +154,8 @@ namespace Renderer
                 ImGui::CloseCurrentPopup();
             }
 
+            ImGui::Checkbox("Debug Mode", &m_uiState.isDebugMode);
+
             ImGui::EndPopup();
         }
     }
@@ -161,12 +164,12 @@ namespace Renderer
     {
         if (auto appShared = m_app.lock())
         {
-            Renderer::RenderContext const* const ctx         = appShared->getContext();
+            RenderContext const* const ctx         = appShared->getContext();
 
-            SDL_Surface*                         textSurface = TTF_RenderText_Solid(ctx->font, t_txt.c_str(), 0, t_col);
-            SDL_Texture*                         text        = SDL_CreateTextureFromSurface(ctx->renderer, textSurface);
-            float                                text_width  = static_cast<float>(textSurface->w);
-            float                                text_height = static_cast<float>(textSurface->h);
+            SDL_Surface*               textSurface = TTF_RenderText_Solid(ctx->font, t_txt.c_str(), 0, t_col);
+            SDL_Texture*               text        = SDL_CreateTextureFromSurface(ctx->renderer, textSurface);
+            float                      text_width  = static_cast<float>(textSurface->w);
+            float                      text_height = static_cast<float>(textSurface->h);
 
             SDL_DestroySurface(textSurface);
             SDL_FRect renderQuad {t_x, t_y, text_width, text_height};
@@ -179,13 +182,13 @@ namespace Renderer
     {
         if (auto appShared = m_app.lock())
         {
-            auto&                                sorter       = appShared->getSorter();
-            Core::SortRegistry const&            registry     = appShared->getRegistry();
-            Renderer::RenderContext const* const ctx          = appShared->getContext();
+            auto&                          sorter       = appShared->getSorter();
+            Core::SortRegistry const&      registry     = appShared->getRegistry();
+            RenderContext const* const     ctx          = appShared->getContext();
 
-            Sort::Flags&                         flags        = sorter->getFlags();
-            std::vector<std::string>             ids          = registry.idsByCategory(m_uiState.sortCategory);
-            Core::SortRegistryEntry const*       currentEntry = registry.get(ids[m_uiState.sortIndex]);
+            Sort::Flags&                   flags        = sorter->getFlags();
+            std::vector<std::string>       ids          = registry.idsByCategory(m_uiState.sortCategory);
+            Core::SortRegistryEntry const* currentEntry = registry.get(ids[m_uiState.sortIndex]);
 
             {
                 Uint8 _r, _g, _b, _a;
@@ -253,38 +256,74 @@ namespace Renderer
 
     void UI::renderDebugMenu()
     {
-#define IMGUI_DEBUG_FLAG(flags, boolVal) ImGui::Text(std::format(#boolVal ": {}", flags.boolVal.load()).c_str());
-#define IMGUI_DEBUG_UISTATE(uiObj, data) ImGui::Text(std::format(#data ": {}", uiObj.data).c_str());
+#define IMGUI_DEBUG_FLAG(flags, boolVal)                                     \
+    ImGui::TableNextRow();                                                   \
+    ImGui::TableNextColumn();                                                \
+    ImGui::Text(#boolVal);                                                   \
+    ImGui::TableNextColumn();                                                \
+    ImGui::TextUnformatted(std::format("{}", flags.boolVal.load()).c_str());
+
+#define IMGUI_DEBUG_UISTATE(uiObj, data)                           \
+    ImGui::TableNextRow();                                         \
+    ImGui::TableNextColumn();                                      \
+    ImGui::Text(#data);                                            \
+    ImGui::TableNextColumn();                                      \
+    ImGui::TextUnformatted(std::format("{}", uiObj.data).c_str());
+
+        ImGui::Text(
+            "Application average %.3f ms/frame (%.1f FPS)",
+            1000.0f / Core::Platform::Display::getFramerate(),
+            Core::Platform::Display::getFramerate()
+        );
+
+        ImGui::Spacing();
+        ImGui::SeparatorText("Debug Variables");
+        ImGui::Spacing();
 
         if (auto appShared = m_app.lock())
         {
             Sort::Flags& flags = appShared->getSorter()->getFlags();
             if (ImGui::CollapsingHeader("Sorting Flags"))
             {
-                IMGUI_DEBUG_FLAG(flags, hasAborted);
-                IMGUI_DEBUG_FLAG(flags, hasQuit);
+                if (ImGui::BeginTable("debug_flags", 2, ImGuiTableFlags_SizingStretchProp | ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersInnerV))
+                {
+                    IMGUI_DEBUG_FLAG(flags, hasAborted);
+                    IMGUI_DEBUG_FLAG(flags, hasQuit);
 
-                IMGUI_DEBUG_FLAG(flags, isChecking);
-                IMGUI_DEBUG_FLAG(flags, isRunning);
-                IMGUI_DEBUG_FLAG(flags, isShuffling);
-                IMGUI_DEBUG_FLAG(flags, isSorted);
-                IMGUI_DEBUG_FLAG(flags, isSorting);
+                    IMGUI_DEBUG_FLAG(flags, isChecking);
+                    IMGUI_DEBUG_FLAG(flags, isRunning);
+                    IMGUI_DEBUG_FLAG(flags, isShuffling);
+                    IMGUI_DEBUG_FLAG(flags, isSorted);
+                    IMGUI_DEBUG_FLAG(flags, isSorting);
 
-                IMGUI_DEBUG_FLAG(flags, shouldSort);
+                    IMGUI_DEBUG_FLAG(flags, shouldSort);
+
+                    ImGui::EndTable();
+                }
             }
+
+            ImGui::Spacing();
             ImGui::Separator();
+            ImGui::Spacing();
+
             if (ImGui::CollapsingHeader("UI State"))
             {
-                IMGUI_DEBUG_UISTATE(m_uiState, arrayLength);
-                IMGUI_DEBUG_UISTATE(m_uiState, isColored);
-                IMGUI_DEBUG_UISTATE(m_uiState, isReversed);
-                IMGUI_DEBUG_UISTATE(m_uiState, sortParameter);
-                IMGUI_DEBUG_UISTATE((int) m_uiState, sortCategory);
-                IMGUI_DEBUG_UISTATE((int) m_uiState, sortDisplayType);
-                IMGUI_DEBUG_UISTATE(m_uiState, sortIndex);
+                if (ImGui::BeginTable("debug_uistate", 2, ImGuiTableFlags_SizingStretchProp | ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersInnerV))
+                {
+                    IMGUI_DEBUG_UISTATE(m_uiState, arrayLength);
+                    IMGUI_DEBUG_UISTATE(m_uiState, isColored);
+                    IMGUI_DEBUG_UISTATE(m_uiState, isReversed);
+                    IMGUI_DEBUG_UISTATE(m_uiState, sortParameter);
+                    IMGUI_DEBUG_UISTATE((int) m_uiState, sortCategory);
+                    IMGUI_DEBUG_UISTATE((int) m_uiState, sortDisplayType);
+                    IMGUI_DEBUG_UISTATE(m_uiState, sortIndex);
+
+                    ImGui::EndTable();
+                }
             }
         }
-#undef IMGUI_DEBUG_BOOL
+#undef IMGUI_DEBUG_FLAG
+#undef IMGUI_DEBUG_UISTATE
     }
 
     void UI::renderSortChooser(
@@ -317,6 +356,8 @@ namespace Renderer
             }
             ImGui::EndCombo();
         }
+
+        ImGui::Spacing();
 
         if (ImGui::BeginCombo(
                 "##combo2", t_currentName.c_str()
@@ -375,7 +416,9 @@ namespace Renderer
         ImGui::InputFloat("Set Speed", &Sort::BaseSort::s_speed, 0.001f);
         Sort::BaseSort::s_speed = std::clamp<float>(Sort::BaseSort::s_speed, 0.001f, 1000.f);
 
-        int length              = static_cast<int>(m_uiState.arrayLength);
+        ImGui::Spacing();
+
+        int length = static_cast<int>(m_uiState.arrayLength);
         ImGui::InputInt("Set Array Length", &length, 2);
         m_uiState.arrayLength = std::clamp<size_t>(length, 2, 1024 * 10);
 
@@ -405,6 +448,8 @@ namespace Renderer
                 "%d"
             );
         }
+
+        ImGui::Spacing();
 
         ImGui::Checkbox("Reverse instead of Shuffling", &m_uiState.isReversed);
     }
@@ -473,6 +518,7 @@ namespace Renderer
         {
             auto&                     sorter   = appShared->getSorter();
             Core::SortRegistry const& registry = appShared->getRegistry();
+            RenderContext const*      ctx      = appShared->getContext();
 
             std::vector<std::string>  ids      = registry.idsByCategory(m_uiState.sortCategory);
 
@@ -506,11 +552,8 @@ namespace Renderer
                     ImGui::EndMenuBar();
                 }
 
-                ImGui::Text(
-                    "Application average %.3f ms/frame (%.1f FPS)",
-                    1000.0f / Core::Platform::Display::getFramerate(),
-                    Core::Platform::Display::getFramerate()
-                );
+                ImGui::SeparatorText("Sort Selection");
+                ImGui::Spacing();
 
                 renderSortChooser(registry, currentName, ids);
 
@@ -536,7 +579,10 @@ namespace Renderer
             }
 
             // Debug Window
+            if (m_uiState.isDebugMode)
             {
+                ImGui::SetNextWindowSize(ImVec2(400.0f, 300.0f), ImGuiCond_Once);
+                ImGui::SetNextWindowPos(ImVec2(ctx->winWidth / 2, ctx->winHeight / 2), ImGuiCond_Once);
                 ImGui::Begin("Debug");
 
                 renderDebugMenu();

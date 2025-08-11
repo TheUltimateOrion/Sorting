@@ -1,4 +1,4 @@
-# Sorting
+# OrionSort
 
 A C++ sorting algorithm visualizer built with SDL3 and ImGui. The application animates different sorting techniques with optional audio feedback and flexible display modes.
 
@@ -64,9 +64,10 @@ This project is licensed under the terms of the GNU GPLv3. See the [LICENSE](LIC
 - [x] Real-time display along with apparent time.
 - [x] Fix obscure big involving freezing when starting a sort
 - [x] Streamline counting accesses, comparisions, swaps, etc...
-- [ ] Improve options and selection screen
+- [x] Improve options and selection screen
 - [x] Sort registry for easier addition of new algorithms
 - [ ] Shorten GCC compile times (Linux & Windows) by atleast 25%
 - [ ] At least 25 sorting algorithms
 - [ ] Better audio output - less crackly, more satisfying
-- [x] Fully high DPI compliant
+- [ ] Fully high DPI compliant
+- [x] CPack Integration

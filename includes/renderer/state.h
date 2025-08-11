@@ -11,6 +11,7 @@ namespace Renderer
     struct UIState
     {
         std::size_t    arrayLength {512};
+        bool           isDebugMode {false};
         bool           isColored {false};
         bool           isImGuiOpen {true};
         bool           isReversed {false};

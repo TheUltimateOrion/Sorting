@@ -8,8 +8,8 @@
 
 #include <cstddef>
 
-#define RETURN_IF_STOPPED(ret)                                 \
-    if (m_flags.hasAborted || m_flags.hasQuit) { return ret; }
+#define RETURN_IF_STOPPED(ret)                                              \
+    if (m_flags.hasAborted || m_flags.hasQuit) [[unlikely]] { return ret; }
 
 namespace Core
 {

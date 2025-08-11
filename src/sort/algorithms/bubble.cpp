@@ -19,7 +19,7 @@ namespace Sort
                     RETURN_IF_STOPPED();
                 }
 
-                elems.incComparisons();
+                elems.addComparisons(1);
             }
         }
     }
