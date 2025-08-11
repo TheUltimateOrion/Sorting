@@ -16,7 +16,6 @@ namespace Sort
 
         if (elems.empty() || max <= 0)
         {
-            m_flags.setFlags(FlagGroup::DoneSorting);
             return;
         }
 
@@ -51,7 +50,7 @@ namespace Sort
                 m_first  = i;
                 m_second = i;
 
-                Core::Timer::sleep(1.f / BaseSort::s_speed, realTimer);
+                Core::Timer::Sleep(1.f / BaseSort::s_speed, realTimer);
                 RETURN_IF_STOPPED();
             }
         }

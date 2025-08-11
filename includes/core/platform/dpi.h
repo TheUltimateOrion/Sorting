@@ -12,6 +12,6 @@ namespace Core::Platform
         DPI() noexcept  = default;
         ~DPI() noexcept = default;
 
-        static DPI from(SDL_Window* t_window, SDL_Renderer* t_renderer);
+        static DPI From(SDL_Window* t_window, SDL_Renderer* t_renderer);
     };
 }  // namespace Core::Platform

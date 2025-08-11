@@ -4,15 +4,20 @@
 
 namespace Core
 {
+    void Timer::reset() noexcept
+    {
+        m_start.reset();
+        m_end.reset();
+        m_pauseStart.reset();
+    }
+
     void Timer::start() noexcept
     {
         std::scoped_lock lock {m_mutex};
 
-        m_start = std::chrono::high_resolution_clock::now();
+        reset();
 
-        m_end.reset();
-        m_pauseStart.reset();
-
+        m_start         = std::chrono::high_resolution_clock::now();
         m_pauseDuration = std::chrono::duration<double>::zero();
 
         m_paused        = false;
@@ -94,7 +99,7 @@ namespace Core
         return live;
     }
 
-    double Timer::getTimestamp()
+    double Timer::GetTimestamp()
     {
         static auto start = std::chrono::high_resolution_clock::now();
         auto        now   = std::chrono::high_resolution_clock::now();

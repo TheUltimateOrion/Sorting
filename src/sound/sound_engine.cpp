@@ -4,7 +4,7 @@
 
 #include <cmath>
 
-SoundEngine* SoundEngine::get()
+SoundEngine* SoundEngine::Get()
 {
     static SoundEngine instance;
     return &instance;

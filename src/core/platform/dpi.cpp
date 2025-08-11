@@ -2,7 +2,7 @@
 
 namespace Core::Platform
 {
-    DPI DPI::from(SDL_Window* t_window, SDL_Renderer* t_renderer)
+    DPI DPI::From(SDL_Window* t_window, SDL_Renderer* t_renderer)
     {
         DPI dpi;
 

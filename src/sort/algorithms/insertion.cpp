@@ -20,7 +20,7 @@ namespace Sort
                 m_second = j - 1;
                 --j;
 
-                Core::Timer::sleep(1.f / BaseSort::s_speed, realTimer);
+                Core::Timer::Sleep(1.f / BaseSort::s_speed, realTimer);
                 RETURN_IF_STOPPED();
             }
 
@@ -28,7 +28,7 @@ namespace Sort
             m_first  = j;
             m_second = i;
 
-            Core::Timer::sleep(1.f / BaseSort::s_speed, realTimer);
+            Core::Timer::Sleep(1.f / BaseSort::s_speed, realTimer);
             RETURN_IF_STOPPED();
         }
     }

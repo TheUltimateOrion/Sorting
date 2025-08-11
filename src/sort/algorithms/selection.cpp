@@ -25,7 +25,7 @@ namespace Sort
                     min = j;
                 }
 
-                Core::Timer::sleep(1.f / BaseSort::s_speed, realTimer);
+                Core::Timer::Sleep(1.f / BaseSort::s_speed, realTimer);
                 RETURN_IF_STOPPED();
             }
             if (min != i)

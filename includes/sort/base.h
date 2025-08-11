@@ -48,6 +48,8 @@ namespace Sort
 
         void         swap(SortArray<elem_t>& array, std::size_t a, std::size_t b);
 
+        void         reset() noexcept;
+
         void         shuffle(bool t_isReversed);
         void         check();
         void         setLength(std::size_t length);

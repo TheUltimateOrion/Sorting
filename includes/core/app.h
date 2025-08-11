@@ -5,7 +5,7 @@
     #include "renderer/ui.h"
 #endif
 
-#include "core/app_ctx.h"
+#include "renderer/context.h"
 #include "renderer/disp_type.h"
 #include "sound/sound_engine.h"
 
@@ -30,7 +30,7 @@ namespace Core
         std::shared_ptr<Sort::BaseSort>     m_sorter;
 
         SoundEngine*                        m_soundEngine {nullptr};
-        Core::Ctx*                          m_ctx {nullptr};
+        Renderer::RenderContext*            m_ctx {nullptr};
 
         Renderer::UI                        m_UI {nullptr};
         Core::SortRegistry                  m_sortRegistry {nullptr};
@@ -39,7 +39,9 @@ namespace Core
         std::optional<std::thread>          m_audioThread {};
         std::optional<std::thread>          m_sortThread {};
 
-        void                                configureIO() noexcept;
+        void                                createAudioThread();
+        void                                createSortThread();
+        void                                setImGuiStyle() const noexcept;
 
         [[nodiscard]] Utils::Signal         initSDL();
         [[nodiscard]] Utils::Signal         initImGui();
@@ -54,12 +56,9 @@ namespace Core
         Utils::Signal                                 init();
         void                                          run();
 
-        void                                          startAudioThread();
-        void                                          setStyle(ImGuiStyle& t_style) const noexcept;
-
         inline Core::SortRegistry const&              getRegistry() const { return m_sortRegistry; }
 
-        inline Core::Ctx const*                       getContext() const { return m_ctx; }
+        inline Renderer::RenderContext const*         getContext() const { return m_ctx; }
 
         inline std::shared_ptr<Sort::BaseSort> const& getSorter() const { return m_sorter; }
 

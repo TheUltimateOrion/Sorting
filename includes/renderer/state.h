@@ -14,6 +14,7 @@ namespace Renderer
         bool           isColored {false};
         bool           isImGuiOpen {true};
         bool           isReversed {false};
+        bool           isAboutPopupOpened {false};
         std::int64_t   sortParameter {1};
         Sort::Category sortCategory {Sort::Category::Exchange};
         DisplayType    sortDisplayType {DisplayType::Bar};

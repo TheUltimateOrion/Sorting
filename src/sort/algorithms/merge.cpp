@@ -44,7 +44,7 @@ namespace Sort
             elems.incComparisons();
             indexOfMergedArray++;
 
-            Core::Timer::sleep(1.f / BaseSort::s_speed, realTimer);
+            Core::Timer::Sleep(1.f / BaseSort::s_speed, realTimer);
 
             RETURN_IF_STOPPED();
         }
@@ -60,7 +60,7 @@ namespace Sort
             indexOfSubArrayOne++;
             indexOfMergedArray++;
 
-            Core::Timer::sleep(1.f / BaseSort::s_speed, realTimer);
+            Core::Timer::Sleep(1.f / BaseSort::s_speed, realTimer);
 
             RETURN_IF_STOPPED();
         }
@@ -76,7 +76,7 @@ namespace Sort
             indexOfSubArrayTwo++;
             indexOfMergedArray++;
 
-            Core::Timer::sleep(1.f / BaseSort::s_speed, realTimer);
+            Core::Timer::Sleep(1.f / BaseSort::s_speed, realTimer);
 
             RETURN_IF_STOPPED();
         }

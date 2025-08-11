@@ -12,7 +12,7 @@ namespace Sort
         isRunning   = false;
         isShuffling = false;
         isSorting   = false;
-        isSorted    = true;
+        isSorted    = false;
 
         shouldSort  = false;
     }

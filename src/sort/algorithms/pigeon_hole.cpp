@@ -14,7 +14,6 @@ namespace Sort
 
         if (elems.empty())
         {
-            m_flags.setFlags(FlagGroup::DoneSorting);
             return;
         }
 
@@ -34,7 +33,7 @@ namespace Sort
             m_first  = i;
             m_second = m_first.load();
 
-            Core::Timer::sleep(1.f / BaseSort::s_speed, realTimer);
+            Core::Timer::Sleep(1.f / BaseSort::s_speed, realTimer);
 
             RETURN_IF_STOPPED();
             elems.addComparisons(2);
@@ -57,7 +56,7 @@ namespace Sort
                 m_second     = i;
                 ++index;
 
-                Core::Timer::sleep(1.f / BaseSort::s_speed, realTimer);
+                Core::Timer::Sleep(1.f / BaseSort::s_speed, realTimer);
                 RETURN_IF_STOPPED();
             }
         }

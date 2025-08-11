@@ -1,8 +1,8 @@
 #define SDL_MAIN_HANDLED
 
 #include "core/app.h"
-#include "core/app_ctx.h"
 #include "core/logging/logging.h"
+#include "renderer/context.h"
 
 #include <memory>
 

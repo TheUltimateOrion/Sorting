@@ -26,7 +26,7 @@ public:
     SoundEngine() noexcept = default;
     ~SoundEngine() noexcept;
 
-    static SoundEngine*         get();
+    static SoundEngine*         Get();
 
     ALenum                      alGetLastError() const noexcept;
     char const*                 alErrorString(ALenum t_err) const noexcept;

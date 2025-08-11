@@ -1,7 +1,7 @@
 #include "sort/base.h"
 
-#include "core/app_ctx.h"
 #include "core/logging/logging.h"
+#include "renderer/context.h"
 #include "utils/common.h"
 
 #include <algorithm>
@@ -17,9 +17,15 @@ namespace Sort
 
     void  BaseSort::generateArray(std::size_t t_size)
     {
-        LOGINFO("Generating array");
-        elems.resize(t_size);
-        for (std::size_t i = 0; i < t_size; ++i) { elems[i] = static_cast<elem_t>(i + 1); }
+        if (t_size != elems.size())
+        {
+            elems.resize(t_size);
+        }
+
+        for (std::size_t i = 0; i < t_size; ++i)
+        {
+            elems[i] = static_cast<elem_t>(i + 1);
+        }
     }
 
     BaseSort::BaseSort()
@@ -55,7 +61,7 @@ namespace Sort
             m_first  = i;
             m_second = m_first.load();
 
-            Core::Timer::sleep(1000.0 / static_cast<double>(elems.size()), realTimer);
+            Core::Timer::Sleep(1000.0 / static_cast<double>(elems.size()));
             RETURN_IF_STOPPED();
         }
 
@@ -83,7 +89,7 @@ namespace Sort
             m_first  = i;
             m_second = m_first.load();
 
-            Core::Timer::sleep(500.0 / static_cast<double>(auxillary.size()), realTimer);
+            Core::Timer::Sleep(500.0 / static_cast<double>(auxillary.size()));
             RETURN_IF_STOPPED();
         }
 
@@ -99,7 +105,7 @@ namespace Sort
 
         array.swap(a, b);
 
-        Core::Timer::sleep(1.f / BaseSort::s_speed, realTimer);
+        Core::Timer::Sleep(1.f / BaseSort::s_speed, realTimer);
     }
 
     void BaseSort::setLength(std::size_t len)
@@ -107,4 +113,14 @@ namespace Sort
         LOGINFO("Resizing to " << len);
         generateArray(len);
     }
+
+    void BaseSort::reset() noexcept
+    {
+        generateArray(elems.size());
+        m_first = m_second = 0;
+        m_flags.reset();
+        realTimer.reset();
+        timer.reset();
+    }
+
 }  // namespace Sort

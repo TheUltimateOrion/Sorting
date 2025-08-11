@@ -26,11 +26,10 @@ namespace Core
         void               end() noexcept;
         void               pause() noexcept;
         void               resume() noexcept;
+        void               reset() noexcept;
         double             getDuration() const;
 
-        static double      getTimestamp();
-
-        inline static void sleep(double t_ms, Timer& t_timer) noexcept
+        inline static void Sleep(double t_ms, Timer& t_timer) noexcept
         {
             auto start = std::chrono::high_resolution_clock::now();
             t_timer.pause();
@@ -45,5 +44,18 @@ namespace Core
                 }
             }
         }
+
+        inline static void Sleep(double t_ms) noexcept
+        {
+            auto start = std::chrono::high_resolution_clock::now();
+            while (true)
+            {
+                auto   now     = std::chrono::high_resolution_clock::now();
+                double elapsed = std::chrono::duration<double, std::milli>(now - start).count();
+                if (elapsed >= t_ms) { break; }
+            }
+        }
+
+        static double GetTimestamp();
     };
 }  // namespace Core

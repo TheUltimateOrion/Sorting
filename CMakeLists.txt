@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.28)
 
-project(Sorting VERSION 1.2.1)
+project(Sorting VERSION 1.3.0)
 
 # Project-wide settings
 set(CMAKE_CXX_STANDARD 20)
@@ -28,10 +28,15 @@ file(GLOB_RECURSE SOURCE_FILES CONFIGURE_DEPENDS src/*.cpp)
 # Define executable
 add_executable(${PROJECT_NAME} MACOSX_BUNDLE ${SOURCE_FILES})
 
+target_compile_definitions(
+    ${PROJECT_NAME} PRIVATE 
+APP_VERSION="${PROJECT_VERSION}"
+GITHUB_REPO="https://github.com/TheUltimateOrion/Sorting/"
+)
+
 target_include_directories(${PROJECT_NAME} PRIVATE 
     includes/
 )
-
 
 target_link_libraries(${PROJECT_NAME} PRIVATE ImGui SDL3::SDL3 SDL3_ttf::SDL3_ttf OpenAL::OpenAL ImGui::ImGui)
 

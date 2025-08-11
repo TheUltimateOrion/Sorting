@@ -17,6 +17,7 @@ namespace Core
 
 namespace Renderer
 {
+
     class UI
     {
     private:
@@ -27,6 +28,7 @@ namespace Renderer
         std::array<char const*, 5> m_sortCategories {"Exchange", "Distribution", "Insertion", "Merge", "Select"};
         std::array<char const*, 8> m_sortDisplayTypes {"Bar", "Dot", "Rainbow Rectangle", "Circle", "Circle Dot", "Disparity Circle", "Spiral", "Spiral Dot"};
 
+        void                       renderAboutWindow() noexcept;
         void                       renderDebugMenu();
         void                       renderText(std::string const& t_txt, float t_x, float t_y, SDL_Color t_col) const noexcept;
         void                       renderInfo() const noexcept;
@@ -38,7 +40,7 @@ namespace Renderer
                               );
         void renderSortDisplayConfigs();
         void renderSortAlgorithmConfigs(Core::SortRegistryEntry const* const t_currentEntry);
-        void renderSortButtons(
+        void renderActionButtons(
             Core::SortRegistryEntry const* const t_currentEntry,
             std::vector<std::string> const&      t_ids
         );

@@ -1,4 +1,4 @@
-#include "core/app_ctx.h"
+#include "renderer/context.h"
 
 #include "core/logging/logging.h"
 #include "core/platform/display.h"
@@ -8,11 +8,11 @@
 
 #include <cstdint>
 
-namespace Core
+namespace Renderer
 {
-    Ctx* Ctx::createContext(float t_width, float t_height, std::uint16_t t_fps)
+    RenderContext* RenderContext::CreateContext(float t_width, float t_height, std::uint16_t t_fps)
     {
-        Ctx*                   ctx       = new Ctx;
+        RenderContext*         ctx       = new RenderContext;
 
         SDL_DisplayID          displayID = Core::Platform::Display::getCurrentDisplayID();
         SDL_DisplayMode const* mode      = Core::Platform::Display::getDisplayMode(displayID);
@@ -22,18 +22,18 @@ namespace Core
         ctx->winHeight                   = t_height / mode->pixel_density;
 
         LOGINFO("Creating SDL Window");
-        ctx->window = SDL_CreateWindow("Sorting Algorithms", ctx->winWidth, ctx->winHeight, SDL_WINDOW_HIGH_PIXEL_DENSITY);
+        ctx->window = SDL_CreateWindow(std::format("OrionSort v{}", APP_VERSION).c_str(), ctx->winWidth, ctx->winHeight, SDL_WINDOW_HIGH_PIXEL_DENSITY);
 
         LOGINFO("Creating SDL renderer");
         ctx->renderer = SDL_CreateRenderer(ctx->window, nullptr);
 
-        ctx->dpi      = Core::Platform::DPI::from(ctx->window, ctx->renderer);
+        ctx->dpi      = Core::Platform::DPI::From(ctx->window, ctx->renderer);
 
         SDL_SetRenderScale(ctx->renderer, ctx->dpi.scaleX, ctx->dpi.scaleY);
         return ctx;
     }
 
-    void Ctx::destroyContext(Ctx* t_ctx)
+    void RenderContext::DestroyContext(RenderContext* t_ctx)
     {
         LOGINFO("Destroying SDL renderer");
         if (t_ctx->renderer) { SDL_DestroyRenderer(t_ctx->renderer); }
@@ -47,7 +47,7 @@ namespace Core
         delete t_ctx;
     }
 
-    Utils::Signal Ctx::createFont(std::string const& relativePath)
+    Utils::Signal RenderContext::createFont(std::string const& relativePath)
     {
         std::string basePath {SDL_GetBasePath()};
         font = TTF_OpenFont((basePath + relativePath).c_str(), 12);
@@ -65,4 +65,4 @@ namespace Core
         return Utils::Signal::Success;
     }
 
-}  // namespace Core
+}  // namespace Renderer

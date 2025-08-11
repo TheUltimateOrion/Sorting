@@ -46,7 +46,7 @@ namespace Sort
             m_first  = i;
             m_second = ((output[i] - minValue) / exponent) % radix;
 
-            Core::Timer::sleep(1.f / BaseSort::s_speed, realTimer);
+            Core::Timer::Sleep(1.f / BaseSort::s_speed, realTimer);
         }
     }
 
@@ -54,7 +54,6 @@ namespace Sort
     {
         if (elems.empty())
         {
-            m_flags.setFlags(FlagGroup::DoneSorting);
             return;
         }
 

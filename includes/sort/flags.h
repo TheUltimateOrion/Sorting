@@ -32,7 +32,7 @@ namespace Sort
         std::atomic<bool> isRunning {false};
         std::atomic<bool> isShuffling {false};
         std::atomic<bool> isSorting {false};
-        std::atomic<bool> isSorted {true};
+        std::atomic<bool> isSorted {false};
 
         std::atomic<bool> shouldSort {false};
 

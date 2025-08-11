@@ -1,8 +1,8 @@
 #include "renderer/sort_view.h"
 
 #include "core/app.h"
-#include "core/app_ctx.h"
 #include "core/logging/logging.h"
+#include "renderer/context.h"
 #include "renderer/disp_type.h"
 #include "renderer/state.h"
 #include "sort/category.h"
@@ -31,7 +31,7 @@ namespace Renderer
         {
             if (k >= m_elems.size()) { return; }
 
-            Core::Ctx const* const ctx = appShared->getContext();
+            Renderer::RenderContext const* const ctx = appShared->getContext();
 
             switch (m_uiState.sortDisplayType)
             {
@@ -217,8 +217,8 @@ namespace Renderer
         m_uiState = t_uiState;
         if (auto appShared = m_app.lock())
         {
-            auto&                  sorter = appShared->getSorter();
-            Core::Ctx const* const ctx    = appShared->getContext();
+            auto&                                sorter = appShared->getSorter();
+            Renderer::RenderContext const* const ctx    = appShared->getContext();
 
             SDL_SetRenderDrawColor(ctx->renderer, 0x0, 0x0, 0x0, 0x0);
             SDL_RenderClear(ctx->renderer);

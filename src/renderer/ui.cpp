@@ -1,9 +1,10 @@
 #include "renderer/ui.h"
 
 #include "core/app.h"
-#include "core/app_ctx.h"
 #include "core/logging/logging.h"
+#include "core/platform/build_info.h"
 #include "core/platform/display.h"
+#include "renderer/context.h"
 #include "renderer/state.h"
 #include "sort/category.h"
 #include "sort/flags.h"
@@ -17,6 +18,7 @@
 #include <format>
 #include <limits>
 #include <optional>
+#include <sstream>
 #include <thread>
 #include <vector>
 
@@ -27,16 +29,144 @@ namespace Renderer
 {
     UI::UI(std::shared_ptr<Core::App> t_app) noexcept : m_app {t_app} { }
 
+    void UI::renderAboutWindow() noexcept
+    {
+        if (ImGui::BeginPopupModal("OrionSort##modal", nullptr))
+        {
+            ImGui::Text("OrionSort");
+            ImGui::SameLine();
+            ImGui::TextDisabled("v%s", APP_VERSION);
+
+            ImGui::Separator();
+
+            // --- Build / Environment (two-column table) ---
+            if (ImGui::BeginTable("about_kv", 2, ImGuiTableFlags_SizingStretchProp | ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersInnerV))
+            {
+                auto row = [](char const* k, char const* v)
+                {
+                    ImGui::TableNextRow();
+                    ImGui::TableNextColumn();
+                    ImGui::TextUnformatted(k);
+                    ImGui::TableNextColumn();
+                    ImGui::TextUnformatted(v);
+                };
+
+                // Build & toolchain
+                ImGui::TableNextRow();
+                ImGui::TableNextColumn();
+                ImGui::TextDisabled("Build");
+                ImGui::TableNextColumn();
+                ImGui::Text("%s, %s %s", Core::Platform::BuildType(), __DATE__, __TIME__);
+
+                row("OS", Core::Platform::OSName());
+                row("Arch", (sizeof(void*) == 8) ? "x64 (64-bit)" : "x86 (32-bit)");
+                {
+                    static std::string const comp = Core::Platform::CompilerString();
+                    row("Compiler", comp.c_str());
+                }
+                row("C++ Standard", Core::Platform::CppStandard());
+
+                // ImGui/backend/runtime info
+                row("Dear ImGui", ImGui::GetVersion());
+                {
+                    ImGuiIO const& io = ImGui::GetIO();
+                    row("Backend (Platform)", io.BackendPlatformName ? io.BackendPlatformName : "Unknown");
+                    row("Backend (Renderer)", io.BackendRendererName ? io.BackendRendererName : "Unknown");
+                }
+
+                {
+                    ImGuiIO const& io = ImGui::GetIO();
+                    char           buf[128];
+                    std::snprintf(buf, sizeof(buf), "%.0fx%.0f (scale %.2f)", io.DisplaySize.x, io.DisplaySize.y, io.FontGlobalScale);
+                    row("Display", buf);
+                }
+                {
+                    ImGuiIO const& io = ImGui::GetIO();
+                    char           buf[128];
+                    float const    fps = io.Framerate;
+                    float const    ms  = (fps > 0.01f) ? (1000.0f / fps) : 0.0f;
+                    std::snprintf(buf, sizeof(buf), "%.1f FPS (%.2f ms/frame)", fps, ms);
+                    row("Performance", buf);
+                }
+
+                ImGui::EndTable();
+            }
+
+            ImGui::Separator();
+            if (ImGui::CollapsingHeader("Notes", ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                ImGui::BulletText("This is a sorting visualizer built for clarity and speed.");
+                ImGui::BulletText("Supports multiple algorithms and live step visualization.");
+                ImGui::BulletText("Use the menu to change algorithms, size, and speed.");
+            }
+
+            if (ImGui::CollapsingHeader("Credits"))
+            {
+                ImGui::BulletText("Dear ImGui (MIT)");
+                ImGui::BulletText("SDL (Zlib)");
+                ImGui::BulletText("SDL_ttf (Zlib)");
+                ImGui::BulletText("OpenAL-Soft (GPL v2)");
+            }
+
+            if (ImGui::CollapsingHeader("Keyboard Shortcuts"))
+            {
+                ImGui::BulletText("Work in Progress!!!");
+            }
+
+            // --- Action row ---
+            ImGui::Separator();
+            ImGui::Spacing();
+            if (ImGui::Button("Copy diagnostics"))
+            {
+                std::stringstream ss;
+                ImGuiIO const&    io = ImGui::GetIO();
+                ss << "OrionSort v" << APP_VERSION
+#ifdef GIT_COMMIT_HASH
+                   << " (" << GIT_COMMIT_HASH << ")"
+#endif
+                   << "\nBuild: " << Core::Platform::BuildType() << ", " << __DATE__ << " " << __TIME__
+                   << "\nOS: " << Core::Platform::OSName()
+                   << "\nArch: " << ((sizeof(void*) == 8) ? "x64" : "x86")
+                   << "\nCompiler: " << Core::Platform::CompilerString()
+                   << "\nC++: " << Core::Platform::CppStandard()
+                   << "\nDear ImGui: " << ImGui::GetVersion()
+                   << "\nBackend(Platform): " << (io.BackendPlatformName ? io.BackendPlatformName : "Unknown")
+                   << "\nBackend(Renderer): " << (io.BackendRendererName ? io.BackendRendererName : "Unknown")
+                   << "\nDisplay: " << io.DisplaySize.x << "x" << io.DisplaySize.y
+                   << " (scale " << io.FontGlobalScale << ")"
+                   << "\nPerf: " << io.Framerate << " FPS ("
+                   << (io.Framerate > 0.01f ? (1000.0f / io.Framerate) : 0.0f) << " ms/frame)";
+                ImGui::SetClipboardText(ss.str().c_str());
+            }
+            ImGui::SameLine();
+
+            if (ImGui::Button("Website")) { SDL_OpenURL(GITHUB_REPO); }
+            ImGui::SameLine();
+            if (ImGui::Button("Report issue")) { SDL_OpenURL(GITHUB_REPO "/issues"); }
+            ImGui::SameLine();
+            if (ImGui::Button("Check updates")) { SDL_OpenURL(GITHUB_REPO "/releases"); }
+
+            ImGui::SameLine();
+            if (ImGui::Button("Close"))
+            {
+                m_uiState.isAboutPopupOpened = false;
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::EndPopup();
+        }
+    }
+
     void UI::renderText(std::string const& t_txt, float t_x, float t_y, SDL_Color t_col) const noexcept
     {
         if (auto appShared = m_app.lock())
         {
-            Core::Ctx const* const ctx         = appShared->getContext();
+            Renderer::RenderContext const* const ctx         = appShared->getContext();
 
-            SDL_Surface*           textSurface = TTF_RenderText_Solid(ctx->font, t_txt.c_str(), 0, t_col);
-            SDL_Texture*           text        = SDL_CreateTextureFromSurface(ctx->renderer, textSurface);
-            float                  text_width  = static_cast<float>(textSurface->w);
-            float                  text_height = static_cast<float>(textSurface->h);
+            SDL_Surface*                         textSurface = TTF_RenderText_Solid(ctx->font, t_txt.c_str(), 0, t_col);
+            SDL_Texture*                         text        = SDL_CreateTextureFromSurface(ctx->renderer, textSurface);
+            float                                text_width  = static_cast<float>(textSurface->w);
+            float                                text_height = static_cast<float>(textSurface->h);
 
             SDL_DestroySurface(textSurface);
             SDL_FRect renderQuad {t_x, t_y, text_width, text_height};
@@ -49,40 +179,39 @@ namespace Renderer
     {
         if (auto appShared = m_app.lock())
         {
-            auto&                          sorter       = appShared->getSorter();
-            Core::SortRegistry const&      registry     = appShared->getRegistry();
-            Core::Ctx const* const         ctx          = appShared->getContext();
+            auto&                                sorter       = appShared->getSorter();
+            Core::SortRegistry const&            registry     = appShared->getRegistry();
+            Renderer::RenderContext const* const ctx          = appShared->getContext();
 
-            Sort::Flags&                   flags        = sorter->getFlags();
-            std::vector<std::string>       ids          = registry.idsByCategory(m_uiState.sortCategory);
-            Core::SortRegistryEntry const* currentEntry = registry.get(ids[m_uiState.sortIndex]);
+            Sort::Flags&                         flags        = sorter->getFlags();
+            std::vector<std::string>             ids          = registry.idsByCategory(m_uiState.sortCategory);
+            Core::SortRegistryEntry const*       currentEntry = registry.get(ids[m_uiState.sortIndex]);
 
-            Uint8                          _r, _g, _b, _a;
-            SDL_GetRenderDrawColor(ctx->renderer, &_r, &_g, &_b, &_a);
-            SDL_FRect rect {0.0f, 0.0f, 300.0f, 160.0f};
-            SDL_SetRenderDrawColor(ctx->renderer, 0x40, 0x40, 0x40, 0x80);
-            SDL_RenderFillRect(ctx->renderer, &rect);
-
-            SDL_Color textColor {0, 0xFF, 0, 0};
-
-            if (flags.isRunning || (sorter->timer.getDuration() == 0.0f))
             {
-                textColor = {0xFF, 0xFF, 0xFF, 0};
+                Uint8 _r, _g, _b, _a;
+                SDL_GetRenderDrawColor(ctx->renderer, &_r, &_g, &_b, &_a);
+
+                SDL_FRect rect {0.0f, 0.0f, 300.0f, 160.0f};
+
+                SDL_SetRenderDrawColor(ctx->renderer, 0x40, 0x40, 0x40, 0x80);
+                SDL_RenderFillRect(ctx->renderer, &rect);
+
+                SDL_SetRenderDrawColor(ctx->renderer, _r, _g, _b, _a);
             }
 
             renderText(
                 "TIME: " + std::to_string(sorter->timer.getDuration()) + 's', 10.0f, 10.0f,
-                textColor
+                {0xFF, 0xFF, 0xFF, 0x00}
             );
             renderText(
                 "REAL TIME: " + std::to_string(sorter->realTimer.getDuration()) + 's', 10.0f, 30.0f,
-                textColor
+                {0xFF, 0xFF, 0xFF, 0x00}
             );
 
             {
                 std::string name {};
                 if (m_uiState.sortIndex < ids.size()) { name = currentEntry->displayName; }
-                renderText(std::string("SORT: ") + name, 10.0f, 50.0f, {0xFF, 0xFF, 0xFF, 0});
+                renderText(std::string("SORT: ") + name, 10.0f, 50.0f, {0xFF, 0xFF, 0xFF, 0x00});
             }
 
             renderText(
@@ -94,20 +223,31 @@ namespace Renderer
                 {0xFF, 0xFF, 0xFF, 0}
             );
 
-            std::string statusText {"IDLE"};
+            {
+                std::string statusText {"IDLE"};
 
-            if (flags.isSorting) { statusText = "SORTING..."; }
+                SDL_Color   statusColor {0xFF, 0xFF, 0xFF, 0x00};
 
-            if (flags.isShuffling) { statusText = "SHUFFLING..."; }
+                if (flags.isSorting) { statusText = "SORTING..."; }
 
-            if (flags.isChecking) { statusText = "CHECKING..."; }
+                if (flags.isShuffling) { statusText = "SHUFFLING..."; }
 
-            if (flags.isSorted) { statusText = "SORTED!"; }
+                if (flags.isChecking) { statusText = "CHECKING..."; }
 
-            if (flags.hasAborted) { statusText = "ABORTED!"; }
-            renderText(statusText, 10.0f, 120.0f, {0xFF, 0xFF, 0xFF, 0});
+                if (flags.isSorted)
+                {
+                    statusColor = {0x00, 0xFF, 0x00, 0x00};
+                    statusText  = "SORTED!";
+                }
 
-            SDL_SetRenderDrawColor(ctx->renderer, _r, _g, _b, _a);
+                if (flags.hasAborted)
+                {
+                    statusColor = {0xFF, 0x00, 0x00, 0x00};
+                    statusText  = "ABORTED!";
+                }
+
+                renderText(statusText, 10.0f, 120.0f, statusColor);
+            }
         }
     }
 
@@ -266,11 +406,10 @@ namespace Renderer
             );
         }
 
-        ImGui::SameLine();
         ImGui::Checkbox("Reverse instead of Shuffling", &m_uiState.isReversed);
     }
 
-    void UI::renderSortButtons(
+    void UI::renderActionButtons(
         Core::SortRegistryEntry const* const t_currentEntry,
         std::vector<std::string> const&      t_ids
     )
@@ -317,6 +456,14 @@ namespace Renderer
                     LOGINFO("Stopping sort");
                 }
             }
+
+            ImGui::BeginDisabled(!sorter->getFlags().hasAborted);
+            ImGui::SameLine();
+            if (ImGui::Button("Reset"))
+            {
+                sorter->reset();
+            }
+            ImGui::EndDisabled();
         }
     }
 
@@ -326,7 +473,6 @@ namespace Renderer
         {
             auto&                     sorter   = appShared->getSorter();
             Core::SortRegistry const& registry = appShared->getRegistry();
-            Core::Ctx const*          ctx      = appShared->getContext();
 
             std::vector<std::string>  ids      = registry.idsByCategory(m_uiState.sortCategory);
 
@@ -341,14 +487,25 @@ namespace Renderer
 
             renderInfo();
 
-            ImGui_ImplSDLRenderer3_NewFrame();
-            ImGui_ImplSDL3_NewFrame();
+            renderAboutWindow();
 
-            ImGui::NewFrame();
+            if (m_uiState.isAboutPopupOpened)
+            {
+                ImGui::OpenPopup("OrionSort##modal");
+            }
 
             // Main Window
             {
-                ImGui::Begin("Configure", &m_uiState.isImGuiOpen);
+                ImGui::Begin("Configure", &m_uiState.isImGuiOpen, ImGuiWindowFlags_MenuBar);
+                if (ImGui::BeginMenuBar())
+                {
+                    if (ImGui::MenuItem("About"))
+                    {
+                        m_uiState.isAboutPopupOpened = true;
+                    }
+                    ImGui::EndMenuBar();
+                }
+
                 ImGui::Text(
                     "Application average %.3f ms/frame (%.1f FPS)",
                     1000.0f / Core::Platform::Display::getFramerate(),
@@ -370,8 +527,10 @@ namespace Renderer
                 renderSortAlgorithmConfigs(currentEntry);
 
                 ImGui::Spacing();
+                ImGui::SeparatorText("Actions");
+                ImGui::Spacing();
 
-                renderSortButtons(currentEntry, ids);
+                renderActionButtons(currentEntry, ids);
 
                 ImGui::End();
             }
@@ -384,13 +543,6 @@ namespace Renderer
 
                 ImGui::End();
             }
-
-            ImGui::Render();
-
-            ImGui::UpdatePlatformWindows();
-            ImGui::RenderPlatformWindowsDefault();
-
-            ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), ctx->renderer);
         }
     }
 }  // namespace Renderer
