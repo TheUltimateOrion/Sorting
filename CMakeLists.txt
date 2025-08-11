@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.28)
 
-project(OrionSort VERSION 1.3.0)
+project(OrionSort VERSION 0.4.0)
 
 # Project-wide settings
 set(CMAKE_CXX_STANDARD 20)
