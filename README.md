@@ -85,4 +85,6 @@ This project is licensed under the terms of the GNU GPLv3. See the [LICENSE](LIC
 - [ ] At least 25 sorting algorithms
 - [ ] Better audio output - less crackly, more satisfying
 - [ ] Fully high DPI compliant
+- [ ] Android Port
+- [ ] Emscripten Webassembly Port
 - [x] CPack Integration

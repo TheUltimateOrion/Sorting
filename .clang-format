@@ -99,8 +99,7 @@ InsertNewlineAtEOF: true
 IntegerLiteralSeparator:
     Binary: 4
     BinaryMinDigits: 8
-    Decimal: 3
-    DecimalMinDigits: 5
+    Decimal: -1
     Hex: -1
 KeepEmptyLines:
   AtEndOfFile: true

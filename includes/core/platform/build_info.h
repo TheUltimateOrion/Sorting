@@ -44,15 +44,15 @@ namespace Core::Platform
 
     inline static char const* CppStandard()
     {
-#if __cplusplus >= 202'302L
+#if __cplusplus >= 202302L
         return "C++23";
-#elif __cplusplus >= 202'002L
+#elif __cplusplus >= 202002L
         return "C++20";
-#elif __cplusplus >= 201'703L
+#elif __cplusplus >= 201703L
         return "C++17";
-#elif __cplusplus >= 201'402L
+#elif __cplusplus >= 201402L
         return "C++14";
-#elif __cplusplus >= 201'103L
+#elif __cplusplus >= 201103L
         return "C++11";
 #else
         return "Pre-C++11";

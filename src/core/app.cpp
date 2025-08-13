@@ -356,7 +356,7 @@ namespace Core
 
         if (initSDL() == Utils::Signal::Error)
         {
-            LOGERR("SDL could not be initialized");
+            LOGERR("SDL intialization failed with error: " << SDL_GetError());
             return Utils::Signal::SDLInitError;
         }
 

@@ -1,0 +1,107 @@
+{
+    "version": 6,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 22,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "base",
+            "hidden": true,
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build/${presetName}"
+        },
+        {
+            "name": "android-arm64",
+            "inherits": "base",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": {
+                    "value": "${env:ANDROID_NDK_HOME}/build/cmake/android.toolchain.cmake",
+                    "type": "FILEPATH"
+                },
+                "ANDROID_ABI": "arm64-v8a",
+                "ANDROID_PLATFORM": "24",
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "android-x86_64",
+            "inherits": "base",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": {
+                    "value": "${env:ANDROID_NDK_HOME}/build/cmake/android.toolchain.cmake",
+                    "type": "FILEPATH"
+                },
+                "ANDROID_ABI": "x86_64",
+                "ANDROID_PLATFORM": "24",
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "windows-x86_64-gcc",
+            "displayName": "windows-x86_64-gcc",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "gcc.exe",
+                "CMAKE_CXX_COMPILER": "g++.exe",
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "windows-x86_64-clang",
+            "displayName": "windows-x86_64-clang",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "clang.exe",
+                "CMAKE_CXX_COMPILER": "clang++.exe",
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "macos-arm64-clang",
+            "displayName": "macos-arm64-clang",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "clang.exe",
+                "CMAKE_CXX_COMPILER": "clang++.exe",
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "linux-amd64-gcc",
+            "displayName": "linux-amd64-gcc",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "gcc.exe",
+                "CMAKE_CXX_COMPILER": "g++.exe",
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "android-arm64",
+            "configurePreset": "android-arm64"
+        },
+        {
+            "name": "android-x86_64",
+            "configurePreset": "android-x86_64"
+        },
+        {
+            "name": "windows-x86_64-gcc",
+            "configurePreset": "windows-x86_64-gcc"
+        },
+        {
+            "name": "windows-x86_64-clang",
+            "configurePreset": "windows-x86_64-clang"
+        },
+        {
+            "name": "macos-arm64-clang",
+            "configurePreset": "macos-arm64-clang"
+        },
+        {
+            "name": "linux-amd64-gcc",
+            "configurePreset": "linux-amd64-gcc"
+        }
+    ],
+    "testPresets": []
+}

@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}/dist")
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_SOURCE_DIR}/cmake")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -Wall -Wextra -g3")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wall -Wextra -g3")
 set(REPO "https://www.github.com/TheUltimateOrion/Sorting")
 
 option(BUILD_TESTING "Build Test Executable?" OFF)
@@ -108,7 +108,7 @@ elseif(LINUX)
                 SDL3_ttf-shared
                 OpenAL
             LIBRARY 
-                DESTINATION .
+                DESTINATION lib/
             RUNTIME 
                 DESTINATION .
             )
@@ -120,11 +120,43 @@ elseif(LINUX)
             )
 
     # Set proper RPATH
-    set(RPATH "$ORIGIN")
+    set(RPATH "$ORIGIN/lib")
     set_target_properties(${PROJECT_NAME} PROPERTIES
         BUILD_RPATH "${RPATH}"
         INSTALL_RPATH "${RPATH}"
     )
+elseif(ANDROID)
+    set (LIB "lib/${ANDROID_ABI}")
+
+    set(CMAKE_SKIP_RPATH FALSE)
+    set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+    set(CMAKE_INSTALL_RPATH "$ORIGIN/${LIB}")
+
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+        BUILD_RPATH   "\$ORIGIN/${LIB}"
+        INSTALL_RPATH "\$ORIGIN/${LIB}"
+    )
+
+    
+    target_link_options(${PROJECT_NAME} PRIVATE -Wl,-rpath,$ORIGIN/${LIB})
+
+    install(TARGETS
+                ${PROJECT_NAME}
+                SDL3-shared 
+                SDL3_ttf-shared
+                OpenAL
+            LIBRARY
+                DESTINATION ${LIB}
+            RUNTIME
+                DESTINATION .
+            )
+
+    install(DIRECTORY
+                res/
+            DESTINATION
+                assets/res
+            )
+    
 endif()
 
 # Packaging metadata
@@ -192,6 +224,10 @@ elseif(APPLE)
     set(CPACK_DMG_BACKGROUND_IMAGE "${CMAKE_SOURCE_DIR}/macos/dmg_background.png")
   endif()
   set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-${PROJECT_VERSION}-macOS")
+elseif(ANDROID)
+  # Android: produce a simple zip containing the shared library and assets
+  set(CPACK_GENERATOR "ZIP")
+  set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-${PROJECT_VERSION}-android")
 
 elseif(UNIX)
   # Linux: always produce a tarball; add DEB/RPM if tooling is available

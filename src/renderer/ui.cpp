@@ -542,6 +542,12 @@ namespace Renderer
 
             // Main Window
             {
+                constexpr float mainWindowWidth  = 500.0f;
+                constexpr float mainWindowHeight = 400.0f;
+
+                ImGui::SetNextWindowPos(ImVec2(0.5f * (ctx->winWidth - mainWindowWidth), 0.5f * (ctx->winHeight - mainWindowHeight)), ImGuiCond_FirstUseEver);
+                ImGui::SetNextWindowSize(ImVec2(mainWindowWidth, mainWindowHeight), ImGuiCond_FirstUseEver);
+
                 ImGui::Begin("Configure", &m_uiState.isImGuiOpen, ImGuiWindowFlags_MenuBar);
                 if (ImGui::BeginMenuBar())
                 {
