@@ -29,9 +29,9 @@ jobs:
       fail-fast: false
       matrix:
         platform:
-        - { name: build-win,   os: windows-latest, shell: 'msys2 {0}', preset: "windows-x86_64-clang"}
-        - { name: build-linux, os: ubuntu-latest,  shell: sh, preset: "linux-amd64" }
-        - { name: build-mac,   os: macos-latest,   shell: sh, preset: "macos-arm64" }
+        - { name: build-win,   os: windows-latest, shell: 'msys2 {0}'}
+        - { name: build-linux, os: ubuntu-latest,  shell: sh }
+        - { name: build-mac,   os: macos-latest,   shell: sh }
     
     steps:
     - uses: actions/checkout@v4
@@ -82,21 +82,21 @@ jobs:
       run: |
         which ninja
         ninja --version
-    
-    - name: Test Directory
-      if: ${{ contains( matrix.platform.name, 'linux') }}
-      run: | 
-        pwd
-        ls -lahG
-        cat CMakePresets.json
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-      run: cmake --preset ${{ matrix.platform.preset }}
+      run: >
+        cmake
+        -DCMAKE_BUILD_TYPE:STRING=Release
+        -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE
+        --no-warn-unused-cli
+        -S '${{ github.workspace }}'
+        -B '${{ steps.strings.outputs.build-output-dir }}'
+        -G Ninja
 
     - name: Build
-      run: cmake --build --preset ${{ matrix.platform.preset }}
+      run: cmake --build '${{ steps.strings.outputs.build-output-dir }}' --config Release 
     
     - name: Test
       working-directory: ${{ steps.strings.outputs.build-output-dir }}
