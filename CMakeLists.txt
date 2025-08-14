@@ -26,7 +26,11 @@ add_subdirectory(external)
 file(GLOB_RECURSE SOURCE_FILES CONFIGURE_DEPENDS src/*.cpp)
 
 # Define executable
-add_executable(${PROJECT_NAME} MACOSX_BUNDLE ${SOURCE_FILES})
+if(NOT ANDROID)
+    add_executable(${PROJECT_NAME} MACOSX_BUNDLE ${SOURCE_FILES})
+else() 
+    add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES})
+endif()
 
 target_compile_definitions(
     ${PROJECT_NAME} PRIVATE 
