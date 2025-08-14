@@ -30,8 +30,8 @@ jobs:
       matrix:
         platform:
         - { name: build-win,   os: windows-latest, shell: 'msys2 {0}', preset: "windows-x86_64-clang"}
-        - { name: build-linux, os: ubuntu-latest,  shell: sh, preset: "linux-amd64-gcc" }
-        - { name: build-mac,   os: macos-latest,   shell: sh, preset: "macos-arm64-clang" }
+        - { name: build-linux, os: ubuntu-latest,  shell: sh, preset: "linux-amd64" }
+        - { name: build-mac,   os: macos-latest,   shell: sh, preset: "macos-arm64" }
     
     steps:
     - uses: actions/checkout@v4

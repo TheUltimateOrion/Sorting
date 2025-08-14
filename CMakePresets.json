@@ -40,11 +40,9 @@
             }
         },
         {
-            "name": "linux-amd64-gcc",
-            "displayName": "linux-amd64-gcc",
+            "name": "linux-amd64",
+            "displayName": "linux-amd64",
             "cacheVariables": {
-                "CMAKE_C_COMPILER": "gcc.exe",
-                "CMAKE_CXX_COMPILER": "g++.exe",
                 "CMAKE_BUILD_TYPE": "Debug"
             }
         }
@@ -63,8 +61,8 @@
             "configurePreset": "macos-arm64"
         },
         {
-            "name": "linux-amd64-gcc",
-            "configurePreset": "linux-amd64-gcc"
+            "name": "linux-amd64",
+            "configurePreset": "linux-amd64"
         }
     ],
     "testPresets": []
