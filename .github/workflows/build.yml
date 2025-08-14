@@ -48,6 +48,7 @@ jobs:
           git
         pacboy: >-
           toolchain:u
+          clang:u
           cmake:u
           ninja:u
 
