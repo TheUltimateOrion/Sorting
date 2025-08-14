@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.28)
 
-project(OrionSort VERSION 0.4.0)
+project(OrionSort VERSION 0.5.0)
 
 # Project-wide settings
 set(CMAKE_CXX_STANDARD 20)
@@ -223,7 +223,7 @@ elseif(APPLE)
   if(EXISTS "${CMAKE_SOURCE_DIR}/macos/dmg_background.png")
     set(CPACK_DMG_BACKGROUND_IMAGE "${CMAKE_SOURCE_DIR}/macos/dmg_background.png")
   endif()
-  set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-${PROJECT_VERSION}-macOS")
+  set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-${PROJECT_VERSION}")
 elseif(ANDROID)
   # Android: produce a simple zip containing the shared library and assets
   set(CPACK_GENERATOR "ZIP")
