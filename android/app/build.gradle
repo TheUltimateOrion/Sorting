@@ -28,7 +28,7 @@ android {
     externalNativeBuild {
         cmake {
             // Use the root CMakeLists, or a dedicated one that includes it
-            path "../CMakeLists.txt"
+            path "../../CMakeLists.txt"
         }
     }
 
