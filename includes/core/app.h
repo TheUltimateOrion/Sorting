@@ -36,6 +36,8 @@ namespace Core
         Core::SortRegistry                  m_sortRegistry {nullptr};
         SDL_Event                           m_event {};
 
+        bool                                m_imguiInitialized {false};
+
         std::optional<std::thread>          m_audioThread {};
         std::optional<std::thread>          m_sortThread {};
 

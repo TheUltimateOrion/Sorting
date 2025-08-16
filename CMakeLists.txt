@@ -149,8 +149,8 @@ elseif(ANDROID)
 
     install(TARGETS
                 ${PROJECT_NAME}
-                SDL3-static
-                SDL3_ttf-static
+                SDL3-shared
+                SDL3_ttf-shared
                 OpenAL
             LIBRARY
                 DESTINATION ${LIB}

@@ -4,6 +4,7 @@
 #include "core/platform/display.h"
 
 #include <algorithm>
+#include <filesystem>
 #include <string>
 
 #include <cstdint>
@@ -47,21 +48,26 @@ namespace Renderer
         delete t_ctx;
     }
 
-    Utils::Signal RenderContext::createFont(std::string const& relativePath)
+    Utils::Signal RenderContext::createFont(std::string const& t_relativePath)
     {
-        std::string basePath {SDL_GetBasePath()};
-        font = TTF_OpenFont((basePath + relativePath).c_str(), 12);
+#if defined(__ANDROID__)
+        std::filesystem::path basePath = "";  // on Android we do not want to use basepath. Instead, assets are available at the root directory.
+#else
+        std::filesystem::path const basePath {SDL_GetBasePath()};
+#endif
+        const std::filesystem::path fontPath = basePath / t_relativePath;
+        font                                 = TTF_OpenFont(fontPath.string().c_str(), 12);
 
-        if (font == NULL)
+        if (!font)
         {
             LOGINFO(
-                "Font failed to load: '" << (basePath + relativePath)
+                "Font failed to load: '" << fontPath.string()
                                          << "' is not a font or does not exist"
             );
             return Utils::Signal::Error;
         }
 
-        LOGINFO("Font loaded successfully from " << (basePath + relativePath));
+        LOGINFO("Font loaded successfully from " << fontPath.string());
         return Utils::Signal::Success;
     }
 

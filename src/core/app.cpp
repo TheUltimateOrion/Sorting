@@ -28,14 +28,17 @@ namespace Core
         LOGINFO("Deinitializing SDL_ttf");
         TTF_Quit();
 
-        LOGINFO("Shutting down ImGui renderer");
-        ImGui_ImplSDLRenderer3_Shutdown();
+        if (m_imguiInitialized)
+        {
+            LOGINFO("Shutting down ImGui renderer");
+            ImGui_ImplSDLRenderer3_Shutdown();
 
-        LOGINFO("Shutting down ImGui");
-        ImGui_ImplSDL3_Shutdown();
+            LOGINFO("Shutting down ImGui");
+            ImGui_ImplSDL3_Shutdown();
 
-        LOGINFO("Destroying ImGui context");
-        ImGui::DestroyContext();
+            LOGINFO("Destroying ImGui context");
+            ImGui::DestroyContext();
+        }
 
         Renderer::RenderContext::DestroyContext(m_ctx);
 
@@ -474,7 +477,9 @@ namespace Core
         LOGINFO("Initializing ImGui SDL renderer");
         if (!ImGui_ImplSDLRenderer3_Init(m_ctx->renderer)) { return Utils::Signal::Error; }
 
-        m_UI = Renderer::UI(shared_from_this());
+        m_UI               = Renderer::UI(shared_from_this());
+
+        m_imguiInitialized = true;
 
         return Utils::Signal::Success;
     }
