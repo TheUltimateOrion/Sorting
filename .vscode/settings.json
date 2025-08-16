@@ -142,5 +142,6 @@
         "cfenv": "cpp",
         "cstdbool": "cpp",
         "version": "cpp"
-    }
+    },
+    "java.configuration.updateBuildConfiguration": "disabled"
 }

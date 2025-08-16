@@ -1,58 +1,63 @@
 plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
+     id 'com.android.application'
 }
 
+def buildWithCMake = true;
+
 android {
-    namespace 'com.theultimateorion.orionsort_android'
-    compileSdk 36
-
+    namespace = "org.libsdl.app"
+    compileSdkVersion 35
     defaultConfig {
-        applicationId "com.theultimateorion.orionsort_android"
-        ndk { abiFilters "armeabi-v7a", "arm64-v8a", "x86_64" }
-        externalNativeBuild {
-            cmake {
-                // Pass any variables you need
-                arguments "-DANDROID_STL=c++_shared"
-
-            }
-        }
-        minSdk 24
-        targetSdk 36
+        minSdkVersion 21
+        targetSdkVersion 35
         versionCode 1
         versionName "1.0"
-
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-    }
-
-    externalNativeBuild {
-        cmake {
-            // Use the root CMakeLists, or a dedicated one that includes it
-            path "../../CMakeLists.txt"
+        externalNativeBuild {
+            ndkBuild {
+                arguments "APP_PLATFORM=android-21"
+                // abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+                abiFilters 'arm64-v8a'
+            }
+            cmake {
+                arguments "-DANDROID_PLATFORM=android-21", "-DANDROID_STL=c++_static"
+                // abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+                abiFilters 'arm64-v8a', 'x86_64'
+            }
         }
     }
-
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+    applicationVariants.all { variant ->
+        tasks["merge${variant.name.capitalize()}Assets"]
+            .dependsOn("externalNativeBuild${variant.name.capitalize()}")
     }
-    kotlinOptions {
-        jvmTarget = '11'
+    if (!project.hasProperty('EXCLUDE_NATIVE_LIBS')) {
+        sourceSets.main {
+            jniLibs.srcDir 'libs'
+            assets.srcDirs = ['assets']
+        }
+        externalNativeBuild {
+            if (buildWithCMake) {
+                cmake {
+                    path '../../CMakeLists.txt'
+                }
+            } else {
+                ndkBuild {
+                    path 'jni/Android.mk'
+                }
+            }
+        }
+
+    }
+    lint {
+        abortOnError = false
     }
 }
 
 dependencies {
-
-    implementation libs.androidx.core.ktx
-    implementation libs.androidx.appcompat
-    implementation libs.material
-    testImplementation libs.junit
-    androidTestImplementation libs.androidx.junit
-    androidTestImplementation libs.androidx.espresso.core
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
 }

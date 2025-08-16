@@ -26,10 +26,10 @@ add_subdirectory(external)
 file(GLOB_RECURSE SOURCE_FILES CONFIGURE_DEPENDS src/*.cpp)
 
 # Define executable
-if(NOT ANDROID)
-    add_executable(${PROJECT_NAME} MACOSX_BUNDLE ${SOURCE_FILES})
-else() 
+if(ANDROID)
     add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES})
+else() 
+    add_executable(${PROJECT_NAME} MACOSX_BUNDLE ${SOURCE_FILES})
 endif()
 
 target_compile_definitions(
@@ -42,8 +42,11 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     includes/
 )
 
-target_link_libraries(${PROJECT_NAME} PRIVATE ImGui SDL3::SDL3 SDL3_ttf::SDL3_ttf OpenAL::OpenAL ImGui::ImGui)
-
+if (ANDROID)
+    target_link_libraries(${PROJECT_NAME} PRIVATE ImGui SDL3::SDL3 SDL3_ttf::SDL3_ttf OpenAL::OpenAL ImGui::ImGui android log)
+else()
+    target_link_libraries(${PROJECT_NAME} PRIVATE ImGui SDL3::SDL3 SDL3_ttf::SDL3_ttf OpenAL::OpenAL ImGui::ImGui)
+endif()
 # Install rules per platform
 if(WIN32)
     install(TARGETS 
@@ -146,8 +149,8 @@ elseif(ANDROID)
 
     install(TARGETS
                 ${PROJECT_NAME}
-                SDL3-shared 
-                SDL3_ttf-shared
+                SDL3-static
+                SDL3_ttf-static
                 OpenAL
             LIBRARY
                 DESTINATION ${LIB}

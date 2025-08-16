@@ -1,3 +1,23 @@
+if(ANDROID)
+    # Build third party libs statically so only libOrionSort.so is packaged
+    set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+
+    # SDL configuration
+    set(SDL_SHARED OFF CACHE BOOL "" FORCE)
+    set(SDL_STATIC ON CACHE BOOL "" FORCE)
+
+    # SDL_ttf configuration
+    set(SDLTTF_VENDORED ON CACHE BOOL "" FORCE)
+    set(SDLTTF_SHARED OFF CACHE BOOL "" FORCE)
+    set(SDLTTF_STATIC ON CACHE BOOL "" FORCE)
+
+    # OpenAL Soft configuration
+    set(ALSOFT_EXAMPLES OFF CACHE BOOL "" FORCE)
+    set(ALSOFT_UTILS OFF CACHE BOOL "" FORCE)
+    set(ALSOFT_BUILD_STATIC ON CACHE BOOL "" FORCE)
+    set(ALSOFT_BUILD_SHARED OFF CACHE BOOL "" FORCE)
+endif()
+
 add_subdirectory(openal-soft EXCLUDE_FROM_ALL)
 add_subdirectory(SDL)
 

@@ -416,7 +416,7 @@ namespace Core
         LOGINFO("Loading font");
         TTF_Init();
 
-        if (m_ctx->createFont("/res/font.ttf") == Utils::Signal::Error)
+        if (m_ctx->createFont("res/font.ttf") == Utils::Signal::Error)
         {
             return Utils::Signal::Error;
         }
