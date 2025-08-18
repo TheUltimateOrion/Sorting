@@ -69,15 +69,6 @@ jobs:
         libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxss-dev
         libxkbcommon-dev libdrm-dev libgbm-dev libgl1-mesa-dev libgles2-mesa-dev
         libegl1-mesa-dev libdbus-1-dev libibus-1.0-dev libudev-dev fcitx-libs-dev
-
-    - uses: nttld/setup-ndk@v1
-      if: ${{ contains( matrix.platform.name, 'android') }}
-      id: setup-ndk
-      with:
-        ndk-version: r28c
-        add-to-path: true
-        link-to-sdk: true
-        local-cache: true
     
     - uses: actions/setup-java@v4
       if: ${{ contains( matrix.platform.name, 'android') }}
@@ -121,14 +112,14 @@ jobs:
       if: ${{ contains( matrix.platform.name, 'android') }}
       working-directory: ${{ github.workspace }}/android
       run: gradlew build
-      env:
-        ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
     
     - name: Test
+      if: ${{ !contains( matrix.platform.name, 'android') }}
       working-directory: ${{ github.workspace }}/build
       run: ctest -C Release --output-on-failure
         
     - name: Package
+      if: ${{ !contains( matrix.platform.name, 'android') }}
       working-directory: ${{ github.workspace }}/build
       run: cpack
 
