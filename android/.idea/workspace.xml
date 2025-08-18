@@ -10,12 +10,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f5fc6488-f361-4058-b9f6-913956f8ca41" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/orionsort/android/MainActivity.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/AndroidProjectSystem.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/AndroidProjectSystem.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/deploymentTargetSelector.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/deploymentTargetSelector.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/runConfigurations.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/runConfigurations.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/app/build.gradle" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/gradlew.bat" beforeDir="false" afterPath="$PROJECT_DIR$/gradlew.bat" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../external/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../external/CMakeLists.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../external/SDL" beforeDir="false" afterPath="$PROJECT_DIR$/../external/SDL" afterDir="false" />
@@ -2516,10 +2521,16 @@
       <change beforePath="$PROJECT_DIR$/../external/googletest/googletest/test/production.h" beforeDir="false" afterPath="$PROJECT_DIR$/../external/googletest/googletest/test/production.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../external/googletest/googletest_deps.bzl" beforeDir="false" afterPath="$PROJECT_DIR$/../external/googletest/googletest_deps.bzl" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../includes/core/app.h" beforeDir="false" afterPath="$PROJECT_DIR$/../includes/core/app.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../includes/renderer/context.h" beforeDir="false" afterPath="$PROJECT_DIR$/../includes/renderer/context.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../includes/core/logging/logging.h" beforeDir="false" afterPath="$PROJECT_DIR$/../includes/core/logging/logging.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../includes/sort/array.h" beforeDir="false" afterPath="$PROJECT_DIR$/../includes/sort/array.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../src/core/app.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../src/core/app.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/core/registry/sort_registry.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../src/core/registry/sort_registry.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../src/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../src/main.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../src/renderer/context.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../src/renderer/context.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/renderer/sort_view.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../src/renderer/sort_view.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/renderer/ui.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../src/renderer/ui.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/sort/base.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../src/sort/base.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/sound/sound_engine.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../src/sound/sound_engine.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -2551,6 +2562,17 @@
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="android" type="f1a62948:ProjectNode" />
               </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="android" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="android" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="other" type="c8890929:TasksNode$1" />
+              </path>
             </expand>
             <select />
           </tree_state>
@@ -2576,24 +2598,24 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Android App.MainActivity (1).executor": "Run",
-    "Android App.MainActivity.executor": "Run",
-    "Android App.app.executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.cidr.known.project.marker": "true",
-    "RunOnceActivity.readMode.enableVisualFormatting": "true",
-    "cf.advertisement.text.has.clang-format": "true",
-    "cf.first.check.clang-format": "false",
-    "cidr.known.project.marker": "true",
-    "com.google.services.firebase.aqiPopupShown": "true",
-    "git-widget-placeholder": "feature-android-build",
-    "ignore.virus.scanning.warn.message": "true",
-    "settings.editor.selected.configurable": "AndroidSdkUpdater"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Android App.MainActivity (1).executor&quot;: &quot;Run&quot;,
+    &quot;Android App.MainActivity.executor&quot;: &quot;Run&quot;,
+    &quot;Android App.app.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
+    &quot;cf.advertisement.text.has.clang-format&quot;: &quot;true&quot;,
+    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
+    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;com.google.services.firebase.aqiPopupShown&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;feature-android-build&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;experimental&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager">
     <configuration name="app" type="AndroidRunConfigurationType" factoryName="Android App" activateToolWindowBeforeRun="false">
       <module name="android.app" />
@@ -2696,12 +2718,12 @@
       <map>
         <entry key="org.libsdl.app">
           <value>
-            <CheckInfo lastCheckTimestamp="1755380145229" />
+            <CheckInfo lastCheckTimestamp="1755528891027" />
           </value>
         </entry>
         <entry key="org.libsdl.app.test">
           <value>
-            <CheckInfo lastCheckTimestamp="1755380145228" />
+            <CheckInfo lastCheckTimestamp="1755528891036" />
           </value>
         </entry>
       </map>

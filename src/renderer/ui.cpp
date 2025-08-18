@@ -467,7 +467,7 @@ namespace Renderer
             {
                 if (ImGui::Button("Sort"))
                 {
-                    LOGINFO("Starting sort");
+                    LOG_INFO("Starting sort");
                     if (m_uiState.sortIndex < t_ids.size())
                     {
                         if (t_currentEntry)
@@ -489,7 +489,7 @@ namespace Renderer
                             newSorter->getFlags().setFlags(Sort::FlagGroup::SortButtonPressed);
                         }
                     }
-                    else { LOGERR("Unknown sort category/index"); }
+                    else { LOG_ERROR("Unknown sort category/index"); }
                 }
             }
             else
@@ -498,7 +498,7 @@ namespace Renderer
                 {
                     sorter->getFlags().setFlags(Sort::FlagGroup::StopButtonPressed);
 
-                    LOGINFO("Stopping sort");
+                    LOG_INFO("Stopping sort");
                 }
             }
 

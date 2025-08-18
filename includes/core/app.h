@@ -44,6 +44,7 @@ namespace Core
         void                                createAudioThread();
         void                                createSortThread();
         void                                setImGuiStyle() const noexcept;
+        void                                handleAppEvents(void* t_userdata, SDL_Event* t_event) noexcept;
 
         [[nodiscard]] Utils::Signal         initSDL();
         [[nodiscard]] Utils::Signal         initImGui();

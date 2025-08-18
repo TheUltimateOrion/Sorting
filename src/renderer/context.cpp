@@ -22,11 +22,24 @@ namespace Renderer
         ctx->winWidth                    = t_width / mode->pixel_density;
         ctx->winHeight                   = t_height / mode->pixel_density;
 
-        LOGINFO("Creating SDL Window");
-        ctx->window = SDL_CreateWindow(std::format("OrionSort v{}", APP_VERSION).c_str(), ctx->winWidth, ctx->winHeight, SDL_WINDOW_HIGH_PIXEL_DENSITY);
+        LOG_INFO("Creating SDL Window");
 
-        LOGINFO("Creating SDL renderer");
+        SDL_WindowFlags windowFlags = SDL_WINDOW_HIGH_PIXEL_DENSITY;
+
+#if defined(__ANDROID__)
+        ctx->winWidth  = mode->w;
+        ctx->winHeight = mode->h;
+        windowFlags |= SDL_WINDOW_MAXIMIZED | SDL_WINDOW_BORDERLESS | SDL_WINDOW_FULLSCREEN;
+#endif
+
+        ctx->window = SDL_CreateWindow(std::format("OrionSort v{}", APP_VERSION).c_str(), ctx->winWidth, ctx->winHeight, windowFlags);
+
+        LOG_INFO("Creating SDL renderer");
         ctx->renderer = SDL_CreateRenderer(ctx->window, nullptr);
+
+        // Make sure we draw over the full backbuffer
+        // SDL_SetRenderViewport(ctx->renderer, nullptr);
+        // SDL_SetRenderClipRect(ctx->renderer, nullptr);
 
         ctx->dpi      = Core::Platform::DPI::From(ctx->window, ctx->renderer);
 
@@ -36,13 +49,13 @@ namespace Renderer
 
     void RenderContext::DestroyContext(RenderContext* t_ctx)
     {
-        LOGINFO("Destroying SDL renderer");
+        LOG_INFO("Destroying SDL renderer");
         if (t_ctx->renderer) { SDL_DestroyRenderer(t_ctx->renderer); }
 
-        LOGINFO("Destroying SDL window");
+        LOG_INFO("Destroying SDL window");
         if (t_ctx->window) { SDL_DestroyWindow(t_ctx->window); }
 
-        LOGINFO("Destroying font");
+        LOG_INFO("Destroying font");
         if (t_ctx->font) { TTF_CloseFont(t_ctx->font); }
 
         delete t_ctx;
@@ -60,14 +73,14 @@ namespace Renderer
 
         if (!font)
         {
-            LOGINFO(
+            LOG_INFO(
                 "Font failed to load: '" << fontPath.string()
                                          << "' is not a font or does not exist"
             );
             return Utils::Signal::Error;
         }
 
-        LOGINFO("Font loaded successfully from " << fontPath.string());
+        LOG_INFO("Font loaded successfully from " << fontPath.string());
         return Utils::Signal::Success;
     }
 

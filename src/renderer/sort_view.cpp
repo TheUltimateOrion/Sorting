@@ -105,7 +105,7 @@ namespace Renderer
 
                     if (!SDL_RenderGeometry(ctx->renderer, nullptr, vertices, 3, nullptr, 0))
                     {
-                        LOGERR(SDL_GetError());
+                        LOG_ERROR(SDL_GetError());
                     }
                 }
                 break;

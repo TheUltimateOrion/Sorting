@@ -20,29 +20,29 @@ namespace Core
 {
     App::~App()
     {
-        LOGINFO("Joining and Destroying Threads");
+        LOG_INFO("Joining and Destroying Threads");
 
         Utils::terminateThread(m_sortThread);
         Utils::terminateThread(m_audioThread);
 
-        LOGINFO("Deinitializing SDL_ttf");
+        LOG_INFO("Deinitializing SDL_ttf");
         TTF_Quit();
 
         if (m_imguiInitialized)
         {
-            LOGINFO("Shutting down ImGui renderer");
+            LOG_INFO("Shutting down ImGui renderer");
             ImGui_ImplSDLRenderer3_Shutdown();
 
-            LOGINFO("Shutting down ImGui");
+            LOG_INFO("Shutting down ImGui");
             ImGui_ImplSDL3_Shutdown();
 
-            LOGINFO("Destroying ImGui context");
+            LOG_INFO("Destroying ImGui context");
             ImGui::DestroyContext();
         }
 
         Renderer::RenderContext::DestroyContext(m_ctx);
 
-        LOGINFO("Quitting...");
+        LOG_INFO("Quitting...");
         SDL_Quit();
     }
 
@@ -286,10 +286,10 @@ namespace Core
                     {
                         if (m_soundEngine->load(sec, freq) == Utils::Signal::Error)
                         {
-                            LOGERR("Could not load audio buffer");
+                            LOG_ERROR("Could not load audio buffer");
                             if (m_soundEngine->alGetLastError() != AL_NO_ERROR)
                             {
-                                LOGERR(
+                                LOG_ERROR(
                                     "Error loading audio with code: "
                                     << m_soundEngine->alErrorString(m_soundEngine->alGetLastError())
                                     << "(" << m_soundEngine->alGetLastError() << ")"
@@ -300,10 +300,10 @@ namespace Core
 
                         if (m_soundEngine->play() == Utils::Signal::Error)
                         {
-                            LOGERR("Could not play audio buffer");
+                            LOG_ERROR("Could not play audio buffer");
                             if (m_soundEngine->alGetLastError() != AL_NO_ERROR)
                             {
-                                LOGERR(
+                                LOG_ERROR(
                                     "Error playing audio with code: "
                                     << m_soundEngine->alErrorString(m_soundEngine->alGetLastError())
                                     << "(" << m_soundEngine->alGetLastError() << ")"
@@ -332,7 +332,7 @@ namespace Core
 
                 if (!sorter->getFlags().hasAborted)
                 {
-                    LOGINFO("Running Algorithm");
+                    LOG_INFO("Running Algorithm");
 
                     sorter->timer.start();
                     sorter->realTimer.start();
@@ -355,36 +355,36 @@ namespace Core
 
     Utils::Signal App::init()
     {
-        LOGINFO("Initializing App");
+        LOG_INFO("Initializing App");
 
         if (initSDL() == Utils::Signal::Error)
         {
-            LOGERR("SDL intialization failed with error: " << SDL_GetError());
+            LOG_ERROR("SDL intialization failed with error: " << SDL_GetError());
             return Utils::Signal::SDLInitError;
         }
 
         if (initFont() == Utils::Signal::Error)
         {
-            LOGERR("Font not found");
+            LOG_ERROR("Font not found");
             return Utils::Signal::FontLoadError;
         }
 
         if (initAudio() == Utils::Signal::Error)
         {
-            LOGERR("Audio could not be initialized");
+            LOG_ERROR("Audio could not be initialized");
             return Utils::Signal::AudioInitError;
         }
 
         if (initImGui() == Utils::Signal::Error)
         {
-            LOGERR("Could not initialize ImGui");
+            LOG_ERROR("Could not initialize ImGui");
             return Utils::Signal::ImGuiInitError;
         }
 
-        LOGINFO("Creating SortView");
+        LOG_INFO("Creating SortView");
         m_sortView = std::make_unique<Renderer::SortView>(shared_from_this(), m_UI.getUIState());
 
-        LOGINFO("Creating Registry");
+        LOG_INFO("Creating Registry");
         m_sortRegistry = Core::SortRegistry(shared_from_this());
         m_sortRegistry.registerAllSorts();
 
@@ -393,22 +393,22 @@ namespace Core
 
     Utils::Signal App::initSDL()
     {
-        LOGINFO("Initializing SDL");
+        LOG_INFO("Initializing SDL");
 
         if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS))
         {
-            LOGERR("Could not initialize SDL");
+            LOG_ERROR("Could not initialize SDL");
             return Utils::Signal::Error;
         }
-        LOGINFO("SDL initialized successfully");
+        LOG_INFO("SDL initialized successfully");
 
         m_ctx = Renderer::RenderContext::CreateContext(1920.0f, 1080.0f, 240);
 
-        LOGINFO("Setting render parameters");
+        LOG_INFO("Setting render parameters");
         SDL_SetRenderDrawColor(m_ctx->renderer, 0x0, 0x0, 0x0, 0x0);
         SDL_SetRenderDrawBlendMode(m_ctx->renderer, SDL_BLENDMODE_BLEND);
 
-        LOGINFO("Clearing window");
+        LOG_INFO("Clearing window");
         SDL_RenderClear(m_ctx->renderer);
 
         return Utils::Signal::Success;
@@ -416,7 +416,7 @@ namespace Core
 
     Utils::Signal App::initFont()
     {
-        LOGINFO("Loading font");
+        LOG_INFO("Loading font");
         TTF_Init();
 
         if (m_ctx->createFont("res/font.ttf") == Utils::Signal::Error)
@@ -429,14 +429,14 @@ namespace Core
 
     Utils::Signal App::initAudio()
     {
-        LOGINFO("Initializing audio subsystem");
+        LOG_INFO("Initializing audio subsystem");
         m_soundEngine = SoundEngine::Get();
         if (m_soundEngine->init() == Utils::Signal::Error)
         {
-            LOGERR("Sound could not be initialized");
+            LOG_ERROR("Sound could not be initialized");
             if (m_soundEngine->alGetLastError() != AL_NO_ERROR)
             {
-                LOGERR(
+                LOG_ERROR(
                     "Error playing audio with code: "
                     << m_soundEngine->alErrorString(m_soundEngine->alGetLastError()) << "("
                     << m_soundEngine->alGetLastError() << ")"
@@ -444,20 +444,20 @@ namespace Core
                 return Utils::Signal::Error;
             }
         }
-        LOGINFO("Audio subsystem initialized successfully");
+        LOG_INFO("Audio subsystem initialized successfully");
         return Utils::Signal::Success;
     }
 
     Utils::Signal App::initImGui()
     {
-        LOGINFO("Setting up GUI");
+        LOG_INFO("Setting up GUI");
 
-        LOGINFO("Setting up ImGui context");
+        LOG_INFO("Setting up ImGui context");
         IMGUI_CHECKVERSION();
         ImGuiContext* imCtx = ImGui::CreateContext();
         ImGui::SetCurrentContext(imCtx);
 
-        LOGINFO("Setting ImGui IO flags");
+        LOG_INFO("Setting ImGui IO flags");
 
         ImGuiIO& io = ImGui::GetIO();
 
@@ -465,17 +465,22 @@ namespace Core
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
-        LOGINFO("Setting ImGui styling");
+        io.ConfigDpiScaleViewports = true;
+
+        LOG_INFO("Setting ImGui styling");
         setImGuiStyle();
 
-        LOGINFO("Setting up ImGui renderer");
+        LOG_INFO("Setting up ImGui renderer");
         if (!ImGui_ImplSDL3_InitForSDLRenderer(m_ctx->window, m_ctx->renderer))
         {
             return Utils::Signal::Error;
         }
 
-        LOGINFO("Initializing ImGui SDL renderer");
-        if (!ImGui_ImplSDLRenderer3_Init(m_ctx->renderer)) { return Utils::Signal::Error; }
+        LOG_INFO("Initializing ImGui SDL renderer");
+        if (!ImGui_ImplSDLRenderer3_Init(m_ctx->renderer))
+        {
+            return Utils::Signal::Error;
+        }
 
         m_UI               = Renderer::UI(shared_from_this());
 
@@ -509,7 +514,7 @@ namespace Core
 
     void App::run()
     {
-        LOGINFO("Initializing sorter");
+        LOG_INFO("Initializing sorter");
         if (auto* entry = m_sortRegistry.get("bubble"))
         {
             constexpr std::uint64_t defaultSize = 512;
@@ -517,11 +522,11 @@ namespace Core
             m_sorter->setLength(defaultSize);
         }
 
-        LOGINFO("Creating audio thread");
+        LOG_INFO("Creating audio thread");
 
         createAudioThread();
 
-        LOGINFO("Starting main loop");
+        LOG_INFO("Starting main loop");
         SDL_PollEvent(&m_event);
 
         bool running = true;
@@ -534,7 +539,7 @@ namespace Core
                 case Utils::Signal::StopSort:
                     break;
                 case Utils::Signal::CloseApp:
-                    LOGINFO("Exit signal recieved");
+                    LOG_INFO("Exit signal recieved");
                     running = false;
                     break;
                 [[likely]] case Utils::Signal::Success:
@@ -551,6 +556,7 @@ namespace Core
                 if (
                     m_event.type == SDL_EVENT_QUIT
                     || (m_event.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED && m_event.window.windowID == SDL_GetWindowID(m_ctx->window))
+                    || m_event.type == SDL_EVENT_TERMINATING
                 )
                 {
                     m_sorter->getFlags().setFlags(Sort::FlagGroup::Quit);

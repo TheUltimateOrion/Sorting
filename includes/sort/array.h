@@ -87,7 +87,7 @@ namespace Sort
         {
             if (t_indexA >= size() || t_indexB >= size())
             {
-                LOGERR("Swap indices out of bounds: " << t_indexA << ", " << t_indexB);
+                LOG_WARN("Swap indices out of bounds: " << t_indexA << ", " << t_indexB);
                 return;
             }
 

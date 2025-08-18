@@ -22,7 +22,7 @@ namespace Core
 
         constexpr bool isParameterized = std::is_base_of_v<Sort::IParameterized, FactoryReturnType>;
 
-        LOGINFO(
+        LOG_INFO(
             std::format(
                 "Registering sort:\n\tID: {}\n\tType: <{}{}>\n\tCategory: {}",
                 t_id,

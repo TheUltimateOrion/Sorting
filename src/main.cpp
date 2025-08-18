@@ -26,7 +26,7 @@ int main()
 
     if (app->init() != Utils::Signal::Success) { return EXIT_FAILURE; }
 
-    LOGINFO("App initialized successfully");
+    LOG_INFO("App initialized successfully");
     app->run();
 
     return EXIT_SUCCESS;
