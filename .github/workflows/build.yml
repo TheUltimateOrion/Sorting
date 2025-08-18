@@ -79,11 +79,13 @@ jobs:
         link-to-sdk: true
 
     - name: Verify Ninja
+      if: ${{ !contains( matrix.platform.name, 'android') }}
       run: |
         which ninja
         ninja --version
     
     - name: Cache Build Folder
+      if: ${{ !contains( matrix.platform.name, 'android') }}
       id: cache-build-folder
       uses: actions/cache@v4
       with:
@@ -91,7 +93,7 @@ jobs:
         key: ${{ runner.os }}-build-folder
 
     - name: Configure CMake
-      if: steps.cache-build-folder.outputs.cache-hit != 'true'
+      if: steps.cache-build-folder.outputs.cache-hit != 'true' && ${{ !contains( matrix.platform.name, 'android') }}
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       run: >
@@ -104,9 +106,9 @@ jobs:
         -G Ninja
 
     - name: Build
+      if: ${{ !contains( matrix.platform.name, 'android') }}
       run: cmake --build '${{ github.workspace }}/build' --config Release
 
-      
     - name: Android Build
       if: ${{ contains( matrix.platform.name, 'android') }}
       working-directory: ${{ github.workspace }}/android
