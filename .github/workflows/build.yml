@@ -78,6 +78,13 @@ jobs:
         add-to-path: true
         link-to-sdk: true
         local-cache: true
+    
+    - uses: actions/setup-java@v4
+      if: ${{ contains( matrix.platform.name, 'android') }}
+      with:
+        distribution: 'jetbrains' # See 'Supported distributions' for available options
+        java-version: '21'
+        cache: 'gradle'
 
     - name: Verify Ninja
       if: ${{ !contains( matrix.platform.name, 'android') }}
