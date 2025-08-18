@@ -10,17 +10,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f5fc6488-f361-4058-b9f6-913956f8ca41" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/../.github/workflows/build.yml" beforeDir="false" afterPath="$PROJECT_DIR$/../.github/workflows/build.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/AndroidProjectSystem.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/AndroidProjectSystem.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/deploymentTargetSelector.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/deploymentTargetSelector.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/deviceManager.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/deviceManager.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/runConfigurations.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/runConfigurations.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/app/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/gradlew.bat" beforeDir="false" afterPath="$PROJECT_DIR$/gradlew.bat" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../external/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../external/CMakeLists.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../external/SDL" beforeDir="false" afterPath="$PROJECT_DIR$/../external/SDL" afterDir="false" />
@@ -2520,17 +2519,13 @@
       <change beforePath="$PROJECT_DIR$/../external/googletest/googletest/test/production.cc" beforeDir="false" afterPath="$PROJECT_DIR$/../external/googletest/googletest/test/production.cc" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../external/googletest/googletest/test/production.h" beforeDir="false" afterPath="$PROJECT_DIR$/../external/googletest/googletest/test/production.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../external/googletest/googletest_deps.bzl" beforeDir="false" afterPath="$PROJECT_DIR$/../external/googletest/googletest_deps.bzl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../includes/core/app.h" beforeDir="false" afterPath="$PROJECT_DIR$/../includes/core/app.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../includes/core/logging/logging.h" beforeDir="false" afterPath="$PROJECT_DIR$/../includes/core/logging/logging.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../external/openal-soft" beforeDir="false" afterPath="$PROJECT_DIR$/../external/openal-soft" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../external/openal-soft/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../external/openal-soft/CMakeLists.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../includes/sort/array.h" beforeDir="false" afterPath="$PROJECT_DIR$/../includes/sort/array.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../src/core/app.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../src/core/app.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/core/logging/logging.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../src/core/logging/logging.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../src/core/registry/sort_registry.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../src/core/registry/sort_registry.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../src/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../src/main.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../src/renderer/context.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../src/renderer/context.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../src/renderer/sort_view.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../src/renderer/sort_view.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../src/renderer/ui.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../src/renderer/ui.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../src/sort/base.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../src/sort/base.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../src/sound/sound_engine.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../src/sound/sound_engine.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

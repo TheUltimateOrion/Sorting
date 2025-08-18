@@ -77,6 +77,7 @@ jobs:
         ndk-version: r28c
         add-to-path: true
         link-to-sdk: true
+        local-cache: true
 
     - name: Verify Ninja
       if: ${{ !contains( matrix.platform.name, 'android') }}
