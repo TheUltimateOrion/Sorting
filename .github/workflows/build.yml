@@ -77,17 +77,6 @@ jobs:
         ndk-version: r28c
         add-to-path: true
         link-to-sdk: true
-    - run: |
-        cd ${{ github.workspace }}/android
-        ./gradlew build
-      env:
-        ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
-
-    - name: Set reusable strings
-      # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
-      id: strings
-      run: |
-        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
     - name: Verify Ninja
       run: |
@@ -111,18 +100,26 @@ jobs:
         -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE
         --no-warn-unused-cli
         -S '${{ github.workspace }}'
-        -B '${{ steps.strings.outputs.build-output-dir }}'
+        -B '${{ github.workspace }}/build'
         -G Ninja
 
     - name: Build
-      run: cmake --build '${{ steps.strings.outputs.build-output-dir }}' --config Release 
+      run: cmake --build '${{ github.workspace }}/build' --config Release
+
+      
+    - name: Android Build
+      if: ${{ contains( matrix.platform.name, 'android') }}
+      working-directory: ${{ github.workspace }}/android
+      run: gradlew build
+      env:
+        ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
     
     - name: Test
-      working-directory: ${{ steps.strings.outputs.build-output-dir }}
+      working-directory: ${{ github.workspace }}/build
       run: ctest -C Release --output-on-failure
         
     - name: Package
-      working-directory: ${{ steps.strings.outputs.build-output-dir }}
+      working-directory: ${{ github.workspace }}/build
       run: cpack
 
     - name: 'Store desktop artifacts'
