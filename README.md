@@ -81,7 +81,7 @@ This project is licensed under the terms of the GNU GPLv3. See the [LICENSE](LIC
 - [x] Streamline counting accesses, comparisions, swaps, etc...
 - [x] Improve options and selection screen
 - [x] Sort registry for easier addition of new algorithms
-- [ ] Shorten GCC compile times (Linux & Windows) by atleast 25%
+- [x] Shorten GCC compile times (Linux & Windows) by atleast 25%
 - [ ] At least 25 sorting algorithms
 - [ ] Better audio output - less crackly, more satisfying
 - [ ] Fully high DPI compliant
