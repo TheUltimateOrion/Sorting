@@ -52,10 +52,7 @@ namespace Sort
 
     void RadixLSDSort::sort()
     {
-        if (elems.empty())
-        {
-            return;
-        }
+        if (elems.empty()) { return; }
 
         elem_t minValue = elems[0];
         elem_t maxValue = elems[0];

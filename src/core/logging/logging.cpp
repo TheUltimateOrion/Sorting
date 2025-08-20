@@ -7,28 +7,25 @@
     #include <android/log.h>
 #endif
 
-namespace Core
+namespace Core::Logger
 {
 
-    void Logger::Log(LogLevel level, std::string const& message)
+    void Log(LogLevel level, std::string const& message)
     {
 #ifdef __ANDROID__
         int priority = ANDROID_LOG_DEBUG;
         switch (level)
         {
-            case LogLevel::Info:
-                priority = ANDROID_LOG_INFO;
-                break;
-            case LogLevel::Warn:
-                priority = ANDROID_LOG_WARN;
-                break;
-            case LogLevel::Error:
-                priority = ANDROID_LOG_ERROR;
-                break;
+            case LogLevel::Info : priority = ANDROID_LOG_INFO; break;
+            case LogLevel::Warn : priority = ANDROID_LOG_WARN; break;
+            case LogLevel::Error: priority = ANDROID_LOG_ERROR; break;
         }
         std::ostringstream idStream;
         idStream << std::this_thread::get_id();
-        __android_log_print(priority, "Sorting", "[Thread ID: %s][%fs]: %s", idStream.str().c_str(), Timer::GetTimestamp(), message.c_str());
+        __android_log_print(
+            priority, "OrionSort", "[Thread ID: %s][%fs]: %s", idStream.str().c_str(),
+            Timer::GetTimestamp(), message.c_str()
+        );
 #else
         std::ostream* out      = &std::cout;
         char const*   levelStr = "INFO";
@@ -47,10 +44,9 @@ namespace Core
                 levelStr = "ERROR";
                 break;
         }
-        (*out) << "[" << levelStr << "][Thread ID: " << std::this_thread::get_id()
-               << "][" << Timer::GetTimestamp() << "s]: " << message
-               << std::endl;
+        (*out) << "[" << levelStr << "][Thread ID: " << std::this_thread::get_id() << "]["
+               << Timer::GetTimestamp() << "s]: " << message << std::endl;
 #endif
     }
 
-}  // namespace Core
+}  // namespace Core::Logger

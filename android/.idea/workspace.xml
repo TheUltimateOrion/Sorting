@@ -10,6 +10,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f5fc6488-f361-4058-b9f6-913956f8ca41" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/../.clang-format" beforeDir="false" afterPath="$PROJECT_DIR$/../.clang-format" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.vscode/settings.json" beforeDir="false" afterPath="$PROJECT_DIR$/../.vscode/settings.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../README.md" beforeDir="false" afterPath="$PROJECT_DIR$/../README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/AndroidProjectSystem.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/AndroidProjectSystem.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
@@ -19,6 +23,10 @@
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/runConfigurations.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/runConfigurations.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/app/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/gradlew.bat" beforeDir="false" afterPath="$PROJECT_DIR$/gradlew.bat" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../external/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../external/CMakeLists.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../external/SDL" beforeDir="false" afterPath="$PROJECT_DIR$/../external/SDL" afterDir="false" />
@@ -2520,11 +2528,44 @@
       <change beforePath="$PROJECT_DIR$/../external/googletest/googletest_deps.bzl" beforeDir="false" afterPath="$PROJECT_DIR$/../external/googletest/googletest_deps.bzl" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../external/openal-soft" beforeDir="false" afterPath="$PROJECT_DIR$/../external/openal-soft" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../external/openal-soft/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../external/openal-soft/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../includes/core/app.h" beforeDir="false" afterPath="$PROJECT_DIR$/../includes/core/app.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../includes/core/logging/logging.h" beforeDir="false" afterPath="$PROJECT_DIR$/../includes/core/logging/logging.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../includes/core/platform/display.h" beforeDir="false" afterPath="$PROJECT_DIR$/../includes/core/platform/display.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../includes/core/platform/dpi.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../includes/core/registry/sort_registry.h" beforeDir="false" afterPath="$PROJECT_DIR$/../includes/core/registry/sort_registry.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../includes/renderer/context.h" beforeDir="false" afterPath="$PROJECT_DIR$/../includes/renderer/context.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../includes/renderer/sort_view.h" beforeDir="false" afterPath="$PROJECT_DIR$/../includes/renderer/sort_view.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../includes/renderer/state.h" beforeDir="false" afterPath="$PROJECT_DIR$/../includes/renderer/state.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../includes/renderer/ui.h" beforeDir="false" afterPath="$PROJECT_DIR$/../includes/renderer/ui.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../includes/sort/array.h" beforeDir="false" afterPath="$PROJECT_DIR$/../includes/sort/array.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../includes/sort/base.h" beforeDir="false" afterPath="$PROJECT_DIR$/../includes/sort/base.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../includes/sort/parametrized.h" beforeDir="false" afterPath="$PROJECT_DIR$/../includes/sort/parametrized.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../includes/utils/common.h" beforeDir="false" afterPath="$PROJECT_DIR$/../includes/utils/common.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../includes/utils/renderer.h" beforeDir="false" afterPath="$PROJECT_DIR$/../includes/utils/renderer.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../scripts/android_push_and_run.bat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../scripts/android_push_and_run.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../scripts/other/line_count.py" beforeDir="false" afterPath="$PROJECT_DIR$/../scripts/other/line_count.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../src/core/app.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../src/core/app.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../src/core/logging/logging.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../src/core/logging/logging.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/core/platform/dpi.cpp" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/../src/core/registry/sort_registry.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../src/core/registry/sort_registry.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/core/timer.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../src/core/timer.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../src/main.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../src/renderer/context.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../src/renderer/context.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/renderer/sort_view.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../src/renderer/sort_view.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/renderer/ui.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../src/renderer/ui.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/sort/algorithms/bogo.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../src/sort/algorithms/bogo.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/sort/algorithms/comb.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../src/sort/algorithms/comb.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/sort/algorithms/gravity.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../src/sort/algorithms/gravity.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/sort/algorithms/merge.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../src/sort/algorithms/merge.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/sort/algorithms/pigeon_hole.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../src/sort/algorithms/pigeon_hole.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/sort/algorithms/quick.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../src/sort/algorithms/quick.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/sort/algorithms/radix_lsd.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../src/sort/algorithms/radix_lsd.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/sort/algorithms/selection.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../src/sort/algorithms/selection.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/sort/base.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../src/sort/base.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/sort/flags.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../src/sort/flags.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/sound/sound_engine.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../src/sound/sound_engine.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/utils/renderer.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../src/utils/renderer.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -2592,24 +2633,26 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Android App.MainActivity (1).executor&quot;: &quot;Run&quot;,
-    &quot;Android App.MainActivity.executor&quot;: &quot;Run&quot;,
-    &quot;Android App.app.executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
-    &quot;cf.advertisement.text.has.clang-format&quot;: &quot;true&quot;,
-    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
-    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;com.google.services.firebase.aqiPopupShown&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;feature-android-build&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;experimental&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Android App.MainActivity (1).executor": "Run",
+    "Android App.MainActivity.executor": "Run",
+    "Android App.app.executor": "Run",
+    "ApkExportedModule": "android.app",
+    "BundleExportedModule": "android.app",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "cf.advertisement.text.has.clang-format": "true",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "com.google.services.firebase.aqiPopupShown": "true",
+    "git-widget-placeholder": "feature-android-build",
+    "ignore.virus.scanning.warn.message": "true",
+    "settings.editor.selected.configurable": "experimental"
   }
-}</component>
+}]]></component>
   <component name="RunManager">
     <configuration name="app" type="AndroidRunConfigurationType" factoryName="Android App" activateToolWindowBeforeRun="false">
       <module name="android.app" />
@@ -2704,6 +2747,11 @@
           </properties>
           <option name="timeStamp" value="2" />
         </breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/app/build.gradle</url>
+          <line>9</line>
+          <option name="timeStamp" value="4" />
+        </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
   </component>
@@ -2712,12 +2760,12 @@
       <map>
         <entry key="org.libsdl.app">
           <value>
-            <CheckInfo lastCheckTimestamp="1755528891027" />
+            <CheckInfo lastCheckTimestamp="1755617260912" />
           </value>
         </entry>
         <entry key="org.libsdl.app.test">
           <value>
-            <CheckInfo lastCheckTimestamp="1755528891036" />
+            <CheckInfo lastCheckTimestamp="1755617260913" />
           </value>
         </entry>
       </map>

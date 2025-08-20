@@ -65,7 +65,7 @@ BreakInheritanceList: AfterComma
 BreakStringLiterals: true
 BreakTemplateDeclarations: false
 
-ColumnLimit: 0
+ColumnLimit: 100
 CommentPragmas: "^ IWYU pragma:"
 CompactNamespaces: false
 ContinuationIndentWidth: 4

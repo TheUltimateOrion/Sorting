@@ -12,8 +12,7 @@
 
 namespace Sort
 {
-    template <typename T>
-    class SortArray
+    template <typename T> class SortArray
     {
     private:
         std::vector<T>                     m_data;
@@ -29,10 +28,7 @@ namespace Sort
 
         SortArray(std::initializer_list<T> t_initList)
         {
-            for (auto const& value : t_initList)
-            {
-                add(value);
-            }
+            for (auto const& value : t_initList) { add(value); }
         }
 
         SortArray(SortArray<T> const& t_other)
@@ -95,30 +91,15 @@ namespace Sort
             std::swap(m_data[t_indexA], m_data[t_indexB]);
         }
 
-        std::uint64_t getAccesses() const noexcept
-        {
-            return m_accessCount.load();
-        }
+        std::uint64_t getAccesses() const noexcept { return m_accessCount.load(); }
 
-        std::uint64_t getSwaps() const noexcept
-        {
-            return m_swapCount.load();
-        }
+        std::uint64_t getSwaps() const noexcept { return m_swapCount.load(); }
 
-        std::uint64_t getComparisons() const noexcept
-        {
-            return m_compCount.load();
-        }
+        std::uint64_t getComparisons() const noexcept { return m_compCount.load(); }
 
-        void addComparisons(std::uint64_t t_compCount) noexcept
-        {
-            m_compCount += t_compCount;
-        }
+        void addComparisons(std::uint64_t t_compCount) noexcept { m_compCount += t_compCount; }
 
-        void resetCounters() noexcept
-        {
-            m_accessCount = m_swapCount = m_compCount = 0;
-        }
+        void resetCounters() noexcept { m_accessCount = m_swapCount = m_compCount = 0; }
 
         auto begin()
         {

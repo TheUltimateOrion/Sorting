@@ -30,25 +30,31 @@ char const* SoundEngine::alErrorString(ALenum t_err) const noexcept
 
 Utils::Signal SoundEngine::init()
 {
-    ALCdevice*  dev = nullptr;
-    ALCcontext* ctx = nullptr;
-
-    LOG_INFO("Finding default OpenAL audio device");
-    char const* defname = alcGetString(nullptr, ALC_DEFAULT_DEVICE_SPECIFIER);
-    LOG_INFO("Default device: " << defname);
-
-    LOG_INFO("Opening OpenAL audio device: " << defname);
-    dev = alcOpenDevice(defname);
+    LOG_INFO("Opening default OpenAL audio device");
+    ALCdevice* dev = alcOpenDevice("OpenSL");
+    if (!dev)
+    {
+        m_err = alcGetError(nullptr);
+        return Utils::Signal::Error;
+    }
 
     LOG_INFO("Creating new OpenAL context");
-    ctx = alcCreateContext(dev, nullptr);
-
-    LOG_INFO("Making current context");
-    alcMakeContextCurrent(ctx);
+    ALCcontext* ctx = alcCreateContext(dev, nullptr);
+    if (!ctx || alcMakeContextCurrent(ctx) == ALC_FALSE)
+    {
+        m_err = alcGetError(dev);
+        if (ctx) { alcDestroyContext(ctx); }
+        alcCloseDevice(dev);
+        return Utils::Signal::Error;
+    }
 
     LOG_INFO("Generating OpenAL sources");
     alGenSources(1, &m_src);
 
+    AL_CHECK_ERR(Utils::Signal::Error);
+
+    // Ensure listener volume is audible on all platforms
+    alListenerf(AL_GAIN, 1.0f);
     AL_CHECK_ERR(Utils::Signal::Error);
 
     return Utils::Signal::Success;
@@ -60,18 +66,23 @@ Utils::Signal SoundEngine::load(float t_ms, float t_freq)
     AL_CHECK_ERR(Utils::Signal::Error);
 
     /* Fill buffer with Sine-Wave */
-    constexpr unsigned sample_rate = 22050;
-    std::size_t        buf_size    = t_ms * sample_rate;
+    constexpr unsigned sample_rate = 44100;
+    std::size_t        sample_cnt  = static_cast<std::size_t>((t_ms / 1000.f) * sample_rate);
 
-    m_samples                      = new short[buf_size];
+    m_samples                      = new short[sample_cnt];
 
-    for (std::size_t i = 0; i < buf_size; ++i)
+    for (std::size_t i = 0; i < sample_cnt; ++i)
     {
-        m_samples[i] = 32760 * std::sin((2.f * M_PI * t_freq) / sample_rate * i);
+        m_samples[i] = static_cast<short>(
+            32760 * std::sin((2.f * M_PI * t_freq * i) / sample_rate)
+        );
     }
 
     /* Download buffer to OpenAL */
-    alBufferData(m_buf, AL_FORMAT_MONO16, m_samples, buf_size, sample_rate);
+    alBufferData(
+        m_buf, AL_FORMAT_MONO16, m_samples, static_cast<ALsizei>(sample_cnt * sizeof(short)),
+        sample_rate
+    );
     AL_CHECK_ERR(Utils::Signal::Error);
 
     return Utils::Signal::Success;
@@ -82,9 +93,8 @@ Utils::Signal SoundEngine::play()
     alSourcei(m_src, AL_BUFFER, m_buf);
     AL_CHECK_ERR(Utils::Signal::Error);
 
-    constexpr float gain = 0.1f;
-
-    alSourcef(m_src, AL_GAIN, gain);
+    // Play at full volume so output is clearly audible
+    alSourcef(m_src, AL_GAIN, 1.0f);
     AL_CHECK_ERR(Utils::Signal::Error);
 
     alSourcePlay(m_src);

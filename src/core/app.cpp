@@ -1,7 +1,6 @@
 #include "core/app.h"
 
 #include "core/logging/logging.h"
-#include "core/platform/dpi.h"
 #include "sort/exchange/bubble.h"
 #include "utils/common.h"
 
@@ -25,9 +24,6 @@ namespace Core
         Utils::terminateThread(m_sortThread);
         Utils::terminateThread(m_audioThread);
 
-        LOG_INFO("Deinitializing SDL_ttf");
-        TTF_Quit();
-
         if (m_imguiInitialized)
         {
             LOG_INFO("Shutting down ImGui renderer");
@@ -42,212 +38,218 @@ namespace Core
 
         Renderer::RenderContext::DestroyContext(m_ctx);
 
+        LOG_INFO("Deinitializing SDL_ttf");
+        TTF_Quit();
+
         LOG_INFO("Quitting...");
         SDL_Quit();
     }
 
     void App::setImGuiStyle() const noexcept
     {
-        constexpr bool              kAntiAliasedFill                  = true;
-        constexpr bool              kAntiAliasedLines                 = true;
-        constexpr bool              kAntiAliasedLinesUseTexture       = true;
+        constexpr bool              kAntiAliasedFill            = true;
+        constexpr bool              kAntiAliasedLines           = true;
+        constexpr bool              kAntiAliasedLinesUseTexture = true;
 
-        constexpr ImVec2            kButtonTextAlign                  = ImVec2(0.50f, 0.50f);
+        constexpr ImVec2            kButtonTextAlign            = ImVec2(0.50f, 0.50f);
 
-        constexpr ImVec2            kCellPadding                      = ImVec2(4.00f, 2.00f);
-        constexpr float             kChildBorderSize                  = 1.00f;
-        constexpr float             kChildRounding                    = 10.00f;
-        constexpr float             kCircleTessellationMaxError       = 0.30f;
-        constexpr ImGuiDir          kColorsButtonPosition             = ImGuiDir::ImGuiDir_Right;
-        constexpr float             kCurveTessellationTolerance       = 1.25f;
+        constexpr ImVec2            kCellPadding                = ImVec2(4.00f, 2.00f);
+        constexpr float             kChildBorderSize            = 1.00f;
+        constexpr float             kChildRounding              = 10.00f;
+        constexpr float             kCircleTessellationMaxError = 0.30f;
+        constexpr ImGuiDir          kColorsButtonPosition       = ImGuiDir::ImGuiDir_Right;
+        constexpr float             kCurveTessellationTolerance = 1.25f;
 
-        constexpr float             kDisabledAlpha                    = 0.60f;
-        constexpr ImVec2            kDisplaySafeAreaPadding           = ImVec2(3.00f, 3.00f);
-        constexpr ImVec2            kDisplayWindowPadding             = ImVec2(30.00f, 30.00f);
-        constexpr float             kDockingSeparatorSize             = 3.00f;
+        constexpr float             kDisabledAlpha              = 0.60f;
+        constexpr ImVec2            kDisplaySafeAreaPadding     = ImVec2(3.00f, 3.00f);
+        constexpr ImVec2            kDisplayWindowPadding       = ImVec2(30.00f, 30.00f);
+        constexpr float             kDockingSeparatorSize       = 3.00f;
 
-        constexpr float             kFontScaleMain                    = 1.00f;
-        constexpr float             kFontSizeBase                     = 13.00f;
-        constexpr float             kFrameBorderSize                  = 0.00f;
-        constexpr ImVec2            kFramePadding                     = ImVec2(5.00f, 5.00f);
-        constexpr float             kFrameRounding                    = 4.00f;
+        constexpr float             kFontScaleMain              = 1.00f;
+        constexpr float             kFontSizeBase               = 13.00f;
+        constexpr float             kFrameBorderSize            = 0.00f;
+        constexpr ImVec2            kFramePadding               = ImVec2(5.00f, 5.00f);
+        constexpr float             kFrameRounding              = 4.00f;
 
-        constexpr float             kGlobalAlpha                      = 1.00f;
-        constexpr float             kGrabMinimumSize                  = 5.00f;
-        constexpr float             kGrabRounding                     = 3.00f;
+        constexpr float             kGlobalAlpha                = 1.00f;
+        constexpr float             kGrabMinimumSize            = 5.00f;
+        constexpr float             kGrabRounding               = 3.00f;
 
-        constexpr ImGuiHoveredFlags kHoverFlagsForTooltipMouse        = ImGuiHoveredFlags_DelayShort | ImGuiHoveredFlags_Stationary;
-        constexpr ImGuiHoveredFlags kHoverFlagsForTooltipNav          = ImGuiHoveredFlags_DelayNormal | ImGuiHoveredFlags_NoSharedDelay;
+        constexpr ImGuiHoveredFlags kHoverFlagsForTooltipMouse  = ImGuiHoveredFlags_DelayShort
+                                                               | ImGuiHoveredFlags_Stationary;
 
-        constexpr float             kImageBorderSize                  = 0.00f;
-        constexpr float             kIndentSpacing                    = 25.00f;
-        constexpr ImVec2            kItemInnerSpacing                 = ImVec2(4.00f, 4.00f);
-        constexpr ImVec2            kItemSpacing                      = ImVec2(8.00f, 4.00f);
+        constexpr ImGuiHoveredFlags kHoverFlagsForTooltipNav = ImGuiHoveredFlags_DelayNormal
+                                                             | ImGuiHoveredFlags_NoSharedDelay;
 
-        constexpr float             kLogSliderDeadzone                = 4.00f;
+        constexpr float    kImageBorderSize                  = 0.00f;
+        constexpr float    kIndentSpacing                    = 25.00f;
+        constexpr ImVec2   kItemInnerSpacing                 = ImVec2(4.00f, 4.00f);
+        constexpr ImVec2   kItemSpacing                      = ImVec2(8.00f, 4.00f);
 
-        constexpr float             kPopupBorderSize                  = 1.0f;
-        constexpr float             kPopupRounding                    = 0.0f;
+        constexpr float    kLogSliderDeadzone                = 4.00f;
 
-        constexpr float             kScrollbarSize                    = 15.00f;
-        constexpr float             kScrollbarRounding                = 12.0f;
-        constexpr ImVec2            kSelectableTextAlign              = ImVec2(0.00f, 0.00f);
-        constexpr ImVec2            kSeparatorTextAlign               = ImVec2(0.00f, 0.50f);
-        constexpr float             kSeparatorTextBorderSize          = 3.00f;
-        constexpr ImVec2            kSeparatorTextPadding             = ImVec2(20.00f, 3.00f);
+        constexpr float    kPopupBorderSize                  = 1.0f;
+        constexpr float    kPopupRounding                    = 0.0f;
 
-        constexpr float             kTabBarBorderSize                 = 1.00f;
-        constexpr float             kTabBorderSize                    = 0.00f;
-        constexpr float             kTabBarOverlineSize               = 1.00f;
-        constexpr float             kTabCloseButtonMinWidthSelected   = -1.00f;
-        constexpr float             kTabCloseButtonMinWidthUnselected = 0.00f;
-        constexpr float             kTabMinWidthBase                  = 1.00f;
-        constexpr float             kTabMinWidthShrink                = 80.00f;
-        constexpr float             kTabRounding                      = 5.00f;
-        constexpr float             kTableAngledHeadersAngle          = 35.00f;
-        constexpr ImVec2            kTableAngledHeadersTextAlign      = ImVec2(0.50f, 0.00f);
+        constexpr float    kScrollbarSize                    = 15.00f;
+        constexpr float    kScrollbarRounding                = 12.0f;
+        constexpr ImVec2   kSelectableTextAlign              = ImVec2(0.00f, 0.00f);
+        constexpr ImVec2   kSeparatorTextAlign               = ImVec2(0.00f, 0.50f);
+        constexpr float    kSeparatorTextBorderSize          = 3.00f;
+        constexpr ImVec2   kSeparatorTextPadding             = ImVec2(20.00f, 3.00f);
 
-        constexpr float             kWindowBorderHoverPadding         = 4.00f;
-        constexpr float             kWindowBorderSize                 = 1.00f;
-        constexpr ImVec2            kWindowPadding                    = ImVec2(15.00f, 15.00f);
-        constexpr float             kWindowRounding                   = 10.00f;
-        constexpr ImGuiDir          kWindowMenuButtonPosition         = ImGuiDir::ImGuiDir_Right;
-        constexpr ImVec2            kWindowTitleAlign                 = ImVec2(0.50f, 0.50f);
+        constexpr float    kTabBarBorderSize                 = 1.00f;
+        constexpr float    kTabBorderSize                    = 0.00f;
+        constexpr float    kTabBarOverlineSize               = 1.00f;
+        constexpr float    kTabCloseButtonMinWidthSelected   = -1.00f;
+        constexpr float    kTabCloseButtonMinWidthUnselected = 0.00f;
+        constexpr float    kTabMinWidthBase                  = 1.00f;
+        constexpr float    kTabMinWidthShrink                = 80.00f;
+        constexpr float    kTabRounding                      = 5.00f;
+        constexpr float    kTableAngledHeadersAngle          = 35.00f;
+        constexpr ImVec2   kTableAngledHeadersTextAlign      = ImVec2(0.50f, 0.00f);
 
-        ImGuiStyle&                 style                             = ImGui::GetStyle();
+        constexpr float    kWindowBorderHoverPadding         = 4.00f;
+        constexpr float    kWindowBorderSize                 = 1.00f;
+        constexpr ImVec2   kWindowPadding                    = ImVec2(15.00f, 15.00f);
+        constexpr float    kWindowRounding                   = 10.00f;
+        constexpr ImGuiDir kWindowMenuButtonPosition         = ImGuiDir::ImGuiDir_Right;
+        constexpr ImVec2   kWindowTitleAlign                 = ImVec2(0.50f, 0.50f);
+
+        ImGuiStyle&        style                             = ImGui::GetStyle();
 
         // General Styling
 
-        style.AntiAliasedFill                                         = kAntiAliasedFill;
-        style.AntiAliasedLines                                        = kAntiAliasedLines;
-        style.AntiAliasedLinesUseTex                                  = kAntiAliasedLinesUseTexture;
-        style.Alpha                                                   = kGlobalAlpha;
+        style.AntiAliasedFill                                = kAntiAliasedFill;
+        style.AntiAliasedLines                               = kAntiAliasedLines;
+        style.AntiAliasedLinesUseTex                         = kAntiAliasedLinesUseTexture;
+        style.Alpha                                          = kGlobalAlpha;
 
-        style.ButtonTextAlign                                         = kButtonTextAlign;
+        style.ButtonTextAlign                                = kButtonTextAlign;
 
-        style.ChildBorderSize                                         = kChildBorderSize;
-        style.ChildRounding                                           = kChildRounding;
-        style.CircleTessellationMaxError                              = kCircleTessellationMaxError;
-        style.ColorButtonPosition                                     = kColorsButtonPosition;
-        style.CurveTessellationTol                                    = kCurveTessellationTolerance;
-        style.CellPadding                                             = kCellPadding;
+        style.ChildBorderSize                                = kChildBorderSize;
+        style.ChildRounding                                  = kChildRounding;
+        style.CircleTessellationMaxError                     = kCircleTessellationMaxError;
+        style.ColorButtonPosition                            = kColorsButtonPosition;
+        style.CurveTessellationTol                           = kCurveTessellationTolerance;
+        style.CellPadding                                    = kCellPadding;
 
-        style.DisabledAlpha                                           = kDisabledAlpha;
-        style.DisplayWindowPadding                                    = kDisplayWindowPadding;
-        style.DisplaySafeAreaPadding                                  = kDisplaySafeAreaPadding;
-        style.DockingSeparatorSize                                    = kDockingSeparatorSize;
+        style.DisabledAlpha                                  = kDisabledAlpha;
+        style.DisplayWindowPadding                           = kDisplayWindowPadding;
+        style.DisplaySafeAreaPadding                         = kDisplaySafeAreaPadding;
+        style.DockingSeparatorSize                           = kDockingSeparatorSize;
 
-        style.FontScaleMain                                           = kFontScaleMain;
-        style.FontSizeBase                                            = kFontSizeBase;
-        style.FramePadding                                            = kFramePadding;
-        style.FrameRounding                                           = kFrameRounding;
-        style.FrameBorderSize                                         = kFrameBorderSize;
+        style.FontScaleMain                                  = kFontScaleMain;
+        style.FontSizeBase                                   = kFontSizeBase;
+        style.FramePadding                                   = kFramePadding;
+        style.FrameRounding                                  = kFrameRounding;
+        style.FrameBorderSize                                = kFrameBorderSize;
 
-        style.GrabMinSize                                             = kGrabMinimumSize;
-        style.GrabRounding                                            = kGrabRounding;
+        style.GrabMinSize                                    = kGrabMinimumSize;
+        style.GrabRounding                                   = kGrabRounding;
 
-        style.HoverFlagsForTooltipMouse                               = kHoverFlagsForTooltipMouse;
-        style.HoverFlagsForTooltipNav                                 = kHoverFlagsForTooltipNav;
+        style.HoverFlagsForTooltipMouse                      = kHoverFlagsForTooltipMouse;
+        style.HoverFlagsForTooltipNav                        = kHoverFlagsForTooltipNav;
 
-        style.ImageBorderSize                                         = kImageBorderSize;
-        style.IndentSpacing                                           = kIndentSpacing;
-        style.ItemInnerSpacing                                        = kItemInnerSpacing;
-        style.ItemSpacing                                             = kItemSpacing;
+        style.ImageBorderSize                                = kImageBorderSize;
+        style.IndentSpacing                                  = kIndentSpacing;
+        style.ItemInnerSpacing                               = kItemInnerSpacing;
+        style.ItemSpacing                                    = kItemSpacing;
 
-        style.LogSliderDeadzone                                       = kLogSliderDeadzone;
+        style.LogSliderDeadzone                              = kLogSliderDeadzone;
 
-        style.PopupBorderSize                                         = kPopupBorderSize;
-        style.PopupRounding                                           = kPopupRounding;
+        style.PopupBorderSize                                = kPopupBorderSize;
+        style.PopupRounding                                  = kPopupRounding;
 
-        style.ScrollbarSize                                           = kScrollbarSize;
-        style.ScrollbarRounding                                       = kScrollbarRounding;
-        style.SelectableTextAlign                                     = kSelectableTextAlign;
-        style.SeparatorTextAlign                                      = kSeparatorTextAlign;
-        style.SeparatorTextBorderSize                                 = kSeparatorTextBorderSize;
-        style.SeparatorTextPadding                                    = kSeparatorTextPadding;
+        style.ScrollbarSize                                  = kScrollbarSize;
+        style.ScrollbarRounding                              = kScrollbarRounding;
+        style.SelectableTextAlign                            = kSelectableTextAlign;
+        style.SeparatorTextAlign                             = kSeparatorTextAlign;
+        style.SeparatorTextBorderSize                        = kSeparatorTextBorderSize;
+        style.SeparatorTextPadding                           = kSeparatorTextPadding;
 
-        style.TabBarBorderSize                                        = kTabBarBorderSize;
-        style.TabBorderSize                                           = kTabBorderSize;
-        style.TabBarOverlineSize                                      = kTabBarOverlineSize;
-        style.TabCloseButtonMinWidthSelected                          = kTabCloseButtonMinWidthSelected;
-        style.TabCloseButtonMinWidthUnselected                        = kTabCloseButtonMinWidthUnselected;
-        style.TabMinWidthBase                                         = kTabMinWidthBase;
-        style.TabMinWidthShrink                                       = kTabMinWidthShrink;
-        style.TabRounding                                             = kTabRounding;
-        style.TableAngledHeadersAngle                                 = kTableAngledHeadersAngle;
-        style.TableAngledHeadersTextAlign                             = kTableAngledHeadersTextAlign;
+        style.TabBarBorderSize                               = kTabBarBorderSize;
+        style.TabBorderSize                                  = kTabBorderSize;
+        style.TabBarOverlineSize                             = kTabBarOverlineSize;
+        style.TabCloseButtonMinWidthSelected                 = kTabCloseButtonMinWidthSelected;
+        style.TabCloseButtonMinWidthUnselected               = kTabCloseButtonMinWidthUnselected;
+        style.TabMinWidthBase                                = kTabMinWidthBase;
+        style.TabMinWidthShrink                              = kTabMinWidthShrink;
+        style.TabRounding                                    = kTabRounding;
+        style.TableAngledHeadersAngle                        = kTableAngledHeadersAngle;
+        style.TableAngledHeadersTextAlign                    = kTableAngledHeadersTextAlign;
 
-        style.WindowBorderHoverPadding                                = kWindowBorderHoverPadding;
-        style.WindowBorderSize                                        = kWindowBorderSize;
-        style.WindowMenuButtonPosition                                = kWindowMenuButtonPosition;
-        style.WindowPadding                                           = kWindowPadding;
-        style.WindowRounding                                          = kWindowRounding;
-        style.WindowTitleAlign                                        = kWindowTitleAlign;
+        style.WindowBorderHoverPadding                       = kWindowBorderHoverPadding;
+        style.WindowBorderSize                               = kWindowBorderSize;
+        style.WindowMenuButtonPosition                       = kWindowMenuButtonPosition;
+        style.WindowPadding                                  = kWindowPadding;
+        style.WindowRounding                                 = kWindowRounding;
+        style.WindowTitleAlign                               = kWindowTitleAlign;
 
         // Color Styling
 
-        ImVec4* colors                                                = style.Colors;
+        ImVec4* colors                                       = style.Colors;
 
-        colors[ImGuiCol_Text]                                         = ImVec4(0.80f, 0.80f, 0.83f, 1.00f);
-        colors[ImGuiCol_TextDisabled]                                 = ImVec4(0.24f, 0.23f, 0.29f, 1.00f);
-        colors[ImGuiCol_WindowBg]                                     = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
-        colors[ImGuiCol_ChildBg]                                      = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-        colors[ImGuiCol_PopupBg]                                      = ImVec4(0.07f, 0.07f, 0.09f, 1.00f);
-        colors[ImGuiCol_Border]                                       = ImVec4(0.25f, 0.25f, 0.25f, 0.50f);
-        colors[ImGuiCol_BorderShadow]                                 = ImVec4(0.92f, 0.91f, 0.88f, 0.00f);
-        colors[ImGuiCol_FrameBg]                                      = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
-        colors[ImGuiCol_FrameBgHovered]                               = ImVec4(0.06f, 0.06f, 0.08f, 1.00f);
-        colors[ImGuiCol_FrameBgActive]                                = ImVec4(0.15f, 0.15f, 0.18f, 1.00f);
-        colors[ImGuiCol_TitleBg]                                      = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
-        colors[ImGuiCol_TitleBgActive]                                = ImVec4(0.07f, 0.07f, 0.09f, 1.00f);
-        colors[ImGuiCol_TitleBgCollapsed]                             = ImVec4(0.18f, 0.16f, 0.27f, 0.59f);
-        colors[ImGuiCol_MenuBarBg]                                    = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
-        colors[ImGuiCol_ScrollbarBg]                                  = ImVec4(0.08f, 0.07f, 0.10f, 1.00f);
-        colors[ImGuiCol_ScrollbarGrab]                                = ImVec4(0.80f, 0.80f, 0.83f, 0.31f);
-        colors[ImGuiCol_ScrollbarGrabHovered]                         = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
-        colors[ImGuiCol_ScrollbarGrabActive]                          = ImVec4(0.23f, 0.19f, 0.27f, 1.00f);
-        colors[ImGuiCol_CheckMark]                                    = ImVec4(0.80f, 0.80f, 0.83f, 0.31f);
-        colors[ImGuiCol_SliderGrab]                                   = ImVec4(0.96f, 0.96f, 1.00f, 0.31f);
-        colors[ImGuiCol_SliderGrabActive]                             = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
-        colors[ImGuiCol_Button]                                       = ImVec4(0.15f, 0.13f, 0.18f, 1.00f);
-        colors[ImGuiCol_ButtonHovered]                                = ImVec4(0.24f, 0.23f, 0.29f, 1.00f);
-        colors[ImGuiCol_ButtonActive]                                 = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
-        colors[ImGuiCol_Header]                                       = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
-        colors[ImGuiCol_HeaderHovered]                                = ImVec4(0.24f, 0.24f, 0.29f, 1.00f);
-        colors[ImGuiCol_HeaderActive]                                 = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
-        colors[ImGuiCol_Separator]                                    = ImVec4(0.67f, 0.67f, 0.78f, 0.50f);
-        colors[ImGuiCol_SeparatorHovered]                             = ImVec4(0.10f, 0.40f, 0.75f, 0.78f);
-        colors[ImGuiCol_SeparatorActive]                              = ImVec4(0.10f, 0.40f, 0.75f, 1.00f);
-        colors[ImGuiCol_ResizeGrip]                                   = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-        colors[ImGuiCol_ResizeGripHovered]                            = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
-        colors[ImGuiCol_ResizeGripActive]                             = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
-        colors[ImGuiCol_InputTextCursor]                              = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
-        colors[ImGuiCol_TabHovered]                                   = ImVec4(0.49f, 0.43f, 0.71f, 0.80f);
-        colors[ImGuiCol_Tab]                                          = ImVec4(0.17f, 0.16f, 0.29f, 1.00f);
-        colors[ImGuiCol_TabSelected]                                  = ImVec4(0.42f, 0.33f, 0.71f, 1.00f);
-        colors[ImGuiCol_TabSelectedOverline]                          = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-        colors[ImGuiCol_TabDimmed]                                    = ImVec4(0.18f, 0.17f, 0.24f, 0.97f);
-        colors[ImGuiCol_TabDimmedSelected]                            = ImVec4(0.30f, 0.28f, 0.39f, 1.00f);
-        colors[ImGuiCol_TabDimmedSelectedOverline]                    = ImVec4(0.50f, 0.50f, 0.50f, 0.00f);
-        colors[ImGuiCol_DockingPreview]                               = ImVec4(0.43f, 0.26f, 0.98f, 0.70f);
-        colors[ImGuiCol_DockingEmptyBg]                               = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
-        colors[ImGuiCol_PlotLines]                                    = ImVec4(0.40f, 0.39f, 0.38f, 0.63f);
-        colors[ImGuiCol_PlotLinesHovered]                             = ImVec4(0.25f, 1.00f, 0.00f, 1.00f);
-        colors[ImGuiCol_PlotHistogram]                                = ImVec4(0.40f, 0.39f, 0.38f, 0.63f);
-        colors[ImGuiCol_PlotHistogramHovered]                         = ImVec4(0.25f, 1.00f, 0.00f, 1.00f);
-        colors[ImGuiCol_TableHeaderBg]                                = ImVec4(0.19f, 0.19f, 0.20f, 1.00f);
-        colors[ImGuiCol_TableBorderStrong]                            = ImVec4(0.31f, 0.31f, 0.35f, 1.00f);
-        colors[ImGuiCol_TableBorderLight]                             = ImVec4(0.23f, 0.23f, 0.25f, 1.00f);
-        colors[ImGuiCol_TableRowBg]                                   = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-        colors[ImGuiCol_TableRowBgAlt]                                = ImVec4(1.00f, 1.00f, 1.00f, 0.06f);
-        colors[ImGuiCol_TextLink]                                     = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-        colors[ImGuiCol_TextSelectedBg]                               = ImVec4(0.58f, 0.45f, 1.00f, 0.43f);
-        colors[ImGuiCol_TreeLines]                                    = ImVec4(0.43f, 0.43f, 0.50f, 0.50f);
-        colors[ImGuiCol_DragDropTarget]                               = ImVec4(1.00f, 1.00f, 0.00f, 0.90f);
-        colors[ImGuiCol_NavCursor]                                    = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-        colors[ImGuiCol_NavWindowingHighlight]                        = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
-        colors[ImGuiCol_NavWindowingDimBg]                            = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
-        colors[ImGuiCol_ModalWindowDimBg]                             = ImVec4(0.00f, 0.00f, 0.00f, 0.53f);
+        colors[ImGuiCol_Text]                                = ImVec4(0.80f, 0.80f, 0.83f, 1.00f);
+        colors[ImGuiCol_TextDisabled]                        = ImVec4(0.24f, 0.23f, 0.29f, 1.00f);
+        colors[ImGuiCol_WindowBg]                            = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
+        colors[ImGuiCol_ChildBg]                             = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+        colors[ImGuiCol_PopupBg]                             = ImVec4(0.07f, 0.07f, 0.09f, 1.00f);
+        colors[ImGuiCol_Border]                              = ImVec4(0.25f, 0.25f, 0.25f, 0.50f);
+        colors[ImGuiCol_BorderShadow]                        = ImVec4(0.92f, 0.91f, 0.88f, 0.00f);
+        colors[ImGuiCol_FrameBg]                             = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
+        colors[ImGuiCol_FrameBgHovered]                      = ImVec4(0.06f, 0.06f, 0.08f, 1.00f);
+        colors[ImGuiCol_FrameBgActive]                       = ImVec4(0.15f, 0.15f, 0.18f, 1.00f);
+        colors[ImGuiCol_TitleBg]                             = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
+        colors[ImGuiCol_TitleBgActive]                       = ImVec4(0.07f, 0.07f, 0.09f, 1.00f);
+        colors[ImGuiCol_TitleBgCollapsed]                    = ImVec4(0.18f, 0.16f, 0.27f, 0.59f);
+        colors[ImGuiCol_MenuBarBg]                           = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
+        colors[ImGuiCol_ScrollbarBg]                         = ImVec4(0.08f, 0.07f, 0.10f, 1.00f);
+        colors[ImGuiCol_ScrollbarGrab]                       = ImVec4(0.80f, 0.80f, 0.83f, 0.31f);
+        colors[ImGuiCol_ScrollbarGrabHovered]                = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
+        colors[ImGuiCol_ScrollbarGrabActive]                 = ImVec4(0.23f, 0.19f, 0.27f, 1.00f);
+        colors[ImGuiCol_CheckMark]                           = ImVec4(0.80f, 0.80f, 0.83f, 0.31f);
+        colors[ImGuiCol_SliderGrab]                          = ImVec4(0.96f, 0.96f, 1.00f, 0.31f);
+        colors[ImGuiCol_SliderGrabActive]                    = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
+        colors[ImGuiCol_Button]                              = ImVec4(0.15f, 0.13f, 0.18f, 1.00f);
+        colors[ImGuiCol_ButtonHovered]                       = ImVec4(0.24f, 0.23f, 0.29f, 1.00f);
+        colors[ImGuiCol_ButtonActive]                        = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
+        colors[ImGuiCol_Header]                              = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
+        colors[ImGuiCol_HeaderHovered]                       = ImVec4(0.24f, 0.24f, 0.29f, 1.00f);
+        colors[ImGuiCol_HeaderActive]                        = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
+        colors[ImGuiCol_Separator]                           = ImVec4(0.67f, 0.67f, 0.78f, 0.50f);
+        colors[ImGuiCol_SeparatorHovered]                    = ImVec4(0.10f, 0.40f, 0.75f, 0.78f);
+        colors[ImGuiCol_SeparatorActive]                     = ImVec4(0.10f, 0.40f, 0.75f, 1.00f);
+        colors[ImGuiCol_ResizeGrip]                          = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+        colors[ImGuiCol_ResizeGripHovered]                   = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
+        colors[ImGuiCol_ResizeGripActive]                    = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
+        colors[ImGuiCol_InputTextCursor]                     = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+        colors[ImGuiCol_TabHovered]                          = ImVec4(0.49f, 0.43f, 0.71f, 0.80f);
+        colors[ImGuiCol_Tab]                                 = ImVec4(0.17f, 0.16f, 0.29f, 1.00f);
+        colors[ImGuiCol_TabSelected]                         = ImVec4(0.42f, 0.33f, 0.71f, 1.00f);
+        colors[ImGuiCol_TabSelectedOverline]                 = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+        colors[ImGuiCol_TabDimmed]                           = ImVec4(0.18f, 0.17f, 0.24f, 0.97f);
+        colors[ImGuiCol_TabDimmedSelected]                   = ImVec4(0.30f, 0.28f, 0.39f, 1.00f);
+        colors[ImGuiCol_TabDimmedSelectedOverline]           = ImVec4(0.50f, 0.50f, 0.50f, 0.00f);
+        colors[ImGuiCol_DockingPreview]                      = ImVec4(0.43f, 0.26f, 0.98f, 0.70f);
+        colors[ImGuiCol_DockingEmptyBg]                      = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
+        colors[ImGuiCol_PlotLines]                           = ImVec4(0.40f, 0.39f, 0.38f, 0.63f);
+        colors[ImGuiCol_PlotLinesHovered]                    = ImVec4(0.25f, 1.00f, 0.00f, 1.00f);
+        colors[ImGuiCol_PlotHistogram]                       = ImVec4(0.40f, 0.39f, 0.38f, 0.63f);
+        colors[ImGuiCol_PlotHistogramHovered]                = ImVec4(0.25f, 1.00f, 0.00f, 1.00f);
+        colors[ImGuiCol_TableHeaderBg]                       = ImVec4(0.19f, 0.19f, 0.20f, 1.00f);
+        colors[ImGuiCol_TableBorderStrong]                   = ImVec4(0.31f, 0.31f, 0.35f, 1.00f);
+        colors[ImGuiCol_TableBorderLight]                    = ImVec4(0.23f, 0.23f, 0.25f, 1.00f);
+        colors[ImGuiCol_TableRowBg]                          = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+        colors[ImGuiCol_TableRowBgAlt]                       = ImVec4(1.00f, 1.00f, 1.00f, 0.06f);
+        colors[ImGuiCol_TextLink]                            = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+        colors[ImGuiCol_TextSelectedBg]                      = ImVec4(0.58f, 0.45f, 1.00f, 0.43f);
+        colors[ImGuiCol_TreeLines]                           = ImVec4(0.43f, 0.43f, 0.50f, 0.50f);
+        colors[ImGuiCol_DragDropTarget]                      = ImVec4(1.00f, 1.00f, 0.00f, 0.90f);
+        colors[ImGuiCol_NavCursor]                           = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+        colors[ImGuiCol_NavWindowingHighlight]               = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
+        colors[ImGuiCol_NavWindowingDimBg]                   = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
+        colors[ImGuiCol_ModalWindowDimBg]                    = ImVec4(0.00f, 0.00f, 0.00f, 0.53f);
     }
 
     void App::createAudioThread()
@@ -279,10 +281,14 @@ namespace Core
                     }
 
                     freq = std::clamp<float>(
-                        m_sorter->elems[m_sorter->getFirst()] * (m_ctx->winHeight / static_cast<float>(m_sorter->elems.size())) + base, min, max
+                        m_sorter->elems[m_sorter->getFirst()]
+                                * (m_ctx->winHeight / static_cast<float>(m_sorter->elems.size()))
+                            + base,
+                        min, max
                     );
 
-                    if (m_sorter->getFlags().isSorting || m_sorter->getFlags().isShuffling || m_sorter->getFlags().isChecking)
+                    if (m_sorter->getFlags().isSorting || m_sorter->getFlags().isShuffling
+                        || m_sorter->getFlags().isChecking)
                     {
                         if (m_soundEngine->load(sec, freq) == Utils::Signal::Error)
                         {
@@ -345,10 +351,7 @@ namespace Core
                     sorter->timer.pause();
                 }
 
-                if (!sorter->getFlags().hasAborted)
-                {
-                    sorter->check();
-                }
+                if (!sorter->getFlags().hasAborted) { sorter->check(); }
             }
         );
     }
@@ -465,7 +468,9 @@ namespace Core
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
-        io.ConfigDpiScaleViewports = true;
+#if defined(__ANDROID__)
+        io.ConfigFlags |= ImGuiConfigFlags_IsTouchScreen;
+#endif
 
         LOG_INFO("Setting ImGui styling");
         setImGuiStyle();
@@ -477,10 +482,7 @@ namespace Core
         }
 
         LOG_INFO("Initializing ImGui SDL renderer");
-        if (!ImGui_ImplSDLRenderer3_Init(m_ctx->renderer))
-        {
-            return Utils::Signal::Error;
-        }
+        if (!ImGui_ImplSDLRenderer3_Init(m_ctx->renderer)) { return Utils::Signal::Error; }
 
         m_UI               = Renderer::UI(shared_from_this());
 
@@ -498,7 +500,9 @@ namespace Core
             m_sorter->timer.end();
             m_sorter->realTimer.end();
 
-            return (m_sorter->getFlags().hasQuit ? Utils::Signal::CloseApp : Utils::Signal::StopSort);
+            return (
+                m_sorter->getFlags().hasQuit ? Utils::Signal::CloseApp : Utils::Signal::StopSort
+            );
         }
 
         if (m_sorter->getFlags().shouldSort)
@@ -527,7 +531,6 @@ namespace Core
         createAudioThread();
 
         LOG_INFO("Starting main loop");
-        SDL_PollEvent(&m_event);
 
         bool running = true;
         while (running)
@@ -536,30 +539,33 @@ namespace Core
 
             switch (handleSortRequests())
             {
-                case Utils::Signal::StopSort:
-                    break;
+                case Utils::Signal::StopSort: break;
                 case Utils::Signal::CloseApp:
                     LOG_INFO("Exit signal recieved");
                     running = false;
                     break;
                 [[likely]] case Utils::Signal::Success:
                     [[fallthrough]];
-                default:
-                    break;
+                default: break;
             }
 
-            if (SDL_PollEvent(&m_event))
+            while (SDL_PollEvent(&m_event))
             {
                 SDL_ConvertEventToRenderCoordinates(m_ctx->renderer, &m_event);
 
                 ImGui_ImplSDL3_ProcessEvent(&m_event);
-                if (
-                    m_event.type == SDL_EVENT_QUIT
-                    || (m_event.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED && m_event.window.windowID == SDL_GetWindowID(m_ctx->window))
-                    || m_event.type == SDL_EVENT_TERMINATING
-                )
+                switch (m_event.type)
                 {
-                    m_sorter->getFlags().setFlags(Sort::FlagGroup::Quit);
+                    case SDL_EVENT_DISPLAY_ORIENTATION:
+                        m_ctx->refreshOrientation();
+                        m_UI.refreshOrientation();
+                        break;
+                    case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
+                        if (m_event.window.windowID != SDL_GetWindowID(m_ctx->window)) { break; }
+                    case SDL_EVENT_QUIT: [[fallthrough]];
+                    case SDL_EVENT_TERMINATING:
+                        m_sorter->getFlags().setFlags(Sort::FlagGroup::Quit);
+                        break;
                 }
             }
 

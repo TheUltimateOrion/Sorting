@@ -33,32 +33,20 @@ namespace Sort
 
     void QuickSort::sort()
     {
-        if (elems.empty())
-        {
-            return;
-        }
+        if (elems.empty()) { return; }
         quickSort(0, elems.size() - 1);
     }
 
     void QuickSort::quickSort(std::size_t t_low, std::size_t t_high)
     {
-        if (t_low >= t_high)
-        {
-            return;
-        }
+        if (t_low >= t_high) { return; }
 
         std::size_t pi = partition(t_low, t_high);
 
         RETURN_IF_STOPPED();
-        if (pi > t_low)
-        {
-            quickSort(t_low, pi - 1);
-        }
+        if (pi > t_low) { quickSort(t_low, pi - 1); }
 
         RETURN_IF_STOPPED();
-        if (pi < t_high)
-        {
-            quickSort(pi + 1, t_high);
-        }
+        if (pi < t_high) { quickSort(pi + 1, t_high); }
     }
 }  // namespace Sort

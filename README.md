@@ -86,5 +86,6 @@ This project is licensed under the terms of the GNU GPLv3. See the [LICENSE](LIC
 - [ ] Better audio output - less crackly, more satisfying
 - [ ] Fully high DPI compliant
 - [ ] Android Port
-- [ ] Emscripten Webassembly Port
+- [ ] Emscripten Webassembly Port (Optional)
+- [ ] OpenGL Backend (Optional)
 - [x] CPack Integration

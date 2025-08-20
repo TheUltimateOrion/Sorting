@@ -93,8 +93,7 @@ namespace Renderer
                              + t_params.circleRadius
                                    * cosf(
                                        t_params.degreesPerIndex * Utils::kRadiansPerDegree * (k + 1)
-                                   ),
-                         0.5f * ctx->winHeight
+                                   ), 0.5f * ctx->winHeight
                              + t_params.circleRadius
                                    * sinf(
                                        t_params.degreesPerIndex * Utils::kRadiansPerDegree * (k + 1)
@@ -182,8 +181,7 @@ namespace Renderer
                              + t_params.spiralScale * m_elems[k]
                                    * cosf(
                                        t_params.degreesPerIndex * Utils::kRadiansPerDegree * (k + 1)
-                                   ),
-                         0.5f * ctx->winHeight
+                                   ), 0.5f * ctx->winHeight
                              + t_params.spiralScale * m_elems[k]
                                    * sinf(
                                        t_params.degreesPerIndex * Utils::kRadiansPerDegree * (k + 1)

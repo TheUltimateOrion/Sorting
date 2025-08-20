@@ -15,11 +15,10 @@ namespace Core
         Error,
     };
 
-    class Logger
+    namespace Logger
     {
-    public:
-        static void Log(LogLevel level, std::string const& message);
-    };
+        void Log(LogLevel level, std::string const& message);
+    }
 
 }  // namespace Core
 

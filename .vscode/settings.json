@@ -141,7 +141,8 @@
         "stack": "cpp",
         "cfenv": "cpp",
         "cstdbool": "cpp",
-        "version": "cpp"
+        "version": "cpp",
+        "*.rh": "cpp"
     },
     "java.configuration.updateBuildConfiguration": "disabled"
 }

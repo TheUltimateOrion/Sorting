@@ -17,15 +17,9 @@ namespace Sort
 
     void  BaseSort::generateArray(std::size_t t_size)
     {
-        if (t_size != elems.size())
-        {
-            elems.resize(t_size);
-        }
+        if (t_size != elems.size()) { elems.resize(t_size); }
 
-        for (std::size_t i = 0; i < t_size; ++i)
-        {
-            elems[i] = static_cast<elem_t>(i + 1);
-        }
+        for (std::size_t i = 0; i < t_size; ++i) { elems[i] = static_cast<elem_t>(i + 1); }
     }
 
     BaseSort::BaseSort()

@@ -24,16 +24,16 @@ namespace Core
 
         LOG_INFO(
             std::format(
-                "Registering sort:\n\tID: {}\n\tType: <{}{}>\n\tCategory: {}",
-                t_id,
+                "Registering sort:\n\tID: {}\n\tType: <{}{}>\n\tCategory: {}", t_id,
                 Utils::demangleName(typeid(FactoryReturnType).name()),
-                isParameterized ? ": Parameterized" : "",
-                static_cast<int>(t_category)
+                isParameterized ? ": Parameterized" : "", static_cast<int>(t_category)
             )
         );
 
         registerFactory(
-            t_id, SortRegistryEntry {t_id, t_category, t_displayName, std::move(t_factory), isParameterized}
+            t_id, SortRegistryEntry {
+                      t_id, t_category, t_displayName, std::move(t_factory), isParameterized
+                  }
         );
     }
 
@@ -52,57 +52,47 @@ namespace Core
     {
         registerSort(
             "bubble", Sort::Category::Exchange, "Bubble Sort",
-            []()
-            { return std::make_shared<Sort::BubbleSort>(); }
+            []() { return std::make_shared<Sort::BubbleSort>(); }
         );
         registerSort(
             "quick", Sort::Category::Exchange, "Quick Sort",
-            []()
-            { return std::make_shared<Sort::QuickSort>(); }
+            []() { return std::make_shared<Sort::QuickSort>(); }
         );
         registerSort(
             "comb", Sort::Category::Exchange, "Comb Sort",
-            []()
-            { return std::make_shared<Sort::CombSort>(); }
+            []() { return std::make_shared<Sort::CombSort>(); }
         );
 
         registerSort(
             "radix_lsd", Sort::Category::Distribution, "Radix LSD Sort",
-            []()
-            { return std::make_shared<Sort::RadixLSDSort>(); }
+            []() { return std::make_shared<Sort::RadixLSDSort>(); }
         );
         registerSort(
             "pigeon_hole", Sort::Category::Distribution, "Pigeon Hole Sort",
-            []()
-            { return std::make_shared<Sort::PigeonHoleSort>(); }
+            []() { return std::make_shared<Sort::PigeonHoleSort>(); }
         );
         registerSort(
             "gravity", Sort::Category::Distribution, "Gravity Sort",
-            []()
-            { return std::make_shared<Sort::GravitySort>(); }
+            []() { return std::make_shared<Sort::GravitySort>(); }
         );
         registerSort(
             "bogo", Sort::Category::Distribution, "Bogo Sort",
-            []()
-            { return std::make_shared<Sort::BogoSort>(); }
+            []() { return std::make_shared<Sort::BogoSort>(); }
         );
 
         registerSort(
             "insertion", Sort::Category::Insertion, "Insertion Sort",
-            []()
-            { return std::make_shared<Sort::InsertionSort>(); }
+            []() { return std::make_shared<Sort::InsertionSort>(); }
         );
 
         registerSort(
             "merge", Sort::Category::Merge, "Merge Sort",
-            []()
-            { return std::make_shared<Sort::MergeSort>(); }
+            []() { return std::make_shared<Sort::MergeSort>(); }
         );
 
         registerSort(
             "selection", Sort::Category::Select, "Selection Sort",
-            []()
-            { return std::make_shared<Sort::SelectionSort>(); }
+            []() { return std::make_shared<Sort::SelectionSort>(); }
         );
     }
 }  // namespace Core

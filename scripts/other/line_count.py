@@ -5,8 +5,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-WANT_EXTENSIONS: tuple[str, ...] = (".h", ".hpp", ".c", ".cpp")
-WANT_DIRECTORIES: tuple[str, ...] = ("src", "includes")
+WANT_EXTENSIONS: tuple[str, ...] = (".h", ".hpp", ".c", ".cpp", ".gradle", ".kt")
+WANT_DIRECTORIES: tuple[str, ...] = ("src", "includes", "android")
 COLUMN_WIDTH = 30
 
 files_read: int = 0
@@ -64,7 +64,7 @@ def traverse_directory(dir_path: Path) -> int:
 def find_line_count() -> None:
     total_count: int =  0
 
-    start: Path = Path.cwd().parent.resolve()
+    start: Path = Path.cwd().resolve()
 
     for subdirectory in WANT_DIRECTORIES:
         total_count += traverse_directory(start/subdirectory)

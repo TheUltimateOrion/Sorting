@@ -11,11 +11,6 @@
 #define RETURN_IF_STOPPED(ret)                                              \
     if (m_flags.hasAborted || m_flags.hasQuit) [[unlikely]] { return ret; }
 
-namespace Core
-{
-    class App;
-}
-
 namespace Sort
 {
     class BaseSort
