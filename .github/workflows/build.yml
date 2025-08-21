@@ -50,6 +50,10 @@ jobs:
           clang:u
           cmake:u
           ninja:u
+    
+    - name: Install Linux Prerequisites
+      if: ${{ contains( matrix.platform.name, 'linux') }}
+      run: sudo apt-get install libx11-dev
 
     - name: Xcode Setup
       if: ${{ contains( matrix.platform.name, 'mac') }}
@@ -68,7 +72,7 @@ jobs:
       if: ${{ contains( matrix.platform.name, 'android') }}
       with:
           gradle-version: wrapper
-          
+
       
     - name: Cache Build Folder
       if: ${{ !contains( matrix.platform.name, 'android') }}
