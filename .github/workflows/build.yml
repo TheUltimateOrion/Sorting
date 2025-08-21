@@ -29,7 +29,7 @@ jobs:
         - { name: build-win,       os: windows-latest, shell: 'msys2 {0}'}
         - { name: build-linux,     os: ubuntu-latest,  shell: sh }
         - { name: build-mac,       os: macos-latest,   shell: sh }
-        - { name: build-android,   os: windows-latest, shell: cmd }
+        - { name: build-android,   os: ubuntu-latest,  shell: sh }
     
     steps:
     - uses: actions/checkout@v4
@@ -107,7 +107,9 @@ jobs:
     - name: Android build
       if: ${{ contains( matrix.platform.name, 'android') }}
       working-directory: ${{ github.workspace }}/android
-      run: gradlew assembleRelease
+      run: |
+        chmod +x ./gradlew
+        ./gradlew --no-daemon --parallel --build-cache --configuration-cache assembleRelease
     
     - name: Test
       if: ${{ !contains( matrix.platform.name, 'android') }}
