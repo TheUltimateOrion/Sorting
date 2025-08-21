@@ -9,7 +9,6 @@
 #include "sort/category.h"
 #include "sort/flags.h"
 #include "sort/sort.h"
-#include "utils/common.h"
 
 #include <imgui_impl_sdl3.h>
 #include <imgui_impl_sdlrenderer3.h>
@@ -41,7 +40,11 @@ namespace Renderer
             ImGui::Separator();
 
             // --- Build / Environment (two-column table) ---
-            if (ImGui::BeginTable("about_kv", 2, ImGuiTableFlags_SizingStretchProp | ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersInnerV))
+            if (ImGui::BeginTable(
+                    "about_kv", 2,
+                    ImGuiTableFlags_SizingStretchProp | ImGuiTableFlags_RowBg
+                        | ImGuiTableFlags_BordersInnerV
+                ))
             {
                 auto row = [](char const* k, char const* v)
                 {
@@ -71,22 +74,26 @@ namespace Renderer
                 row("Dear ImGui", ImGui::GetVersion());
                 {
                     ImGuiIO const& io = ImGui::GetIO();
-                    row("Backend (Platform)", io.BackendPlatformName ? io.BackendPlatformName : "Unknown");
-                    row("Backend (Renderer)", io.BackendRendererName ? io.BackendRendererName : "Unknown");
+                    row("Backend (Platform)",
+                        io.BackendPlatformName ? io.BackendPlatformName : "Unknown");
+                    row("Backend (Renderer)",
+                        io.BackendRendererName ? io.BackendRendererName : "Unknown");
                 }
 
                 {
                     ImGuiIO const& io = ImGui::GetIO();
                     char           buf[128];
-                    std::snprintf(buf, sizeof(buf), "%.0fx%.0f (scale %.2f)", io.DisplaySize.x, io.DisplaySize.y, io.FontGlobalScale);
+                    std::snprintf(
+                        buf, sizeof(buf), "%.0fx%.0f (scale %.2f)", io.DisplaySize.x,
+                        io.DisplaySize.y, io.FontGlobalScale
+                    );
                     row("Display", buf);
                 }
                 {
-                    ImGuiIO const& io = ImGui::GetIO();
-                    char           buf[128];
-                    float const    fps = io.Framerate;
-                    float const    ms  = (fps > 0.01f) ? (1000.0f / fps) : 0.0f;
-                    std::snprintf(buf, sizeof(buf), "%.1f FPS (%.2f ms/frame)", fps, ms);
+                    char        buf[128];
+                    float const framerate = Core::Platform::Display::getFramerate();
+                    float const ms        = (framerate > 0.01f) ? (1000.0f / framerate) : 0.0f;
+                    std::snprintf(buf, sizeof(buf), "%.1f FPS (%.2f ms/frame)", framerate, ms);
                     row("Performance", buf);
                 }
 
@@ -120,23 +127,25 @@ namespace Renderer
             if (ImGui::Button("Copy diagnostics"))
             {
                 std::stringstream ss;
-                ImGuiIO const&    io = ImGui::GetIO();
+                ImGuiIO const&    io        = ImGui::GetIO();
+                float             framerate = Core::Platform::Display::getFramerate();
                 ss << "OrionSort v" << APP_VERSION
 #ifdef GIT_COMMIT_HASH
                    << " (" << GIT_COMMIT_HASH << ")"
 #endif
-                   << "\nBuild: " << Core::Platform::BuildType() << ", " << __DATE__ << " " << __TIME__
-                   << "\nOS: " << Core::Platform::OSName()
+                   << "\nBuild: " << Core::Platform::BuildType() << ", " << __DATE__ << " "
+                   << __TIME__ << "\nOS: " << Core::Platform::OSName()
                    << "\nArch: " << ((sizeof(void*) == 8) ? "x64" : "x86")
                    << "\nCompiler: " << Core::Platform::CompilerString()
                    << "\nC++: " << Core::Platform::CppStandard()
-                   << "\nDear ImGui: " << ImGui::GetVersion()
-                   << "\nBackend(Platform): " << (io.BackendPlatformName ? io.BackendPlatformName : "Unknown")
-                   << "\nBackend(Renderer): " << (io.BackendRendererName ? io.BackendRendererName : "Unknown")
-                   << "\nDisplay: " << io.DisplaySize.x << "x" << io.DisplaySize.y
-                   << " (scale " << io.FontGlobalScale << ")"
-                   << "\nPerf: " << io.Framerate << " FPS ("
-                   << (io.Framerate > 0.01f ? (1000.0f / io.Framerate) : 0.0f) << " ms/frame)";
+                   << "\nDear ImGui: " << ImGui::GetVersion() << "\nBackend(Platform): "
+                   << (io.BackendPlatformName ? io.BackendPlatformName : "Unknown")
+                   << "\nBackend(Renderer): "
+                   << (io.BackendRendererName ? io.BackendRendererName : "Unknown")
+                   << "\nDisplay: " << io.DisplaySize.x << "x" << io.DisplaySize.y << " (scale "
+                   << io.FontGlobalScale << ")"
+                   << "\nPerf: " << framerate << " FPS ("
+                   << (framerate > 0.01f ? (1000.0f / framerate) : 0.0f) << " ms/frame)";
                 ImGui::SetClipboardText(ss.str().c_str());
             }
             ImGui::SameLine();
@@ -160,16 +169,21 @@ namespace Renderer
         }
     }
 
-    void UI::renderText(std::string const& t_txt, float t_x, float t_y, SDL_Color t_col) const noexcept
+    void UI::renderText(
+        std::string const& t_txt,
+        float              t_x,
+        float              t_y,
+        SDL_Color          t_col
+    ) const noexcept
     {
         if (auto appShared = m_app.lock())
         {
-            RenderContext const* const ctx         = appShared->getContext();
+            RenderContext const* const ctx = appShared->getContext();
 
-            SDL_Surface*               textSurface = TTF_RenderText_Solid(ctx->font, t_txt.c_str(), 0, t_col);
-            SDL_Texture*               text        = SDL_CreateTextureFromSurface(ctx->renderer, textSurface);
-            float                      text_width  = static_cast<float>(textSurface->w);
-            float                      text_height = static_cast<float>(textSurface->h);
+            SDL_Surface* textSurface = TTF_RenderText_Solid(ctx->font, t_txt.c_str(), 0, t_col);
+            SDL_Texture* text        = SDL_CreateTextureFromSurface(ctx->renderer, textSurface);
+            float        text_width  = static_cast<float>(textSurface->w);
+            float        text_height = static_cast<float>(textSurface->h);
 
             SDL_DestroySurface(textSurface);
             SDL_FRect renderQuad {t_x, t_y, text_width, text_height};
@@ -182,12 +196,12 @@ namespace Renderer
     {
         if (auto appShared = m_app.lock())
         {
-            auto&                          sorter       = appShared->getSorter();
-            Core::SortRegistry const&      registry     = appShared->getRegistry();
-            RenderContext const* const     ctx          = appShared->getContext();
+            auto&                          sorter   = appShared->getSorter();
+            Core::SortRegistry const&      registry = appShared->getRegistry();
+            RenderContext const* const     ctx      = appShared->getContext();
 
-            Sort::Flags&                   flags        = sorter->getFlags();
-            std::vector<std::string>       ids          = registry.idsByCategory(m_uiState.sortCategory);
+            Sort::Flags&                   flags    = sorter->getFlags();
+            std::vector<std::string>       ids = registry.idsByCategory(m_uiState.sortCategory);
             Core::SortRegistryEntry const* currentEntry = registry.get(ids[m_uiState.sortIndex]);
 
             {
@@ -285,7 +299,11 @@ namespace Renderer
             Sort::Flags& flags = appShared->getSorter()->getFlags();
             if (ImGui::CollapsingHeader("Sorting Flags"))
             {
-                if (ImGui::BeginTable("debug_flags", 2, ImGuiTableFlags_SizingStretchProp | ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersInnerV))
+                if (ImGui::BeginTable(
+                        "debug_flags", 2,
+                        ImGuiTableFlags_SizingStretchProp | ImGuiTableFlags_RowBg
+                            | ImGuiTableFlags_BordersInnerV
+                    ))
                 {
                     IMGUI_DEBUG_FLAG(flags, hasAborted);
                     IMGUI_DEBUG_FLAG(flags, hasQuit);
@@ -308,7 +326,11 @@ namespace Renderer
 
             if (ImGui::CollapsingHeader("UI State"))
             {
-                if (ImGui::BeginTable("debug_uistate", 2, ImGuiTableFlags_SizingStretchProp | ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersInnerV))
+                if (ImGui::BeginTable(
+                        "debug_uistate", 2,
+                        ImGuiTableFlags_SizingStretchProp | ImGuiTableFlags_RowBg
+                            | ImGuiTableFlags_BordersInnerV
+                    ))
                 {
                     IMGUI_DEBUG_UISTATE(m_uiState, arrayLength);
                     IMGUI_DEBUG_UISTATE(m_uiState, isColored);
@@ -424,28 +446,28 @@ namespace Renderer
 
         if (t_currentEntry->isParameterized)
         {
-            static std::uint8_t                          prevIndex = std::numeric_limits<std::uint8_t>::max();
+            static std::uint8_t prevIndex = std::numeric_limits<std::uint8_t>::max();
 
             static std::pair<std::int64_t, std::int64_t> bounds;
 
             if (m_uiState.sortIndex != prevIndex)
             {
                 auto tempSorter        = t_currentEntry->factory();
-                auto parameterizedSort = std::dynamic_pointer_cast<Sort::IParameterized>(tempSorter);
-                bounds                 = parameterizedSort->getParameterBounds();
+                auto parameterizedSort = std::dynamic_pointer_cast<Sort::IParameterized>(
+                    tempSorter
+                );
+                bounds    = parameterizedSort->getParameterBounds();
 
-                prevIndex              = m_uiState.sortIndex;
+                prevIndex = m_uiState.sortIndex;
             }
 
-            m_uiState.sortParameter = std::clamp(m_uiState.sortParameter, bounds.first, bounds.second);
+            m_uiState.sortParameter = std::clamp(
+                m_uiState.sortParameter, bounds.first, bounds.second
+            );
 
             ImGui::SliderScalar(
-                "Set Buckets/Radix",
-                ImGuiDataType_S64,
-                &m_uiState.sortParameter,
-                &bounds.first,
-                &bounds.second,
-                "%d"
+                "Set Buckets/Radix", ImGuiDataType_S64, &m_uiState.sortParameter, &bounds.first,
+                &bounds.second, "%d"
             );
         }
 
@@ -467,7 +489,7 @@ namespace Renderer
             {
                 if (ImGui::Button("Sort"))
                 {
-                    LOGINFO("Starting sort");
+                    LOG_INFO("Starting sort");
                     if (m_uiState.sortIndex < t_ids.size())
                     {
                         if (t_currentEntry)
@@ -480,16 +502,15 @@ namespace Renderer
 
                             if (t_currentEntry->isParameterized)
                             {
-                                dynamic_pointer_cast<Sort::IParameterized>(newSorter)
-                                    ->setParameter(
-                                        m_uiState.sortParameter
-                                    );
+                                dynamic_pointer_cast<Sort::IParameterized>(newSorter)->setParameter(
+                                    m_uiState.sortParameter
+                                );
                             }
 
                             newSorter->getFlags().setFlags(Sort::FlagGroup::SortButtonPressed);
                         }
                     }
-                    else { LOGERR("Unknown sort category/index"); }
+                    else { LOG_ERROR("Unknown sort category/index"); }
                 }
             }
             else
@@ -498,16 +519,13 @@ namespace Renderer
                 {
                     sorter->getFlags().setFlags(Sort::FlagGroup::StopButtonPressed);
 
-                    LOGINFO("Stopping sort");
+                    LOG_INFO("Stopping sort");
                 }
             }
 
             ImGui::BeginDisabled(!sorter->getFlags().hasAborted);
             ImGui::SameLine();
-            if (ImGui::Button("Reset"))
-            {
-                sorter->reset();
-            }
+            if (ImGui::Button("Reset")) { sorter->reset(); }
             ImGui::EndDisabled();
         }
     }
@@ -523,32 +541,45 @@ namespace Renderer
             std::vector<std::string>  ids      = registry.idsByCategory(m_uiState.sortCategory);
 
             if (m_uiState.sortIndex >= ids.size()) { m_uiState.sortIndex = 0; }
-            Core::SortRegistryEntry const* const currentEntry = registry.get(ids[m_uiState.sortIndex]);
-            std::string const                    currentName  = currentEntry ? currentEntry->displayName : "";
+            Core::SortRegistryEntry const* const currentEntry = registry.get(
+                ids[m_uiState.sortIndex]
+            );
+            std::string const currentName = currentEntry ? currentEntry->displayName : "";
 
-            if (!m_uiState.isImGuiOpen)
-            {
-                sorter->getFlags().setFlags(Sort::FlagGroup::Quit);
-            }
+            if (!m_uiState.isImGuiOpen) { sorter->getFlags().setFlags(Sort::FlagGroup::Quit); }
 
             renderInfo();
 
             renderAboutWindow();
 
-            if (m_uiState.isAboutPopupOpened)
-            {
-                ImGui::OpenPopup("OrionSort##modal");
-            }
+            if (m_uiState.isAboutPopupOpened) { ImGui::OpenPopup("OrionSort##modal"); }
 
             // Main Window
             {
+                constexpr float mainWindowWidth  = 500.0f;
+                constexpr float mainWindowHeight = 400.0f;
+
+                ImGui::SetNextWindowPos(
+                    ImVec2(0.5f * ctx->winWidth, 0.5f * ctx->winHeight), ImGuiCond_FirstUseEver,
+                    ImVec2(0.5f, 0.5f)
+                );
+                ImGui::SetNextWindowSize(
+                    ImVec2(mainWindowWidth, mainWindowHeight), ImGuiCond_FirstUseEver
+                );
+
+                if (m_uiState.isScreenOrientationChanged)
+                {
+                    ImGui::SetNextWindowPos(
+                        ImVec2(0.5f * ctx->winWidth, 0.5f * ctx->winHeight), ImGuiCond_None,
+                        ImVec2(0.5f, 0.5f)
+                    );
+                    m_uiState.isScreenOrientationChanged = false;
+                }
+
                 ImGui::Begin("Configure", &m_uiState.isImGuiOpen, ImGuiWindowFlags_MenuBar);
                 if (ImGui::BeginMenuBar())
                 {
-                    if (ImGui::MenuItem("About"))
-                    {
-                        m_uiState.isAboutPopupOpened = true;
-                    }
+                    if (ImGui::MenuItem("About")) { m_uiState.isAboutPopupOpened = true; }
                     ImGui::EndMenuBar();
                 }
 
@@ -582,7 +613,9 @@ namespace Renderer
             if (m_uiState.isDebugMode)
             {
                 ImGui::SetNextWindowSize(ImVec2(400.0f, 300.0f), ImGuiCond_Once);
-                ImGui::SetNextWindowPos(ImVec2(ctx->winWidth / 2, ctx->winHeight / 2), ImGuiCond_Once);
+                ImGui::SetNextWindowPos(
+                    ImVec2(ctx->winWidth / 2, ctx->winHeight / 2), ImGuiCond_Once
+                );
                 ImGui::Begin("Debug");
 
                 renderDebugMenu();
@@ -591,4 +624,6 @@ namespace Renderer
             }
         }
     }
+
+    ANDROID_API void UI::refreshOrientation() { m_uiState.isScreenOrientationChanged = true; }
 }  // namespace Renderer

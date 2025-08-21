@@ -7,20 +7,14 @@ namespace Sort
     std::size_t CombSort::getNextGap(std::size_t t_gap)
     {
         std::size_t gap = (t_gap * 10) / 13;
-        if (gap < 1)
-        {
-            return 1;
-        }
+        if (gap < 1) { return 1; }
 
         return gap;
     }
 
     void CombSort::sort()
     {
-        if (elems.empty())
-        {
-            return;
-        }
+        if (elems.empty()) { return; }
 
         // Initialize gap
         std::size_t gap     = elems.size();

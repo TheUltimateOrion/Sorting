@@ -10,17 +10,11 @@ namespace Sort
 
     bool BogoSort::isSorted()
     {
-        if (elems.empty())
-        {
-            return true;
-        }
+        if (elems.empty()) { return true; }
 
         for (std::size_t i = 1; i < elems.size(); ++i)
         {
-            if (elems[i] < elems[i - 1])
-            {
-                return false;
-            }
+            if (elems[i] < elems[i - 1]) { return false; }
         }
 
         return true;
@@ -44,10 +38,7 @@ namespace Sort
 
     void BogoSort::sort()
     {
-        if (elems.empty())
-        {
-            return;
-        }
+        if (elems.empty()) { return; }
 
         while (!isSorted())
         {

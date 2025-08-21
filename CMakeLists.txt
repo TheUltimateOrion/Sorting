@@ -1,20 +1,19 @@
-cmake_minimum_required(VERSION 3.28)
+cmake_minimum_required(VERSION 3.22)
 
-project(OrionSort VERSION 0.4.0)
+project(OrionSort VERSION 0.5.0)
 
 # Project-wide settings
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}/dist")
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_SOURCE_DIR}/cmake")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -Wall -Wextra -g3")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wall -Wextra -Wno-deprecated-literal-operator -Wno-unused-parameter -Wno-sign-compare -g3")
 set(REPO "https://www.github.com/TheUltimateOrion/Sorting")
 
 option(BUILD_TESTING "Build Test Executable?" OFF)
 
 # if(BUILD_TESTING)
 #     include(CTest)
-#     include(GoogleTest)
 #     enable_testing()
 #     add_subdirectory(test)
 # endif(BUILD_TESTING)
@@ -26,7 +25,11 @@ add_subdirectory(external)
 file(GLOB_RECURSE SOURCE_FILES CONFIGURE_DEPENDS src/*.cpp)
 
 # Define executable
-add_executable(${PROJECT_NAME} MACOSX_BUNDLE ${SOURCE_FILES})
+if(ANDROID)
+    add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES})
+else() 
+    add_executable(${PROJECT_NAME} MACOSX_BUNDLE ${SOURCE_FILES})
+endif()
 
 target_compile_definitions(
     ${PROJECT_NAME} PRIVATE 
@@ -38,8 +41,11 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     includes/
 )
 
-target_link_libraries(${PROJECT_NAME} PRIVATE ImGui SDL3::SDL3 SDL3_ttf::SDL3_ttf OpenAL::OpenAL ImGui::ImGui)
-
+if (ANDROID)
+    target_link_libraries(${PROJECT_NAME} PRIVATE ImGui SDL3::SDL3 SDL3_ttf::SDL3_ttf OpenAL::OpenAL ImGui::ImGui android log)
+else()
+    target_link_libraries(${PROJECT_NAME} PRIVATE ImGui SDL3::SDL3 SDL3_ttf::SDL3_ttf OpenAL::OpenAL ImGui::ImGui)
+endif()
 # Install rules per platform
 if(WIN32)
     install(TARGETS 
@@ -108,7 +114,7 @@ elseif(LINUX)
                 SDL3_ttf-shared
                 OpenAL
             LIBRARY 
-                DESTINATION .
+                DESTINATION lib/
             RUNTIME 
                 DESTINATION .
             )
@@ -120,11 +126,11 @@ elseif(LINUX)
             )
 
     # Set proper RPATH
-    set(RPATH "$ORIGIN")
+    set(RPATH "$ORIGIN/lib")
     set_target_properties(${PROJECT_NAME} PROPERTIES
         BUILD_RPATH "${RPATH}"
         INSTALL_RPATH "${RPATH}"
-    )
+    )    
 endif()
 
 # Packaging metadata
@@ -191,7 +197,7 @@ elseif(APPLE)
   if(EXISTS "${CMAKE_SOURCE_DIR}/macos/dmg_background.png")
     set(CPACK_DMG_BACKGROUND_IMAGE "${CMAKE_SOURCE_DIR}/macos/dmg_background.png")
   endif()
-  set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-${PROJECT_VERSION}-macOS")
+  set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-${PROJECT_VERSION}")
 
 elseif(UNIX)
   # Linux: always produce a tarball; add DEB/RPM if tooling is available

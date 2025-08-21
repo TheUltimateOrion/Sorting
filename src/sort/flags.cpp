@@ -30,21 +30,11 @@ namespace Sort
 
                 shouldSort  = false;
                 break;
-            case FlagGroup::StartShuffling:
-                isShuffling = true;
-                break;
-            case FlagGroup::DoneShuffling:
-                isShuffling = false;
-                break;
-            case FlagGroup::StartSorting:
-                isSorting = true;
-                break;
-            case FlagGroup::DoneSorting:
-                isSorting = false;
-                break;
-            case FlagGroup::StartChecking:
-                isChecking = true;
-                break;
+            case FlagGroup::StartShuffling: isShuffling = true; break;
+            case FlagGroup::DoneShuffling : isShuffling = false; break;
+            case FlagGroup::StartSorting  : isSorting = true; break;
+            case FlagGroup::DoneSorting   : isSorting = false; break;
+            case FlagGroup::StartChecking : isChecking = true; break;
             case FlagGroup::DoneChecking:
                 isChecking = false;
                 isRunning  = false;
@@ -54,9 +44,7 @@ namespace Sort
                 hasAborted = false;
                 shouldSort = true;
                 break;
-            case FlagGroup::Quit:
-                hasQuit = true;
-                [[fallthrough]];
+            case FlagGroup::Quit: hasQuit = true; [[fallthrough]];
             case FlagGroup::StopButtonPressed:
                 hasAborted  = true;
 

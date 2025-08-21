@@ -6,7 +6,12 @@
 
 namespace Utils
 {
-    constexpr float kRadiansPerDegree = M_PI / 180.0f;
+    constexpr float kRadiansPerDegree   = M_PI / 180.0f;
+    constexpr float kAndroidRenderScale = 2.0f;
 
-    SDL_Color       hsvToRgb(unsigned char t_hue, unsigned char t_saturation, unsigned char t_value) noexcept;
+    SDL_Color       hsvToRgb(
+              unsigned char t_hue,
+              unsigned char t_saturation,
+              unsigned char t_value
+          ) noexcept;
 }  // namespace Utils

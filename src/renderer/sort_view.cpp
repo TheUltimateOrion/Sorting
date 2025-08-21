@@ -93,8 +93,7 @@ namespace Renderer
                              + t_params.circleRadius
                                    * cosf(
                                        t_params.degreesPerIndex * Utils::kRadiansPerDegree * (k + 1)
-                                   ),
-                         0.5f * ctx->winHeight
+                                   ), 0.5f * ctx->winHeight
                              + t_params.circleRadius
                                    * sinf(
                                        t_params.degreesPerIndex * Utils::kRadiansPerDegree * (k + 1)
@@ -105,7 +104,7 @@ namespace Renderer
 
                     if (!SDL_RenderGeometry(ctx->renderer, nullptr, vertices, 3, nullptr, 0))
                     {
-                        LOGERR(SDL_GetError());
+                        LOG_ERROR(SDL_GetError());
                     }
                 }
                 break;
@@ -182,8 +181,7 @@ namespace Renderer
                              + t_params.spiralScale * m_elems[k]
                                    * cosf(
                                        t_params.degreesPerIndex * Utils::kRadiansPerDegree * (k + 1)
-                                   ),
-                         0.5f * ctx->winHeight
+                                   ), 0.5f * ctx->winHeight
                              + t_params.spiralScale * m_elems[k]
                                    * sinf(
                                        t_params.degreesPerIndex * Utils::kRadiansPerDegree * (k + 1)

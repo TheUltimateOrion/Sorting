@@ -15,14 +15,18 @@
 namespace Core
 {
     class App;
+}
 
+namespace Core
+{
     template <typename Factory>
-    concept SortFactory
-        = std::invocable<Factory>
-       && std::same_as<
-              std::invoke_result_t<Factory>,
-              std::shared_ptr<typename std::invoke_result_t<Factory>::element_type>>
-       && std::derived_from<typename std::invoke_result_t<Factory>::element_type, Sort::BaseSort>;
+    concept SortFactory = std::invocable<Factory>
+                       && std::same_as<
+                              std::invoke_result_t<Factory>,
+                              std::shared_ptr<typename std::invoke_result_t<Factory>::element_type>>
+                       && std::derived_from<
+                              typename std::invoke_result_t<Factory>::element_type,
+                              Sort::BaseSort>;
 
     class SortRegistry : public Registry<SortRegistryEntry>
     {

@@ -20,18 +20,12 @@ namespace Sort
 
                 elems.addComparisons(1);
 
-                if (elems[j] < elems[min])
-                {
-                    min = j;
-                }
+                if (elems[j] < elems[min]) { min = j; }
 
                 Core::Timer::Sleep(1.f / BaseSort::s_speed, realTimer);
                 RETURN_IF_STOPPED();
             }
-            if (min != i)
-            {
-                swap(elems, min, i);
-            }
+            if (min != i) { swap(elems, min, i); }
 
             RETURN_IF_STOPPED();
         }

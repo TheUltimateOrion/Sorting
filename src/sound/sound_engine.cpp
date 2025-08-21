@@ -4,6 +4,14 @@
 
 #include <cmath>
 
+namespace
+{
+    constexpr int      kNumBuffers = 3;       // small, avoids starvation
+    constexpr unsigned kRate       = 48000u;  // typical Android mixer rate
+    ALuint             s_buffers[kNumBuffers] {};
+    bool               s_bufsMade = false;
+}  // namespace
+
 SoundEngine* SoundEngine::Get()
 {
     static SoundEngine instance;
@@ -30,82 +38,176 @@ char const* SoundEngine::alErrorString(ALenum t_err) const noexcept
 
 Utils::Signal SoundEngine::init()
 {
-    ALCdevice*  dev = nullptr;
-    ALCcontext* ctx = nullptr;
+    LOG_INFO("Opening default OpenAL audio device");
+    char const* defaultDevice = alcGetString(nullptr, ALC_DEFAULT_ALL_DEVICES_SPECIFIER);
+    LOG_INFO("Default Device: " << (defaultDevice ? defaultDevice : "<null>"));
 
-    LOGINFO("Finding default OpenAL audio device");
-    char const* defname = alcGetString(nullptr, ALC_DEFAULT_DEVICE_SPECIFIER);
-    LOGINFO("Default device: " << defname);
-
-    LOGINFO("Opening OpenAL audio device: " << defname);
-    dev = alcOpenDevice(defname);
-
-    LOGINFO("Creating new OpenAL context");
-    ctx = alcCreateContext(dev, nullptr);
-
-    LOGINFO("Making current context");
-    alcMakeContextCurrent(ctx);
-
-    LOGINFO("Generating OpenAL sources");
-    alGenSources(1, &m_src);
-
-    AL_CHECK_ERR(Utils::Signal::Error);
-
-    return Utils::Signal::Success;
-}
-
-Utils::Signal SoundEngine::load(float t_ms, float t_freq)
-{
-    alGenBuffers(1, &m_buf);
-    AL_CHECK_ERR(Utils::Signal::Error);
-
-    /* Fill buffer with Sine-Wave */
-    constexpr unsigned sample_rate = 22'050;
-    std::size_t        buf_size    = t_ms * sample_rate;
-
-    m_samples                      = new short[buf_size];
-
-    for (std::size_t i = 0; i < buf_size; ++i)
+    ALCdevice* dev = alcOpenDevice(defaultDevice);
+    if (!dev)
     {
-        m_samples[i] = 32'760 * std::sin((2.f * M_PI * t_freq) / sample_rate * i);
+        m_err = alcGetError(nullptr);
+        return Utils::Signal::Error;
     }
 
-    /* Download buffer to OpenAL */
-    alBufferData(m_buf, AL_FORMAT_MONO16, m_samples, buf_size, sample_rate);
+    LOG_INFO("Creating new OpenAL context");
+    ALCcontext* ctx = alcCreateContext(dev, nullptr);
+    if (!ctx || alcMakeContextCurrent(ctx) == ALC_FALSE)
+    {
+        m_err = alcGetError(dev);
+        if (ctx) { alcDestroyContext(ctx); }
+        alcCloseDevice(dev);
+        return Utils::Signal::Error;
+    }
+
+    LOG_INFO("Generating OpenAL source");
+    alGenSources(1, &m_src);
+    AL_CHECK_ERR(Utils::Signal::Error);
+
+    alListenerf(AL_GAIN, 1.0f);
+    AL_CHECK_ERR(Utils::Signal::Error);
+
+    alSourcef(m_src, AL_GAIN, 1.0f);
+    alSourcei(m_src, AL_LOOPING, AL_FALSE);
+    AL_CHECK_ERR(Utils::Signal::Error);
+
+    if (!s_bufsMade)
+    {
+        alGenBuffers(kNumBuffers, s_buffers);
+        AL_CHECK_ERR(Utils::Signal::Error);
+        s_bufsMade = true;
+    }
+
+    return Utils::Signal::Success;
+}
+
+// Stream one chunk into the queue. Safe to call every tick.
+Utils::Signal SoundEngine::load(float t_seconds, float t_freq)
+{
+    if (!s_bufsMade)
+    {
+        alGenBuffers(kNumBuffers, s_buffers);
+        AL_CHECK_ERR(Utils::Signal::Error);
+        s_bufsMade = true;
+    }
+
+    // Determine a sane chunk size to keep latency low and CPU reasonable.
+    float const       seconds = std::clamp(t_seconds, 0.01f, 0.25f);  // 10–250 ms per chunk
+    std::size_t const frames  = static_cast<std::size_t>(seconds * kRate);
+
+    // Reuse sample workspace.
+    if (m_samples)
+    {
+        delete[] m_samples;
+        m_samples = nullptr;
+    }
+    m_samples = new short[frames];
+
+    // Generate mono sine into workspace.
+    for (std::size_t i = 0; i < frames; ++i)
+    {
+        float const s = std::sin(
+            2.0f * static_cast<float>(M_PI) * t_freq * (static_cast<float>(i) / kRate)
+        );
+        m_samples[i] = static_cast<short>(std::round(32760.0f * s));
+    }
+
+    // Choose a free buffer: prefer processed, else take a never-queued one while priming.
+    ALint processed = 0, queued = 0;
+    alGetSourcei(m_src, AL_BUFFERS_PROCESSED, &processed);
+    AL_CHECK_ERR(Utils::Signal::Error);
+    alGetSourcei(m_src, AL_BUFFERS_QUEUED, &queued);
+    AL_CHECK_ERR(Utils::Signal::Error);
+
+    ALuint buf = 0;
+    if (processed > 0)
+    {
+        // Unqueue a finished buffer and reuse it.
+        alSourceUnqueueBuffers(m_src, 1, &buf);
+        AL_CHECK_ERR(Utils::Signal::Error);
+    }
+    else if (queued < kNumBuffers)
+    {
+        // Prime: use the next never-queued buffer by index.
+        buf = s_buffers[queued];
+    }
+    else
+    {
+        // All buffers are in-flight; drop this chunk silently.
+        return Utils::Signal::Success;
+    }
+
+    // (Re)fill chosen buffer and queue it back.
+    alBufferData(
+        buf, AL_FORMAT_MONO16, m_samples, static_cast<ALsizei>(frames * sizeof(short)), kRate
+    );
+    AL_CHECK_ERR(Utils::Signal::Error);
+
+    alSourceQueueBuffers(m_src, 1, &buf);
     AL_CHECK_ERR(Utils::Signal::Error);
 
     return Utils::Signal::Success;
 }
 
+// Ensure playback is running; does not touch buffer bindings.
 Utils::Signal SoundEngine::play()
 {
-    alSourcei(m_src, AL_BUFFER, m_buf);
+    ALint state = AL_STOPPED;
+    alGetSourcei(m_src, AL_SOURCE_STATE, &state);
     AL_CHECK_ERR(Utils::Signal::Error);
 
-    constexpr float gain = 0.1f;
-
-    alSourcef(m_src, AL_GAIN, gain);
-    AL_CHECK_ERR(Utils::Signal::Error);
-
-    alSourcePlay(m_src);
-    AL_CHECK_ERR(Utils::Signal::Error);
+    if (state != AL_PLAYING)
+    {
+        alSourcePlay(m_src);
+        AL_CHECK_ERR(Utils::Signal::Error);
+    }
 
     return Utils::Signal::Success;
 }
 
 SoundEngine::~SoundEngine() noexcept
 {
+    // Ensure we still have a valid context before issuing al* calls.
     ALCcontext* ctx = alcGetCurrentContext();
-    ALCdevice*  dev = alcGetContextsDevice(ctx);
+    ALCdevice*  dev = ctx ? alcGetContextsDevice(ctx) : nullptr;
 
-    LOGINFO("Deleting current OpenAL context");
-    if (ctx) { alcDestroyContext(ctx); }
-    alcMakeContextCurrent(nullptr);
+    if (ctx) { alcMakeContextCurrent(ctx); }
 
-    LOGINFO("Closing OpenAL device");
+    if (m_src)
+    {
+        // Stop and fully drain the queue so buffers can be deleted safely.
+        alSourceStop(m_src);
+        ALint queued = 0;
+        alGetSourcei(m_src, AL_BUFFERS_QUEUED, &queued);
+        while (queued > 0)
+        {
+            ALuint tmp = 0;
+            alSourceUnqueueBuffers(m_src, 1, &tmp);
+            alGetSourcei(m_src, AL_BUFFERS_QUEUED, &queued);
+        }
+        alDeleteSources(1, &m_src);
+        m_src = 0;
+    }
+
+    if (s_bufsMade)
+    {
+        alDeleteBuffers(kNumBuffers, s_buffers);
+        for (int i = 0; i < kNumBuffers; ++i) { s_buffers[i] = 0; }
+        s_bufsMade = false;
+    }
+
+    if (m_samples)
+    {
+        delete[] m_samples;  // array allocation above
+        m_samples = nullptr;
+    }
+
+    if (ctx)
+    {
+        alcMakeContextCurrent(nullptr);
+        alcDestroyContext(ctx);
+    }
+
     if (dev) { alcCloseDevice(dev); }
-
-    if (m_samples != nullptr) { delete m_samples; }
 }
 
 ALenum SoundEngine::alGetLastError() const noexcept { return m_err; }

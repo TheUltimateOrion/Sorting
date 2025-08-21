@@ -17,15 +17,9 @@ namespace Sort
 
     void  BaseSort::generateArray(std::size_t t_size)
     {
-        if (t_size != elems.size())
-        {
-            elems.resize(t_size);
-        }
+        if (t_size != elems.size()) { elems.resize(t_size); }
 
-        for (std::size_t i = 0; i < t_size; ++i)
-        {
-            elems[i] = static_cast<elem_t>(i + 1);
-        }
+        for (std::size_t i = 0; i < t_size; ++i) { elems[i] = static_cast<elem_t>(i + 1); }
     }
 
     BaseSort::BaseSort()
@@ -45,12 +39,12 @@ namespace Sort
 
         if (t_isReversed)
         {
-            LOGINFO("Reversing");
+            LOG_INFO("Reversing");
             std::reverse(auxillary.begin(), auxillary.end());
         }
         else
         {
-            LOGINFO("Shuffling");
+            LOG_INFO("Shuffling");
             std::shuffle(auxillary.begin(), auxillary.end(), std::random_device {});
         }
 
@@ -65,7 +59,7 @@ namespace Sort
             RETURN_IF_STOPPED();
         }
 
-        LOGINFO("Shuffling Done");
+        LOG_INFO("Shuffling Done");
 
         m_flags.setFlags(FlagGroup::DoneShuffling);
         std::this_thread::sleep_for(500ms);
@@ -80,7 +74,7 @@ namespace Sort
         realTimer.end();
         timer.end();
 
-        LOGINFO("Checking");
+        LOG_INFO("Checking");
 
         for (std::size_t i = 0; i < auxillary.size(); ++i)
         {
@@ -93,7 +87,7 @@ namespace Sort
             RETURN_IF_STOPPED();
         }
 
-        LOGINFO("Check completed");
+        LOG_INFO("Check completed");
 
         m_flags.setFlags(FlagGroup::DoneChecking);
     }
@@ -110,7 +104,7 @@ namespace Sort
 
     void BaseSort::setLength(std::size_t len)
     {
-        LOGINFO("Resizing to " << len);
+        LOG_INFO("Resizing to " << len);
         generateArray(len);
     }
 

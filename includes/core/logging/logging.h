@@ -2,12 +2,46 @@
 
 #include "core/timer.h"
 
-#include <iostream>
-#include <thread>
+#include <sstream>
+#include <string>
 
-#define LOGINFO(str)                                                        \
-    std::cout << "[INFO][Thread ID: " << std::this_thread::get_id() << "][" \
-              << Core::Timer::GetTimestamp() << "s]: " << str << std::endl;
-#define LOGERR(str)                                                          \
-    std::cerr << "[ERROR][Thread ID: " << std::this_thread::get_id() << "][" \
-              << Core::Timer::GetTimestamp() << "s]: " << str << std::endl;
+namespace Core
+{
+
+    enum class LogLevel
+    {
+        Info,
+        Warn,
+        Error,
+    };
+
+    namespace Logger
+    {
+        void Log(LogLevel level, std::string const& message);
+    }
+
+}  // namespace Core
+
+#define LOG_INFO(msg)                                        \
+    do {                                                     \
+        std::ostringstream _oss;                             \
+        _oss << msg;                                         \
+        Core::Logger::Log(Core::LogLevel::Info, _oss.str()); \
+    }                                                        \
+    while (0)
+
+#define LOG_WARN(msg)                                        \
+    do {                                                     \
+        std::ostringstream _oss;                             \
+        _oss << msg;                                         \
+        Core::Logger::Log(Core::LogLevel::Warn, _oss.str()); \
+    }                                                        \
+    while (0)
+
+#define LOG_ERROR(msg)                                        \
+    do {                                                      \
+        std::ostringstream _oss;                              \
+        _oss << msg;                                          \
+        Core::Logger::Log(Core::LogLevel::Error, _oss.str()); \
+    }                                                         \
+    while (0)

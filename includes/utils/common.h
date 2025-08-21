@@ -4,6 +4,8 @@
 #include <string>
 #include <thread>
 
+#define ANDROID_API
+
 namespace Utils
 {
     enum Signal

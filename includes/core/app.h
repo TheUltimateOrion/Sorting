@@ -36,6 +36,8 @@ namespace Core
         Core::SortRegistry                  m_sortRegistry {nullptr};
         SDL_Event                           m_event {};
 
+        bool                                m_imguiInitialized {false};
+
         std::optional<std::thread>          m_audioThread {};
         std::optional<std::thread>          m_sortThread {};
 
@@ -43,11 +45,13 @@ namespace Core
         void                                createSortThread();
         void                                setImGuiStyle() const noexcept;
 
-        [[nodiscard]] Utils::Signal         initSDL();
-        [[nodiscard]] Utils::Signal         initImGui();
-        [[nodiscard]] Utils::Signal         initAudio();
-        [[nodiscard]] Utils::Signal         initFont();
-        [[nodiscard]] Utils::Signal         handleSortRequests();
+        void                        handleAppEvents(void* t_userdata, SDL_Event* t_event) noexcept;
+
+        [[nodiscard]] Utils::Signal initSDL();
+        [[nodiscard]] Utils::Signal initImGui();
+        [[nodiscard]] Utils::Signal initAudio();
+        [[nodiscard]] Utils::Signal initFont();
+        [[nodiscard]] Utils::Signal handleSortRequests();
 
     public:
         App() noexcept = default;
@@ -62,7 +66,7 @@ namespace Core
 
         inline std::shared_ptr<Sort::BaseSort> const& getSorter() const { return m_sorter; }
 
-        inline void                                   setSorter(std::shared_ptr<Sort::BaseSort> t_sorter) { m_sorter = t_sorter; }
+        inline void setSorter(std::shared_ptr<Sort::BaseSort> t_sorter) { m_sorter = t_sorter; }
     };
 }  // namespace Core
 #endif

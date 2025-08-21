@@ -84,10 +84,7 @@ namespace Sort
 
     void MergeSort::mergeSort(std::size_t t_begin, std::size_t t_end)
     {
-        if (t_begin >= t_end)
-        {
-            return;
-        }
+        if (t_begin >= t_end) { return; }
 
         std::size_t t_mid = t_begin + (t_end - t_begin) / 2;
 

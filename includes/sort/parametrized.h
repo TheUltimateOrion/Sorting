@@ -18,8 +18,7 @@ namespace Sort
     template <typename T>
     concept arithmetic = std::integral<T> || std::floating_point<T>;
 
-    template <typename T>
-    requires arithmetic<T>
+    template <typename T> requires arithmetic<T>
     struct Parameter
     {
         using Type = T;
@@ -30,8 +29,7 @@ namespace Sort
         T           maxVal {0};
     };
 
-    template <typename T>
-    requires arithmetic<T>
+    template <typename T> requires arithmetic<T>
     class Parameterized : public IParameterized
     {
     private:
@@ -40,15 +38,16 @@ namespace Sort
     public:
         using ElemType = T;
 
-        Parameterized(std::string const& label, T minVal, T maxVal) noexcept : m_param {label, 0, minVal, maxVal} { }
+        Parameterized(std::string const& label, T minVal, T maxVal) noexcept
+            : m_param {label, 0, minVal, maxVal}
+        { }
 
         virtual ~Parameterized() noexcept = default;
 
         std::pair<std::int64_t, std::int64_t> getParameterBounds() const override
         {
             return {
-                static_cast<std::int64_t>(m_param.minVal),
-                static_cast<std::int64_t>(m_param.maxVal)
+                static_cast<std::int64_t>(m_param.minVal), static_cast<std::int64_t>(m_param.maxVal)
             };
         }
 

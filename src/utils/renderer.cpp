@@ -2,7 +2,12 @@
 
 namespace Utils
 {
-    SDL_Color hsvToRgb(unsigned char t_hue, unsigned char t_saturation, unsigned char t_value) noexcept
+
+    SDL_Color hsvToRgb(
+        unsigned char t_hue,
+        unsigned char t_saturation,
+        unsigned char t_value
+    ) noexcept
     {
         unsigned char region, remainder, p, q, t;
         SDL_Color     rgb;

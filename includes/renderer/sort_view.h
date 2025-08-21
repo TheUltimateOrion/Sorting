@@ -22,7 +22,7 @@ namespace Renderer
         Sort::SortArray<int>     m_elems {};
         UIState&                 m_uiState;
 
-        void                     drawElement(std::size_t t_index, RenderParams const& t_params) noexcept;
+        void drawElement(std::size_t t_index, RenderParams const& t_params) noexcept;
 
     public:
         SortView(std::shared_ptr<Core::App> t_app, UIState& t_state) noexcept;
