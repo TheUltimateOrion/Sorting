@@ -72,6 +72,7 @@ jobs:
       if: ${{ contains( matrix.platform.name, 'android') }}
       with:
           gradle-version: wrapper
+          validate-wrappers: false
 
       
     - name: Cache Build Folder
