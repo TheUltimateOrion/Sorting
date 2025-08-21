@@ -107,7 +107,10 @@ jobs:
     - name: Android build
       if: ${{ contains( matrix.platform.name, 'android') }}
       working-directory: ${{ github.workspace }}/android
-      run: gradlew --no-daemon --parallel --build-cache --configuration-cache build
+      run: |
+        git config core.symlinks true
+        git reset --hard HEAD
+        gradlew --no-daemon --parallel --build-cache --configuration-cache build
     
     - name: Test
       if: ${{ !contains( matrix.platform.name, 'android') }}
