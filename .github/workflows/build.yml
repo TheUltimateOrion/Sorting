@@ -29,7 +29,7 @@ jobs:
         - { name: build-win,   os: windows-latest, shell: 'msys2 {0}'}
         - { name: build-linux, os: ubuntu-latest,  shell: sh }
         - { name: build-mac,   os: macos-latest,   shell: sh }
-        - { name: build-android,   os: windows-latest, shell: 'cmd'}
+        - { name: build-android,   os: ubuntu-latest, shell: 'sh'}
     
     steps:
     - uses: actions/checkout@v4
@@ -42,6 +42,7 @@ jobs:
       with:
         msystem: UCRT64
         update: true
+        cache: true
         install: >-
           git
         pacboy: >-
@@ -56,33 +57,15 @@ jobs:
       with:
         xcode-version: latest-stable
     
-    - name: Update Linux packages
-      if: ${{ contains( matrix.platform.name, 'linux') }}
-      run: sudo apt-get update
-      
-    - name: Install Linux Prerequisites
-      if: ${{ contains( matrix.platform.name, 'linux') }}
-      run: > 
-        sudo apt-get install build-essential git make
-        pkg-config cmake ninja-build gnome-desktop-testing libasound2-dev libpulse-dev
-        libaudio-dev libjack-dev libsndio-dev libx11-dev libxext-dev libopenal-dev
-        libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxss-dev
-        libxkbcommon-dev libdrm-dev libgbm-dev libgl1-mesa-dev libgles2-mesa-dev
-        libegl1-mesa-dev libdbus-1-dev libibus-1.0-dev libudev-dev fcitx-libs-dev
-    
     - uses: actions/setup-java@v4
       if: ${{ contains( matrix.platform.name, 'android') }}
       with:
-        distribution: 'jetbrains' # See 'Supported distributions' for available options
+        distribution: 'temurin' # See 'Supported distributions' for available options
         java-version: '21'
         cache: 'gradle'
 
-    - name: Verify Ninja
-      if: ${{ !contains( matrix.platform.name, 'android') }}
-      run: |
-        which ninja
-        ninja --version
-    
+    - uses: gradle/actions/setup-gradle@v4
+      
     - name: Cache Build Folder
       if: ${{ !contains( matrix.platform.name, 'android') }}
       id: cache-build-folder
@@ -104,14 +87,14 @@ jobs:
         -B '${{ github.workspace }}/build'
         -G Ninja
 
-    - name: Build
+    - name: Desktop build
       if: ${{ !contains( matrix.platform.name, 'android') }}
       run: cmake --build '${{ github.workspace }}/build' --config Release
 
-    - name: Android Build
+    - name: Android build
       if: ${{ contains( matrix.platform.name, 'android') }}
       working-directory: ${{ github.workspace }}/android
-      run: gradlew build
+      run: gradlew --no-daemon --parallel --build-cache --configuration-cache build
     
     - name: Test
       if: ${{ !contains( matrix.platform.name, 'android') }}
