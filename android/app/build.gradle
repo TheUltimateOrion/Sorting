@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
      id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
@@ -57,8 +59,16 @@ android {
     lint {
         abortOnError = false
     }
-    kotlinOptions {
-        jvmTarget = '1.8'
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_22 // lines of interest
+        targetCompatibility = JavaVersion.VERSION_22 // lines of interest
+    }
+
+    kotlin {
+        compilerOptions {
+            jvmTarget = JvmTarget.JVM_22
+        }
     }
 }
 
