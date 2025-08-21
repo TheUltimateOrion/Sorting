@@ -26,10 +26,10 @@ jobs:
       fail-fast: false
       matrix:
         platform:
-        - { name: build-win,   os: windows-latest, shell: 'msys2 {0}'}
-        - { name: build-linux, os: ubuntu-latest,  shell: sh }
-        - { name: build-mac,   os: macos-latest,   shell: sh }
-        - { name: build-android,   os: ubuntu-latest, shell: 'sh'}
+        - { name: build-win,       os: windows-latest, shell: 'msys2 {0}'}
+        - { name: build-linux,     os: ubuntu-latest,  shell: sh }
+        - { name: build-mac,       os: macos-latest,   shell: sh }
+        - { name: build-android,   os: windows-latest, shell: cmd }
     
     steps:
     - uses: actions/checkout@v4
@@ -70,8 +70,7 @@ jobs:
       if: ${{ contains( matrix.platform.name, 'android') }}
       with:
         distribution: 'temurin' # See 'Supported distributions' for available options
-        java-version: '21'
-        cache: 'gradle'
+        java-version: '22'
 
     - uses: gradle/actions/setup-gradle@v4
       if: ${{ contains( matrix.platform.name, 'android') }}
@@ -108,7 +107,7 @@ jobs:
     - name: Android build
       if: ${{ contains( matrix.platform.name, 'android') }}
       working-directory: ${{ github.workspace }}/android
-      run: ./gradlew --no-daemon --parallel --build-cache --configuration-cache build
+      run: gradlew --no-daemon --parallel --build-cache --configuration-cache build
     
     - name: Test
       if: ${{ !contains( matrix.platform.name, 'android') }}
