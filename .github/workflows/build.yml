@@ -65,6 +65,10 @@ jobs:
         cache: 'gradle'
 
     - uses: gradle/actions/setup-gradle@v4
+      if: ${{ contains( matrix.platform.name, 'android') }}
+      with:
+          gradle-version: wrapper
+          
       
     - name: Cache Build Folder
       if: ${{ !contains( matrix.platform.name, 'android') }}
