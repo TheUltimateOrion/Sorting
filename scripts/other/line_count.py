@@ -5,9 +5,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
-WANT_EXTENSIONS: tuple[str, ...] = (".h", ".hpp", ".c", ".cpp", ".gradle", ".kt")
-WANT_DIRECTORIES: tuple[str, ...] = ("src", "includes", "android")
-COLUMN_WIDTH = 30
+WANT_EXTENSIONS: tuple[str, ...] = (".h", ".hpp", ".c", ".cpp", ".gradle", ".kt", ".txt")
+EXCLUDE_DIRECTORIES: tuple[str, ...] = ("external", "build")
+COLUMN_WIDTH = 40
 
 files_read: int = 0
 
@@ -57,7 +57,8 @@ def traverse_directory(dir_path: Path) -> int:
             name = entry.name
             if name.startswith("."):
                 continue
-            total += traverse_directory(entry)
+            if entry.name not in EXCLUDE_DIRECTORIES:
+                total += traverse_directory(entry)
     
     return total
 
@@ -66,8 +67,7 @@ def find_line_count() -> None:
 
     start: Path = Path.cwd().resolve()
 
-    for subdirectory in WANT_DIRECTORIES:
-        total_count += traverse_directory(start/subdirectory)
+    total_count += traverse_directory(start)
     
     print('╠' , '═' * (COLUMN_WIDTH + 2), '╣', sep='')
     print(f"║ Total: {total_count:>{COLUMN_WIDTH - 7}} ║")
