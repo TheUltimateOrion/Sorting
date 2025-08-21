@@ -109,7 +109,7 @@ jobs:
       working-directory: ${{ github.workspace }}/android
       run: |
         chmod +x ./gradlew
-        ./gradlew --no-daemon --parallel --build-cache --configuration-cache assembleRelease
+        ./gradlew --no-daemon --parallel --build-cache --configuration-cache build
     
     - name: Test
       if: ${{ !contains( matrix.platform.name, 'android') }}
