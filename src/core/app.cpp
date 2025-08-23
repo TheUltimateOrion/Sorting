@@ -267,30 +267,21 @@ namespace Core
 
                     if (m_sorter->getFlags().hasQuit) { break; }
 
-                    constexpr float sec  = 0.04f;
-                    constexpr float base = 100.f;
-                    constexpr float min  = 100.f;
-                    constexpr float max  = 800.f;
-
-                    float           freq = 0.f;
-
                     if (m_sorter->elems.empty() || m_sorter->getFirst() >= m_sorter->elems.size())
                     {
                         std::this_thread::sleep_for(100ms);
                         continue;
                     }
 
-                    freq = std::clamp<float>(
-                        m_sorter->elems[m_sorter->getFirst()]
-                                * (m_ctx->winHeight / static_cast<float>(m_sorter->elems.size()))
-                            + base,
-                        min, max
-                    );
+                    size_t index = m_sorter->getFirst();
+
+                    float  freq  = m_sorter->elems[index]
+                               * (m_ctx->winHeight / static_cast<float>(m_sorter->elems.size()));
 
                     if (m_sorter->getFlags().isSorting || m_sorter->getFlags().isShuffling
                         || m_sorter->getFlags().isChecking)
                     {
-                        if (m_soundEngine->load(sec, freq) == Utils::Signal::Error)
+                        if (m_soundEngine->load(freq) == Utils::Signal::Error)
                         {
                             LOG_ERROR("Could not load audio buffer");
                             if (m_soundEngine->alGetLastError() != AL_NO_ERROR)
@@ -320,7 +311,7 @@ namespace Core
                     }
 
                     std::this_thread::sleep_for(
-                        std::chrono::milliseconds(static_cast<int>(sec * 1000))
+                        std::chrono::milliseconds(static_cast<int>(0.04 * 1000))
                     );
                 }
             }

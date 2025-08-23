@@ -32,7 +32,7 @@ public:
 
     [[nodiscard]] Utils::Signal init();
 
-    [[nodiscard]] Utils::Signal load(float t_ms, float t_freq);
+    [[nodiscard]] Utils::Signal load(float t_freq);
 
     [[nodiscard]] Utils::Signal play();
 };

@@ -3,6 +3,7 @@
 #include "core/logging/logging.h"
 
 #include <atomic>
+#include <format>
 #include <initializer_list>
 #include <mutex>
 #include <vector>
@@ -20,6 +21,8 @@ namespace Sort
         mutable std::atomic<std::uint64_t> m_swapCount {0};
         mutable std::atomic<std::uint64_t> m_compCount {0};
         mutable std::mutex                 m_mutex;
+
+        friend class BaseSort;
 
     public:
         using value_type = T;
@@ -151,3 +154,19 @@ namespace Sort
         }
     };
 }  // namespace Sort
+
+template <typename T> struct std::formatter<Sort::SortArray<T>> : std::formatter<std::string>
+{
+    auto format(Sort::SortArray<T> const& a, format_context& ctx) const
+    {
+        std::string                             buf {"{ "};
+        typename std::vector<T>::const_iterator it;
+        for (it = a.begin(); it != a.end(); ++it)
+        {
+            buf += std::to_string(*it);
+            if (it != a.end() - 1) { buf += ", "; }
+        }
+        buf += " }";
+        return std::formatter<std::string>::format(buf, ctx);
+    }
+};

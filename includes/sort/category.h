@@ -8,7 +8,7 @@ namespace Sort
         Distribution,
         Insertion,
         Merge,
-        Select,
+        Selection,
         Unknown
     };
 }  // namespace Sort

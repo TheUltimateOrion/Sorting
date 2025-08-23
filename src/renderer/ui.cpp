@@ -284,6 +284,13 @@ namespace Renderer
     ImGui::TableNextColumn();                                      \
     ImGui::TextUnformatted(std::format("{}", uiObj.data).c_str());
 
+#define IMGUI_DEBUG_SORT(sortPtr, data)                                 \
+    ImGui::TableNextRow();                                              \
+    ImGui::TableNextColumn();                                           \
+    ImGui::Text(#data);                                                 \
+    ImGui::TableNextColumn();                                           \
+    ImGui::TextUnformatted(std::format("{}", (*sortPtr).data).c_str());
+
         ImGui::Text(
             "Application average %.3f ms/frame (%.1f FPS)",
             1000.0f / Core::Platform::Display::getFramerate(),
@@ -296,7 +303,27 @@ namespace Renderer
 
         if (auto appShared = m_app.lock())
         {
+            ImGui::Text(std::format("{}", appShared->getSorter()->elems).c_str());
+
             Sort::Flags& flags = appShared->getSorter()->getFlags();
+            if (ImGui::CollapsingHeader("Sorting Data"))
+            {
+                if (ImGui::BeginTable(
+                        "debug_sort", 2,
+                        ImGuiTableFlags_SizingStretchProp | ImGuiTableFlags_RowBg
+                            | ImGuiTableFlags_BordersInnerV
+                    ))
+                {
+                    IMGUI_DEBUG_SORT(appShared->getSorter(), getFirst());
+                    IMGUI_DEBUG_SORT(appShared->getSorter(), getSecond());
+                    ImGui::EndTable();
+                }
+            }
+
+            ImGui::Spacing();
+            ImGui::Separator();
+            ImGui::Spacing();
+
             if (ImGui::CollapsingHeader("Sorting Flags"))
             {
                 if (ImGui::BeginTable(

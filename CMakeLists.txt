@@ -166,11 +166,11 @@ if(WIN32)
   # Install root (displayed in NSIS)
   set(CPACK_PACKAGE_INSTALL_DIRECTORY "${PROJECT_NAME}")
 
-  # Desktop/start menu links (targets must exist after install())
-  set(CPACK_CREATE_DESKTOP_LINKS "${PROJECT_NAME}")
   set(CPACK_NSIS_MENU_LINKS
     ${REPO} "Project Homepage"
   )
+
+  set(CPACK_NSIS_EXECUTABLES_DIRECTORY .)
 
   # NSIS tweaks
   set(CPACK_NSIS_ENABLE_UNINSTALL_BEFORE_INSTALL ON)

@@ -84,7 +84,7 @@ This project is licensed under the terms of the GNU GPLv3. See the [LICENSE](LIC
 - [x] Shorten GCC compile times (Linux & Windows) by atleast 25%
 - [ ] At least 25 sorting algorithms
 - [x] Better audio output - more satisfying
-- [ ] Fully high DPI compliant
+- [x] Fully high DPI compliant
 - [x] Android Port
 - [ ] Emscripten Webassembly Port (Optional)
 - [ ] OpenGL Backend (Optional)

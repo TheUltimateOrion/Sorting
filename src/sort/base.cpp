@@ -53,7 +53,7 @@ namespace Sort
             elems[i] = auxillary[i];
 
             m_first  = i;
-            m_second = m_first.load();
+            m_second = i;
 
             Core::Timer::Sleep(1000.0 / static_cast<double>(elems.size()));
             RETURN_IF_STOPPED();
@@ -81,7 +81,7 @@ namespace Sort
             if (auxillary[i] != static_cast<elem_t>(i + 1)) { break; }
 
             m_first  = i;
-            m_second = m_first.load();
+            m_second = i;
 
             Core::Timer::Sleep(500.0 / static_cast<double>(auxillary.size()));
             RETURN_IF_STOPPED();

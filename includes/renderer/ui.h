@@ -22,7 +22,7 @@ namespace Renderer
         UIState                    m_uiState {};
 
         std::array<char const*, 5> m_sortCategories {
-            "Exchange", "Distribution", "Insertion", "Merge", "Select"
+            "Exchange", "Distribution", "Insertion", "Merge", "Selection"
         };
         std::array<char const*, 8> m_sortDisplayTypes {"Bar",    "Dot",        "Rainbow Rectangle",
                                                        "Circle", "Circle Dot", "Disparity Circle",

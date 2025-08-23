@@ -22,7 +22,7 @@ namespace Sort
             if (elems[i] > max) { max = elems[i]; }
 
             m_first  = i;
-            m_second = m_first.load();
+            m_second = i;
 
             Core::Timer::Sleep(1.f / BaseSort::s_speed, realTimer);
 

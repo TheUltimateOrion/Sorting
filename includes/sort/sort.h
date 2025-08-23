@@ -5,6 +5,7 @@
 #include "sort/distribution/pigeon_hole.h"
 #include "sort/distribution/radix_lsd.h"
 #include "sort/exchange/bubble.h"
+#include "sort/exchange/cocktail_shaker.h"
 #include "sort/exchange/comb.h"
 #include "sort/exchange/quick.h"
 #include "sort/insertion/insertion.h"

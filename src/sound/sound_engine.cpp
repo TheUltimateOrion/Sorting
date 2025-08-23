@@ -81,7 +81,7 @@ Utils::Signal SoundEngine::init()
 }
 
 // Stream one chunk into the queue. Safe to call every tick.
-Utils::Signal SoundEngine::load(float t_seconds, float t_freq)
+Utils::Signal SoundEngine::load(float t_freq)
 {
     if (!s_bufsMade)
     {
@@ -90,8 +90,7 @@ Utils::Signal SoundEngine::load(float t_seconds, float t_freq)
         s_bufsMade = true;
     }
 
-    // Determine a sane chunk size to keep latency low and CPU reasonable.
-    float const       seconds = std::clamp(t_seconds, 0.01f, 0.25f);  // 10–250 ms per chunk
+    float const       seconds = 0.04f;
     std::size_t const frames  = static_cast<std::size_t>(seconds * kRate);
 
     // Reuse sample workspace.

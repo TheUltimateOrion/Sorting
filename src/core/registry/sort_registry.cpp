@@ -55,12 +55,16 @@ namespace Core
             []() { return std::make_shared<Sort::BubbleSort>(); }
         );
         registerSort(
-            "quick", Sort::Category::Exchange, "Quick Sort",
-            []() { return std::make_shared<Sort::QuickSort>(); }
+            "cocktail_shaker", Sort::Category::Exchange, "Cocktail Shaker Sort",
+            []() { return std::make_shared<Sort::CocktailShakerSort>(); }
         );
         registerSort(
             "comb", Sort::Category::Exchange, "Comb Sort",
             []() { return std::make_shared<Sort::CombSort>(); }
+        );
+        registerSort(
+            "quick", Sort::Category::Exchange, "Quick Sort",
+            []() { return std::make_shared<Sort::QuickSort>(); }
         );
 
         registerSort(
@@ -91,7 +95,7 @@ namespace Core
         );
 
         registerSort(
-            "selection", Sort::Category::Select, "Selection Sort",
+            "selection", Sort::Category::Selection, "Selection Sort",
             []() { return std::make_shared<Sort::SelectionSort>(); }
         );
     }

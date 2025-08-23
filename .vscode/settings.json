@@ -142,7 +142,8 @@
         "cfenv": "cpp",
         "cstdbool": "cpp",
         "version": "cpp",
-        "*.rh": "cpp"
+        "*.rh": "cpp",
+        "shared_mutex": "cpp"
     },
     "java.configuration.updateBuildConfiguration": "disabled"
 }
